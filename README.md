@@ -1,0 +1,2 @@
+# KappaCupWinter_CHARGE-ADVENTURE
+2つのステージをクリアしてボスを倒してゲームクリアを目指すゲーム
