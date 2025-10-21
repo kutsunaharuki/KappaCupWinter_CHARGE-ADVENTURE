@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="system">
+      <UniqueIdentifier>{22dd8095-74f9-46df-81a1-36675a040b1f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="system\system.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="GameCamera.cpp" />
+    <ClCompile Include="Warp.cpp" />
+    <ClCompile Include="MovingFloor.cpp" />
+    <ClCompile Include="WarpHole.cpp" />
+    <ClCompile Include="SkyGround.cpp" />
+    <ClCompile Include="Stage1.cpp" />
+    <ClCompile Include="Enemy1.cpp" />
+    <ClCompile Include="Enemy2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="system\system.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="GameCamera.h" />
+    <ClInclude Include="Warp.h" />
+    <ClInclude Include="MovingFloor.h" />
+    <ClInclude Include="WarpHole.h" />
+    <ClInclude Include="SkyGround.h" />
+    <ClInclude Include="Stage1.h" />
+    <ClInclude Include="Enemy1.h" />
+    <ClInclude Include="Enemy2.h" />
+  </ItemGroup>
+</Project>
