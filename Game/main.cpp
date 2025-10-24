@@ -3,7 +3,7 @@
 
 #include<InitGUID.h>
 #include<dxgidebug.h>
-
+#include <time.h>
 #include "Game.h"
 
 
@@ -33,8 +33,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	// ここから初期化を行うコードを記述する。
 	//////////////////////////////////////
 
+	//正確なランダムを確立
+	srand(time(nullptr));
+
 	//Gameクラスのオブジェクトを作成。
 	NewGO<Game>(0, "game");
+
+
 
 	//////////////////////////////////////
 	// 初期化を行うコードを書くのはここまで！！！

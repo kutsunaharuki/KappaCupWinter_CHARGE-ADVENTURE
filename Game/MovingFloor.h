@@ -12,7 +12,7 @@ public:
 	void Render(RenderContext& rc);
 
 	Vector3 m_movingPosition = Vector3::Zero;
-	Vector3 m_firstPosition = Vector3::Zero;
+	Vector3 m_firstPosition  = Vector3::Zero;
 	Vector3 m_setPos = Vector3(300.0f, 600.0f, 0.0f);
 private:
 	void Move();

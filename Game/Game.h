@@ -9,8 +9,7 @@ class MovingFloor;
 class WarpHole;
 class SkyGround;
 class Stage1;
-class Enemy1;
-class Enemy2;
+class Enemy;
 
 class Game : public IGameObject
 {
@@ -33,7 +32,6 @@ private:
 	WarpHole   * m_warpHole    = nullptr;//ワープボックス。
 	SkyGround  * m_skyGround   = nullptr;//浮遊足場。
 	Stage1     * m_stage1      = nullptr;//ステージ1。
-	Enemy1     * m_enemy1      = nullptr;//敵1。
-	Enemy2     * m_enemy2      = nullptr;//敵2。
+	Enemy      * m_enemy       = nullptr;//敵。
 };
 

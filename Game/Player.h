@@ -1,8 +1,10 @@
 #pragma once
+#include "physics/PhysicsGhostObject.h"
 
 class Warp;
 class MovingFloor;
 class SkyGround;
+class Enemy;
 class Player:public IGameObject
 {
 public:
@@ -15,6 +17,21 @@ public:
 	void PlayAnimation();
 	void ManageState();
     void Render(RenderContext& rc);
+
+	bool CanHit();
+
+	void Damage()
+	{
+		hp -= damage;
+		if (hp < 0)
+		{
+			hp = 0;
+		}
+	}
+
+	int hp     = 20;
+	int maxHp  = 20;
+	int damage = 10;
 
 	const Vector3& GetPosition() const
 	{
@@ -62,11 +79,10 @@ public:
 	bool canJump    = false;                            //ジャンプしてるかのフラグ。
 
 private:
-	Warp* m_warp = nullptr;
-
+	Warp* m_warp   = nullptr;
+	Enemy* m_enemy = nullptr;
 	int playerState    = 0;
 
-	bool CanWarp();
 	//bool canJump = true;                               //切り替え。
 	MovingFloor* m_movingFloor = nullptr;
 	SkyGround* m_skyGround = nullptr;

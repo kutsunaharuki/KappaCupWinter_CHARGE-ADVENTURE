@@ -223,8 +223,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Enemy1.cpp" />
-    <ClCompile Include="Enemy2.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="main.cpp" />
@@ -242,8 +241,7 @@
     <ClCompile Include="WarpHole.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Enemy1.h" />
-    <ClInclude Include="Enemy2.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="MovingFloor.h" />

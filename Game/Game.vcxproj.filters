@@ -19,8 +19,7 @@
     <ClCompile Include="WarpHole.cpp" />
     <ClCompile Include="SkyGround.cpp" />
     <ClCompile Include="Stage1.cpp" />
-    <ClCompile Include="Enemy1.cpp" />
-    <ClCompile Include="Enemy2.cpp" />
+    <ClCompile Include="Enemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -35,7 +34,6 @@
     <ClInclude Include="WarpHole.h" />
     <ClInclude Include="SkyGround.h" />
     <ClInclude Include="Stage1.h" />
-    <ClInclude Include="Enemy1.h" />
-    <ClInclude Include="Enemy2.h" />
+    <ClInclude Include="Enemy.h" />
   </ItemGroup>
 </Project>

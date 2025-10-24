@@ -5,6 +5,7 @@ public:
 	Stage1() {};
 	~Stage1() {};
 	bool Start()override;
+	void Render(RenderContext& rc);
 
 	ModelRender m_stage1Render;
 	PhysicsStaticObject m_physicsStaticObj;
