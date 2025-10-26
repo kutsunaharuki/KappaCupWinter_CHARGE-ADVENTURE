@@ -3,6 +3,7 @@
 #include "Warp.h"//ゴーストオブジェクト。
 #include "MovingFloor.h"
 #include "SkyGround.h"
+#include "Enemy.h"
 
 namespace
 {
@@ -33,13 +34,19 @@ bool Player::Start()
 		animationClips[i].Load(ANIM_PATH[i]);
 		if (i != enAnimationClip_Jump) {
 			animationClips[i].SetLoopFlag(true);
+			//continueはスキップする機能がある。
 			continue;
 		}
 		animationClips[i].SetLoopFlag(false);
 	}
 
 	//ユニティちゃんの読み込み。
-	m_modelRender.Init(PLAYER_1, animationClips, enAnimationClip_Num, enModelUpAxisY);
+	m_modelRender.Init(
+		PLAYER_1,
+		animationClips,
+		enAnimationClip_Num, 
+		enModelUpAxisY
+	);
 
 	//キャラコンの初期化。
 	m_charaCon.Init(25.0f, 75.0f, m_position);
@@ -47,6 +54,7 @@ bool Player::Start()
 	m_skyGround = FindGO<SkyGround>("skyGround");
 
 	m_warp = FindGO<Warp>("warp");
+	m_enemy = FindGO<Enemy>("enemy");
 	return true;
 }
 
@@ -64,13 +72,17 @@ Player::~Player()
 
 void Player::Update()
 {
+	if (CanHit()) {
+		Damage();
+	}
+
 	//ワープしたら指定した座標に飛ぶ。
-	if (CanWarp())
+	/*if (CanWarp())
 	{
 		m_modelRender.SetPosition(m_setPos);
 		isHit = false;
 		m_modelRender.Update();
-	}
+	}*/
 
 	//関数呼び出し。
 	Move();
@@ -241,18 +253,26 @@ void Player::Render(RenderContext& rc)
 	m_posFontRender.Draw(rc);
 }
 
-bool Player::CanWarp() {
+bool Player::CanHit() {
 	//キャラクターとゴーストオブジェクトのあたり判定を行う。
 	//CanWarpの関数を参照([&])してコピーして値を変更できる。
 	//[=]外部をコピーするもの。メモリが増える。
 	PhysicsWorld::GetInstance()->ContactTest(m_charaCon,
 		[&](const btCollisionObject& contactObject) {
-			if (m_warp->m_physicsGhostObj.IsSelf(contactObject) == true)
+			if (m_enemy->m_physicsGhostObj.IsSelf(contactObject) == true)
 			{
 				//m_physicsGhostObjectとぶつかったら
 				//フラグをtrueにする。
 				isHit = true;
 			}
+
+			//if (m_warp->m_physicsGhostObj.IsSelf(contactObject) == true)
+			//{
+			//	//m_physicsGhostObjectとぶつかったら
+			//	//フラグをtrueにする。
+			//	isHit = true;
+			//}
 		});
 	return isHit;
 }
+

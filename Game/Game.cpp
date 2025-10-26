@@ -7,8 +7,7 @@
 #include "WarpHole.h"//ワープボックス(モデル)。
 #include "SkyGround.h"
 #include "Stage1.h"
-#include "Enemy1.h"
-#include "Enemy2.h"
+#include "Enemy.h"
 
 Game::~Game()
 {
@@ -18,10 +17,11 @@ Game::~Game()
 	DeleteGO(m_warpHole);
 	DeleteGO(m_movingFloor);
 
-	for (auto m_stage1 : m_stage1s)
+	//レベルを消すためのやつ。
+	/*for (auto m_stage1 : m_stage1s)
 	{
 		DeleteGO(m_stage1);
-	}
+	}*/
 	/*for (auto m_warpHole : m_warpHoles)
 	{
 		DeleteGO(m_warpHole);
@@ -42,16 +42,19 @@ bool Game::Start()
 	//ワープ(ゴーストオブジェクト)を作成する。
 	//m_warp = NewGO<Warp>(0, "warp");
 
-	//敵1を作成する。
-	//m_enemy1 = NewGO<Enemy1>(0, "enemy1");
+	//敵を作成する。
+	m_enemy = NewGO<Enemy1>(0, "enemy1");
 
 	//ワープボックスを作成する。
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
 
 	//動く床を作成する。
-	m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
+	//m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
+
+	//仮ステージを作成する。
+	//m_stage1 = NewGO<Stage1>(0, "stage1");
 	
-	m_levelRender.Init("Assets/LevelRender/Stage1LevelMap.tkl", [&](LevelObjectData& objData) {
+	m_levelRender.Init("Assets/LevelRender/Stage01Level.tkl", [&](LevelObjectData& objData) {
 		if (objData.EqualObjectName(L"Level00") == true)
 		{
 			//ステージ1を作成する。
@@ -66,6 +69,7 @@ bool Game::Start()
 		}
 		return false;
 	});
+
 	return true;
 }
 

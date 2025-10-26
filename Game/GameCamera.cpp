@@ -33,12 +33,15 @@ void GameCamera::Update()
 {
 	Vector3 target = m_player->m_position;
 	target.y += 80.0f;
+	target += g_camera3D->GetForward() * 20;
 
 	Vector3 toCameraPosOld = m_toCameraPos;
 	float x = g_pad[0]->GetRStickXF();
 	float y = g_pad[0]->GetRStickYF();
 
 	Vector3 m_toCameraPodOld = m_toCameraPos;
+
+	Quaternion qrot = Quaternion::Identity;
 
 	//Yé≤é¸ÇËÇÃâÒì]ÅB
 	qrot.SetRotationDeg(Vector3::AxisY, 2.0f * x);
@@ -53,7 +56,7 @@ void GameCamera::Update()
 
 	Vector3 toPosDir = m_toCameraPos;
 	toPosDir.Normalize();
-	if (toPosDir.y < -0.7f)
+	if (toPosDir.y < -0.5f)
 	{
 		m_toCameraPos = toCameraPosOld;
 	}
@@ -63,8 +66,9 @@ void GameCamera::Update()
 	}
 
 	Vector3 pos = target + m_toCameraPos;
-	m_springCamera.SetTarget(target);
 	m_springCamera.SetPosition(pos);
+	m_springCamera.SetTarget(target);
+	
 
 	m_springCamera.Update();
 }

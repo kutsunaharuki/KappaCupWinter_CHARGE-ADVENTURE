@@ -10,10 +10,7 @@ public:
 	bool Start()override;
 	void Update();
 
-	Quaternion qrot;
-	Vector3 m_toCameraPos;
-	Vector3 CameraPos;
-	Vector3 targetPos;
+	Vector3 m_toCameraPos = Vector3::Zero;
 	
 	Player* m_player = nullptr;
 	SpringCamera m_springCamera;//バネカメラ。

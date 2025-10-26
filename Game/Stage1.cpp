@@ -2,7 +2,7 @@
 #include "Stage1.h"
 
 namespace {
-	const char* STAGE1_INIT = "Assets/modelData/Stage1.tkm";
+	const char* STAGE1_INIT = "Assets/modelData/Stage01.tkm";
 }
 
 bool Stage1::Start()
@@ -12,7 +12,12 @@ bool Stage1::Start()
 	m_stage1Render.SetScale(m_scale);
 	m_stage1Render.Update();
 
-	m_physicsStaticObj.CreateFromModel(m_stage1Render.GetModel(),
-		m_stage1Render.GetModel().GetWorldMatrix());
+	//m_physicsStaticObj.CreateFromModel(m_stage1Render.GetModel(),
+	//	m_stage1Render.GetModel().GetWorldMatrix());
 	return true;
+}
+
+void Stage1::Render(RenderContext& rc)
+{
+	//m_stage1Render.Draw(rc);
 }
