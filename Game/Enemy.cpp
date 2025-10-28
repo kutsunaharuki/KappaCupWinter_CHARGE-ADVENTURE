@@ -27,7 +27,7 @@ namespace {
 	EnemyInfo Enemys[Enemy::enEnemy_Num] = {
 		{"Enemy1", {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},1.0f},
 		{"Enemy02",{100.0f,0.0f,200.0f},{0.2f,0.2f,0.2f},1.0f},
-		{"Boss"  , {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},1.0f}
+		{"Boss"  , {100.0f,0.0f,200.0f},{0.6f,0.49f,0.6f},1.0f}
 	};
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。

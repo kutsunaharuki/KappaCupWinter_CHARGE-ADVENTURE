@@ -44,7 +44,8 @@ bool Game::Start()
 
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");
-	m_enemy = NewGO<Enemy2>(0, "enemy2");
+	//m_enemy = NewGO<Enemy2>(0, "enemy2");
+	m_enemy = NewGO<Boss>(0, "boss");
 
 	//ワープボックスを作成する。
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
