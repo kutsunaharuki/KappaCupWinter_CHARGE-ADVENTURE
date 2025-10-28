@@ -26,15 +26,15 @@ namespace {
 
 	EnemyInfo Enemys[Enemy::enEnemy_Num] = {
 		{"Enemy1", {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},1.0f},
-		{"Enemy2", {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},50.0f},
-		{"Boss"  , {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},50.0f}
+		{"Enemy02",{100.0f,0.0f,200.0f},{0.2f,0.2f,0.2f},1.0f},
+		{"Boss"  , {100.0f,0.0f,200.0f},{0.2f,0.49f,0.2f},1.0f}
 	};
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 	Vector3 ENEMY_GHOSTOBJ_SC = Vector3::One * 100.0f;
 
-	const float CHARACON_RADIUS = 90.0f ;//カプセルコライダーの半径。
-	const float CHARACON_HEIGHT = 100.0f;//カプセルコライダーの高さ。
+	const float CHARACON_RADIUS = 40.0f ;//カプセルコライダーの半径。
+	const float CHARACON_HEIGHT = 90.0f;//カプセルコライダーの高さ。
 
 	const float ENEMY_RANGE      = 120.0f;//Enemyの追従判定の範囲。
 	const float ENEMY_MOVESPEED  = 120.0f;//Eenemyの移動速度。
@@ -45,6 +45,7 @@ namespace {
 
 bool Enemy1::Start() {
 	SetModel(enEnemy1);
+	SetPhysicsGameObj(enEnemy1);
 	SetFindGOInfo();
 	m_enemyStartPos = m_enemyPos;
 	return true;
@@ -53,17 +54,49 @@ bool Enemy1::Start() {
 
 bool Enemy2::Start() {
 	SetModel(enEnemy2);
+	SetPhysicsGameObj(enEnemy2);
 	SetFindGOInfo();
+	m_enemyStartPos = m_enemyPos;
 	return true;
 }
 
 bool Boss::Start() {
 	SetModel(enBoss);
+	SetPhysicsGameObj(enBoss);
 	SetFindGOInfo();
+	m_enemyStartPos = m_enemyPos;
 	return true;
 }
 
 
+void Enemy::Update()
+{
+	Move();
+	m_enemyRender.SetPosition(m_enemyPos);
+	m_physicsGhostObj.SetPosition(m_enemyPos);
+	m_enemyRender.Update();
+}
+
+void Enemy::SetPhysicsGameObj(int enemyModels)
+{
+	//キャラコンの初期化(移動用)。
+	m_charaCon.Init(
+		CHARACON_RADIUS,
+		CHARACON_HEIGHT,
+		m_enemyPos
+	);
+
+	//ゴーストオブジェクトの初期化(衝突判定用)。
+	m_physicsGhostObj.CreateBox(
+		m_enemyPos,
+		Quaternion::Identity,
+		m_enemyScale = Enemys[enemyModels].scale
+	);
+
+	m_enemyScale = Enemys[enemyModels].scale;
+	m_enemyRender.SetTRS(m_enemyPos, m_enemyRotation, m_enemyScale);
+	m_enemyRender.Update();
+}
 
 void Enemy::SetModel(int enemyModel)
 {
@@ -72,64 +105,23 @@ void Enemy::SetModel(int enemyModel)
 	std::string file = Enemys[enemyModel].GetFullPath();
 	//敵の読み込み。
 	m_enemyRender.Init(file.c_str());
-
-	//キャラコンの初期化(移動用)。
-	m_charaCon.Init(
-		CHARACON_RADIUS,
-		CHARACON_HEIGHT,
-		m_enemyPos
-	);
-	m_enemyRender.SetPosition(m_enemyPos);
-	m_enemyRender.SetScale(m_enemyScale);
-	m_enemyRender.Update();
-
-	//ゴーストオブジェクトの初期化(衝突判定用)。
-	m_physicsGhostObj.CreateBox(
-		m_enemyPos,
-		Quaternion::Identity,
-		ENEMY_GHOSTOBJ_SC
-	);
-
-	m_enemyRender.SetPosition(m_enemyPos);
-	m_enemyRender.SetScale(m_enemyScale);
-	m_enemyRender.Update();
-	//m_physicsGhostObj.SetPosition(m_enemyPos);
 }
+
 
 //FindGO系はSetPlayerInfoに入れる。
 void Enemy::SetFindGOInfo() {
 	m_player = FindGO<Player>("player");
 }
 
-void Enemy::Update()
+void Enemy::TreaderCollision()
 {
-	Move();
-	m_enemyRender.SetPosition(m_enemyPos);
-	m_physicsGhostObj.SetPosition(m_enemyPos);
-	m_enemyRender.Update();
-	//敵とプレイヤーのベクトルを計算してプレイヤーに向かわせる。
-	//Vector3 diff = m_enemyPos - m_player->m_position;
-	//if (diff.Length() <= ENEMY_RANGE)
-	//{
-	//	//早期リターンはこれ以上下は実行しない。
-	//	return;
-	//}
 
-	
 }
 
 void Enemy::Move()
 {
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 	
-	if (!m_charaCon.IsOnGround())
-	{
-		//canMove = true;
-		return;
-	}
-
-
-	//EnWalkVector num = rand() % enWalkVector_Num;
 	EnWalkVector vector;
 	//enumのEnWalkVector型をint型のrandを型変換して
 	vector = static_cast<EnWalkVector>(rand() % enWalkVector_Num);
@@ -139,52 +131,51 @@ void Enemy::Move()
 	Vector3 moveVecCalc = m_enemyPos - m_enemyStartPos;
 	float moveLength = moveVecCalc.Length();
 
+	//現在地が行動範囲のリミットよりも大きかったら
 	if (moveLength >= ENEMY_MOVE_LIMIT)
 	{
+		//ステートを当てはめる。
 		m_enemyMoveState = vector;
+		//スタート地点を更新。
 		m_enemyStartPos  = m_enemyPos;
 	}
 
 	switch (m_enemyMoveState) {
 	case enWalkVector_Front:
 		early = { 0.0f, 0.0f, speed };
-		m_enemyRotation.SetRotationDegY(0.0f);
 		break;
 	case enWalkVector_Back:
 		early = { 0.0f,0.0f,-speed };
-		m_enemyRotation.SetRotationDegY(180.0f);
 		break;
 	case enWalkVector_Right:
 		early = { speed,0.0f,0.0f };
-		m_enemyRotation.SetRotationDegY(90.0f);
 		break;
 	case enWalkVector_Left:
 		early = { -speed,0.0f,0.0f };
-		m_enemyRotation.SetRotationDegY(-90.0f);
 		break;
 	case enWalkVector_FrontRight:
 		early = { speed,0.0f,speed };
-		m_enemyRotation.SetRotationDegY(45.0f);
 		break;
 	case enWalkVector_FronLeft:
 		early = { -speed,0.0f,speed };
-		m_enemyRotation.SetRotationDegY(-45.0f);
 		break;
 	case enWalkVector_BackRight:
 		early = { speed,0.0f,-speed };
-		m_enemyRotation.SetRotationDegY(135.0f);
 		break;
 	case enWalkVector_BackLeft:
 		early = { -speed,0.0f,-speed };
-		m_enemyRotation.SetRotationDegY(-135.0f);
 		break;
 	}
 
+	//敵のスピードを代入。
 	m_enemyMoveSpeed = early;
-	
-	m_enemyPos = m_charaCon.Execute(m_enemyMoveSpeed, deltaTime);
-	
+	//ポジションを使って動かすのをm_enemyPosに代入。
+	m_enemyPos = m_charaCon.Execute(m_enemyMoveSpeed, 1.0f / 60.0f);
+	//敵のモデルにポジションを代入。
 	m_enemyRender.SetPosition(m_enemyPos);
+
+	m_enemyRotation.SetRotationYFromDirectionXZ(m_enemyMoveSpeed);
+	//敵のモデルに回転をセットする。
 	m_enemyRender.SetRotation(m_enemyRotation);
 }
 

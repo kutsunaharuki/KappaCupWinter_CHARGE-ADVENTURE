@@ -12,6 +12,7 @@ public:
 
 protected:
 	void SetModel(int enemyModel);
+	void SetPhysicsGameObj(int enemyModels);
 	void SetFindGOInfo();
 public:
 	enum EnEnemy {
@@ -27,12 +28,12 @@ public:
 	CharacterController m_charaCon;                   //キャラクターコントローラー。
 	PhysicsGhostObject m_physicsGhostObj;             //ゴーストオブジェクト。
 
-	Vector3 m_enemyStartPos  = Vector3::Zero;   //敵の最初座標。
-	Vector3 m_enemyPos       = Vector3::Zero;   //敵の座標。
+	Vector3 m_enemyStartPos = Vector3::Zero;   //敵の最初座標。
+	Vector3 m_enemyPos = Vector3::Zero;   //敵の座標。
 	Vector3 m_enemyMoveSpeed = Vector3::Zero;   //敵の移動速度。
-	Vector3 m_enemyScale     = Vector3::One;    //敵の大きさ。
+	Vector3 m_enemyScale = Vector3::One;    //敵の大きさ。
 
-	bool isHit   = false;
+	bool isHit = false;
 
 private:
 	enum EnEnemyActionState {
@@ -58,7 +59,8 @@ public:
 		enWalkVector_BackLeft,   //左斜め後ろ。
 		enWalkVector_Num         //総数(8個ある)。
 	};
-
+	
+	void TreaderCollision();
 private:
 	int m_enemyMoveState = 0;
 	int enemyState = 0;
