@@ -11,7 +11,7 @@ namespace
 	const float SMAL_JUMP_POWER    = 500.0f;//小ジャンプ。
 	const float BIG_JUMP_POWER     = 590.0f;//大ジャンプ。
 
-	const float GRAVITY            = -9.4f * 2.8f;//重力。
+	const float GRAVITY            = -9.0f * 2.8f;//重力。
 
 	const char* ANIM_PATH[static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num)] = {
 		"Assets/animData/idle.tka",
