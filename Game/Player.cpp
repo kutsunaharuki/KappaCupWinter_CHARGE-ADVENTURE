@@ -72,9 +72,9 @@ Player::~Player()
 
 void Player::Update()
 {
-	if (CanHit()) {
+	/*if (CanHit()) {
 		Damage();
-	}
+	}*/
 
 	//ワープしたら指定した座標に飛ぶ。
 	/*if (CanWarp())
@@ -257,14 +257,14 @@ bool Player::CanHit() {
 	//キャラクターとゴーストオブジェクトのあたり判定を行う。
 	//CanWarpの関数を参照([&])してコピーして値を変更できる。
 	//[=]外部をコピーするもの。メモリが増える。
-	PhysicsWorld::GetInstance()->ContactTest(m_charaCon,
-		[&](const btCollisionObject& contactObject) {
-			if (m_enemy->m_physicsGhostObj.IsSelf(contactObject) == true)
-			{
-				//m_physicsGhostObjectとぶつかったら
-				//フラグをtrueにする。
-				isHit = true;
-			}
+	//PhysicsWorld::GetInstance()->ContactTest(m_charaCon,
+	//	[&](const btCollisionObject& contactObject) {
+	//		if (m_enemy->m_physicsGhostObj.IsSelf(contactObject) == true)
+	//		{
+	//			//m_physicsGhostObjectとぶつかったら
+	//			//フラグをtrueにする。
+	//			isHit = true;
+	//		}
 
 			//if (m_warp->m_physicsGhostObj.IsSelf(contactObject) == true)
 			//{
@@ -272,7 +272,7 @@ bool Player::CanHit() {
 			//	//フラグをtrueにする。
 			//	isHit = true;
 			//}
-		});
+		//});
 	return isHit;
 }
 
