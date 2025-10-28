@@ -13,7 +13,7 @@ namespace
 
 	const float GRAVITY            = -9.4f * 2.8f;//重力。
 
-	const char* ANIM_PATH[Player::enAnimationClip_Num] = {
+	const char* ANIM_PATH[static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num)] = {
 		"Assets/animData/idle.tka",
 		"Assets/animData/jump.tka",
 		"Assets/animData/walk.tka",
@@ -30,9 +30,9 @@ Player::Player()
 bool Player::Start()
 {
 	//アニメーションを読み込む
-	for (int i = 0; i < enAnimationClip_Num; i++) {
+	for (int i = 0; i < static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num); i++) {
 		animationClips[i].Load(ANIM_PATH[i]);
-		if (i != enAnimationClip_Jump) {
+		if (i != static_cast<int>(Player::EnAnimationClip::enAnimationClip_Jump)) {
 			animationClips[i].SetLoopFlag(true);
 			//continueはスキップする機能がある。
 			continue;
@@ -44,7 +44,7 @@ bool Player::Start()
 	m_modelRender.Init(
 		PLAYER_1,
 		animationClips,
-		enAnimationClip_Num, 
+		static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num),
 		enModelUpAxisY
 	);
 
@@ -72,22 +72,10 @@ Player::~Player()
 
 void Player::Update()
 {
-	/*if (CanHit()) {
-		Damage();
-	}*/
-
-	//ワープしたら指定した座標に飛ぶ。
-	/*if (CanWarp())
-	{
-		m_modelRender.SetPosition(m_setPos);
-		isHit = false;
-		m_modelRender.Update();
-	}*/
-
 	//関数呼び出し。
 	Move();
 	Rotation();
-	PlayAnimation();
+	//PlayAnimation();
 	ManageState();
 
 	//プレイヤーの座標の描画準備。
@@ -102,6 +90,8 @@ void Player::Update()
 
 void Player::Move()
 {
+	
+
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
 	//移動の制御。
@@ -182,7 +172,7 @@ void Player::Move()
 
 void Player::Rotation()
 {
-	if (fabsf(moveSpeed.x) >= 0.001f || fabsf(moveSpeed.z) >= 0.001f)
+	if (IsMove())
 	{
 		m_rot.SetRotationYFromDirectionXZ(moveSpeed);
 		m_modelRender.SetRotation(m_rot);
@@ -190,43 +180,12 @@ void Player::Rotation()
 }
 
 /// <summary>
-///プレイヤーのアニメーションのフラグ管理。
-/// </summary>
-
-void Player::PlayAnimation()
-{
-	switch (playerState)
-	{
-	case 0:
-		m_modelRender.PlayAnimation(enAnimationClip_Idle);
-		break;
-	case 1:
-		m_modelRender.PlayAnimation(enAnimationClip_Jump);
-		break;
-	case 2:
-		m_modelRender.PlayAnimation(enAnimationClip_Walk);
-		break;
-	case 3:
-		m_modelRender.PlayAnimation(enAnimationClip_Run);
-		break;
-	}
-}
-
-/// <summary>
 /// プレイヤーのステート管理。
 /// </summary>
 
-void Player::ManageState()
+void Player::ManageState()	
 {
-	//キャラクターコントローラーが
-	// 地面に接していなければステートを1にする。
-	if (m_charaCon.IsOnGround() == false)
-	{
-		playerState = 1;
-		return;
-	}
-
-	if (fabsf(moveSpeed.x) >= 0.001f || fabsf(moveSpeed.z) >= 0.001f)
+	if (IsMove())
 	{
 		playerState = 2;
 		if (g_pad[0]->IsPress(enButtonB))
@@ -238,6 +197,14 @@ void Player::ManageState()
 	{
 		playerState = 0;
 	}
+
+	//キャラクターコントローラーが
+	// 地面に接していなければステートを1にする。
+	if (m_charaCon.IsOnGround() == false)	{
+		playerState = 1;
+	}
+
+	m_modelRender.PlayAnimation(playerState);
 }
 
 /// <summary>
@@ -276,3 +243,14 @@ bool Player::CanHit() {
 	return isHit;
 }
 
+
+
+const bool Player::IsMove()const
+{
+	if (fabsf(moveSpeed.x) >= 0.001f || fabsf(moveSpeed.z) >= 0.001f) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}

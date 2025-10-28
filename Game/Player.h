@@ -1,5 +1,7 @@
 #pragma once
 #include "physics/PhysicsGhostObject.h"
+#include "stdint.h"
+
 
 class Warp;
 class MovingFloor;
@@ -12,12 +14,17 @@ public:
 	~Player();
 	bool Start()override;
 	void Update();
-	void Move();
-	void Rotation();
-	void PlayAnimation();
+	
 	void ManageState();
     void Render(RenderContext& rc);
 
+
+private:
+	void Move();
+	void Rotation();
+	const bool IsMove()const;
+
+public:
 	bool CanHit();
 
 	void Damage()
@@ -48,7 +55,8 @@ public:
 		return m_charaCon;
 	}
 
-	enum EnAnimationClip {
+
+	enum class EnAnimationClip : uint8_t{
 		enAnimationClip_Idle,
 		enAnimationClip_Jump,
 		enAnimationClip_Walk,
@@ -57,7 +65,7 @@ public:
 	};
 
 	ModelRender m_modelRender;
-	AnimationClip animationClips[enAnimationClip_Num];
+	AnimationClip animationClips[static_cast<int>(EnAnimationClip::enAnimationClip_Num)];
 	Vector3 m_position = Vector3::Zero;                 //座標。
 	Vector3 moveSpeed = Vector3::Zero;                  //移動速度。
 	Quaternion m_rot;                                   //回転。
@@ -72,12 +80,9 @@ public:
 	
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
 	
-	bool isDead     = false;                            //プレイヤーが死亡したら切り替わるフラグ。
 	bool isDash     = false;                            //歩きから走りに変わるフラグ。
-	bool chargeJump = true;                             //チャージジャンプのフラグ。
 	bool isHit      = false;                            //ゴーストオブジェクトに当たったらのフラグ。
 	bool canJump    = false;                            //ジャンプしてるかのフラグ。
-
 private:
 	Warp* m_warp   = nullptr;
 	Enemy* m_enemy = nullptr;
