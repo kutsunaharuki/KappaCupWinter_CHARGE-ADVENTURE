@@ -1,9 +1,9 @@
 #pragma once
-//#include "physics/PhysicsGhostObject.h"
 class Player;
 class Enemy : public IGameObject
 {
 public:
+	~Enemy();
 	void Update()override;
 	void Move();
 	void Attack();
@@ -13,8 +13,16 @@ public:
 protected:
 	void SetModel(int enemyModel);
 	void SetPhysicsGameObj(int enemyModels);
+	void SetCollisionObj(int enemyModel);
 	void SetFindGOInfo();
+
+private:
+	void CollisionUpdate();
+
 public:
+	//中身を変えたくない時は後ろにconstをつける。
+	void CanHit();
+
 	enum EnEnemy {
 		enEnemy1,//ファイル番号0(クリボー)。
 		enEnemy2,//ファイル番号1(ノコノコ)。
@@ -23,15 +31,20 @@ public:
 	};
 
 public:
+	void Damage(int damage);
+	int hp    = 20;
+	int maxHp = 20;
+
 	ModelRender m_enemyRender;
 	Quaternion m_enemyRotation = Quaternion::Identity;//回転。
 	CharacterController m_charaCon;                   //キャラクターコントローラー。
-	PhysicsGhostObject m_physicsGhostObj;             //ゴーストオブジェクト。
+	CollisionObject* m_collisionObj;                  //コリジョンオブジェクト。
 
-	Vector3 m_enemyStartPos = Vector3::Zero;   //敵の最初座標。
-	Vector3 m_enemyPos = Vector3::Zero;   //敵の座標。
-	Vector3 m_enemyMoveSpeed = Vector3::Zero;   //敵の移動速度。
-	Vector3 m_enemyScale = Vector3::One;    //敵の大きさ。
+	Vector3 m_enemyStartPos = Vector3::Zero;          //敵の最初座標。
+	Vector3 m_enemyPos = Vector3::Zero;               //敵の座標。
+	Vector3 m_enemyMoveSpeed = Vector3::Zero;         //敵の移動速度。
+	Vector3 m_enemyScale = Vector3::One;              //敵の大きさ。
+	Vector3 m_enemyCollisionScale = Vector3(120.0f, 90.0f, 120.0f);//コリジョンのサイズ。
 
 	bool isHit = false;
 
@@ -57,11 +70,12 @@ public:
 		enWalkVector_FronLeft,   //左斜め前。
 		enWalkVector_BackRight,  //右斜め後ろ。
 		enWalkVector_BackLeft,   //左斜め後ろ。
-		enWalkVector_Num         //総数(8個ある)。
+		enWalkVector_Num         
 	};
 	
-	void TreaderCollision();
 private:
+	FontRender m_collisionFontRender;
+
 	int m_enemyMoveState = 0;
 	int enemyState = 0;
 	Player* m_player = nullptr;
