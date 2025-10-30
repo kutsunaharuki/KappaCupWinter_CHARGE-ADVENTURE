@@ -22,11 +22,6 @@ namespace
 	const char* PLAYER_1 = "Assets/modelData/unityChan.tkm";
 }
 
-Player::Player()
-{
-
-}
-
 bool Player::Start()
 {
 	//アニメーションを読み込む
@@ -50,33 +45,31 @@ bool Player::Start()
 
 	//キャラコンの初期化。
 	m_charaCon.Init(25.0f, 75.0f, m_position);
-	
-	m_skyGround = FindGO<SkyGround>("skyGround");
-
-	m_warp = FindGO<Warp>("warp");
-	m_enemy = FindGO<Enemy>("enemy");
 	return true;
 }
 
-//横に動くときはこれを使う。(横移動用)
-//void Player::AddPosition(const Vector3& delta)
-//{
-//	m_position += delta;
-//	m_charaCon.SetPosition(m_position);
-//}
+
+void Player::FindGameObjInfo()
+{
+	m_skyGround    = FindGO<SkyGround>("skyGround");
+	m_warp         = FindGO<Warp>("warp");
+	m_enemy        = FindGO<Enemy>("enemy");
+	m_collisionObj = FindGO<CollisionObject>("collisionObject");
+}
 
 Player::~Player()
 {
-
+	
 }
 
 void Player::Update()
 {
-	//関数呼び出し。
 	Move();
 	Rotation();
-	//PlayAnimation();
 	ManageState();
+	TreaderCollisionObj();
+
+	
 
 	//プレイヤーの座標の描画準備。
 	wchar_t playerText[256];
@@ -90,7 +83,6 @@ void Player::Update()
 
 void Player::Move()
 {
-	
 
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
@@ -137,6 +129,7 @@ void Player::Move()
 			moveSpeed.y = SMAL_JUMP_POWER;
 			canJump = true;
 		}
+		//delete m_collisionObj;
 	}
 
 	else
@@ -157,6 +150,9 @@ void Player::Move()
 				canJump = false;
 			}
 		}
+		//外部から力を加える。
+		moveSpeed += force;
+		force *=0.7f;
 		//重力。
 		moveSpeed.y += GRAVITY;
 	}
@@ -207,6 +203,43 @@ void Player::ManageState()
 	m_modelRender.PlayAnimation(playerState);
 }
 
+//void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
+//{
+//
+//}
+
+void Player::TreaderCollisionObj()
+{
+	//もし地面に付いていなかったら(ジャンプ中)
+	//コリジョンを作成する。!
+	if (JumpAttack()) {
+
+		if (m_collisionObj) {
+			m_footCollisionPos = m_position;
+			m_collisionObj->SetPosition(m_footCollisionPos);
+			m_collisionObj->SetRotation(Quaternion::Identity);
+			m_collisionObj->Update();
+		}
+
+		if (!m_collisionObj) {
+			m_collisionObj = new CollisionObject;
+		}
+
+		m_collisionObj->SetIsEnableAutoDelete(false);
+		
+		m_footCollisionPos = m_position;
+
+		m_collisionObj->CreateBox(
+			m_footCollisionPos,      //足の座標。
+			Quaternion::Identity,    //回転。
+			m_playerCollisionScale   //コリジョンのサイズ。
+		);
+
+		m_modelRender.SetPosition(m_footCollisionPos);
+		m_modelRender.Update();
+	}
+}
+
 /// <summary>
 /// 描画処理。
 /// </summary>
@@ -220,30 +253,17 @@ void Player::Render(RenderContext& rc)
 	m_posFontRender.Draw(rc);
 }
 
-bool Player::CanHit() {
-	//キャラクターとゴーストオブジェクトのあたり判定を行う。
-	//CanWarpの関数を参照([&])してコピーして値を変更できる。
-	//[=]外部をコピーするもの。メモリが増える。
-	//PhysicsWorld::GetInstance()->ContactTest(m_charaCon,
-	//	[&](const btCollisionObject& contactObject) {
-	//		if (m_enemy->m_physicsGhostObj.IsSelf(contactObject) == true)
-	//		{
-	//			//m_physicsGhostObjectとぶつかったら
-	//			//フラグをtrueにする。
-	//			isHit = true;
-	//		}
-
-			//if (m_warp->m_physicsGhostObj.IsSelf(contactObject) == true)
-			//{
-			//	//m_physicsGhostObjectとぶつかったら
-			//	//フラグをtrueにする。
-			//	isHit = true;
-			//}
-		//});
-	return isHit;
+const bool Player::JumpAttack()const
+{
+	//
+	if (m_charaCon.IsOnGround() == false) {
+		return true;
+	}
+	//地面についていれば実行しない。
+	else {
+		return false;
+	}
 }
-
-
 
 const bool Player::IsMove()const
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "physics/PhysicsGhostObject.h"
+//#include "physics/PhysicsGhostObject.h"
 #include "stdint.h"
 
 
@@ -10,42 +10,30 @@ class Enemy;
 class Player:public IGameObject
 {
 public:
-	Player();
 	~Player();
 	bool Start()override;
 	void Update();
 	
 	void ManageState();
     void Render(RenderContext& rc);
+	void TreaderCollisionObj();
+	void FindGameObjInfo();
 
 
 private:
 	void Move();
 	void Rotation();
 	const bool IsMove()const;
+	const bool JumpAttack()const;
 
 public:
-	bool CanHit();
-
-	void Damage()
-	{
-		hp -= damage;
-		if (hp < 0)
-		{
-			hp = 0;
-		}
-	}
-
-	int hp     = 20;
-	int maxHp  = 20;
-	int damage = 10;
-
+	Vector3 force = Vector3::Zero;
 	const Vector3& GetPosition() const
 	{
 		return m_position;
 	}
 
-	void  SetPosition(const Vector3& position)
+	void SetPosition(const Vector3& position)
 	{
 		m_position = position;
 	}
@@ -66,18 +54,20 @@ public:
 
 	ModelRender m_modelRender;
 	AnimationClip animationClips[static_cast<int>(EnAnimationClip::enAnimationClip_Num)];
-	Vector3 m_position = Vector3::Zero;                 //座標。
-	Vector3 moveSpeed = Vector3::Zero;                  //移動速度。
-	Quaternion m_rot;                                   //回転。
-
+	Vector3 m_position = Vector3::Zero;                 //TODO:座標。
+	Vector3 moveSpeed = Vector3::Zero;                  //TODO:移動速度。
+	Quaternion m_rot;                                   //TODO:回転。
+	Vector3 m_footCollisionPos = Vector3::Zero;         //TODO:足のコリジョンの座標。
+	Vector3 m_playerCollisionScale = Vector3(35.0f, 10.0f, 35.0f);//TODO:プレイヤーのコリジョンのサイズ。
 
 	Vector3 m_setPos = Vector3(0.0f, 300.0f, 0.0f);     //ワープ先。
 
 	Vector3 m_fontPos = Vector3(100.0f, 300.0f, 0.0f);  //フォントの座標。
 	FontRender m_posFontRender;                         //座標の描画。
 
-	CharacterController m_charaCon;                     //キャラクターコントローラーの当たり判定。
-	
+	CharacterController m_charaCon;                     //TODO:キャラクターコントローラーの当たり判定。
+	CollisionObject* m_collisionObj;                    //TODO:コリジョンオブジェクト。
+
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
 	
 	bool isDash     = false;                            //歩きから走りに変わるフラグ。
@@ -88,9 +78,7 @@ private:
 	Enemy* m_enemy = nullptr;
 	int playerState    = 0;
 
-	//bool canJump = true;                               //切り替え。
 	MovingFloor* m_movingFloor = nullptr;
-	SkyGround* m_skyGround = nullptr;
-	
+	SkyGround  * m_skyGround   = nullptr;
 };
 
