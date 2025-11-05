@@ -228,6 +228,7 @@
     <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingFloor.cpp" />
+    <ClCompile Include="ObstacleBox.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SkyGround.cpp" />
     <ClCompile Include="Stage1.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="MovingFloor.h" />
+    <ClInclude Include="ObstacleBox.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SkyGround.h" />
     <ClInclude Include="Stage1.h" />

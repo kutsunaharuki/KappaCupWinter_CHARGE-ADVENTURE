@@ -20,6 +20,7 @@
     <ClCompile Include="SkyGround.cpp" />
     <ClCompile Include="Stage1.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="ObstacleBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -35,5 +36,6 @@
     <ClInclude Include="SkyGround.h" />
     <ClInclude Include="Stage1.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="ObstacleBox.h" />
   </ItemGroup>
 </Project>
