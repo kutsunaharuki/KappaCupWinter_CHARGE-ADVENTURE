@@ -8,6 +8,7 @@
 #include "SkyGround.h"
 #include "Stage1.h"
 #include "Enemy.h"
+#include "ObstacleBox.h"
 
 Game::~Game()
 {
@@ -46,6 +47,9 @@ bool Game::Start()
 	m_enemy = NewGO<Enemy1>(0, "enemy1");
 	//m_enemy = NewGO<Enemy2>(0, "enemy2");
 	//m_enemy = NewGO<Boss>(0, "boss");
+
+	//仮の障害物(ボックス)を作成する。
+	m_obstacleBox = NewGO<ObstacleBox>(0, "obstacleBox");
 
 	//ワープボックスを作成する。
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");

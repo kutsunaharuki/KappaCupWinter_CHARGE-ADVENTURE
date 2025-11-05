@@ -10,6 +10,7 @@ class WarpHole;
 class SkyGround;
 class Stage1;
 class Enemy;
+class ObstacleBox;
 
 class Game : public IGameObject
 {
@@ -33,5 +34,6 @@ private:
 	SkyGround  * m_skyGround   = nullptr;//浮遊足場。
 	Stage1     * m_stage1      = nullptr;//ステージ1。
 	Enemy      * m_enemy       = nullptr;//敵。
+	ObstacleBox* m_obstacleBox = nullptr;//障害物(ボックス)。
 };
 
