@@ -18,34 +18,37 @@ namespace {
 		Vector3 scale;
 		Quaternion rot;
 
+		Vector3 collisionSc;
+
 		std::string GetFullPath() {
 			return FILE_PATH + fileName + FILE_EXTENSTION;
 		}
 	};
 
 	EnemyInfo Enemys[Enemy::enEnemy_Num] = {
-		{"Enemy1", {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity},
-		{"Enemy02",{200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity},
-		{"Boss"  , {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity}
+		{"Enemy1", {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{1.0f,1.0f,1.0f}},
+		{"Enemy02",{200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{2.0f,2.5f,2.0f}},
+		{"Boss"  , {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{3.0f,3.0f,3.0f}}
 	};
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 
 	const float CHARACON_RADIUS = 30.0f ;//カプセルコライダーの半径。
-	const float CHARACON_HEIGHT = 50.0f;//カプセルコライダーの高さ。
+	const float CHARACON_HEIGHT = 43.0f;//カプセルコライダーの高さ。
 
 	const float ENEMY_RANGE      = 120.0f;//Enemyの追従判定の範囲。
 	const float ENEMY_MOVESPEED  = 120.0f;//Eenemyの移動速度。
 	
 	Vector3 ENEMY_LIMIT = { 400.0f,0.0f,400.0f };
-	const float ENEMY_MOVE_LIMIT = 200.0f;//Enemyの行動距離。
-	const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyの重力。
+	const float ENEMY_MOVE_LIMIT = 50.0f;//Enemyの行動距離。
+	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyの重力。
 }
 
 bool Enemy1::Start() {
 	SetModel(enEnemy1);
 	SetPhysicsGameObj(enEnemy1);
 	SetCollisionObj(enEnemy1);
+	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
@@ -54,6 +57,7 @@ bool Enemy2::Start() {
 	SetModel(enEnemy2);
 	SetPhysicsGameObj(enEnemy2);
 	SetCollisionObj(enEnemy2);
+	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
@@ -62,6 +66,7 @@ bool Boss::Start() {
 	SetModel(enBoss);
 	SetPhysicsGameObj(enBoss);
 	SetCollisionObj(enBoss);
+	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
@@ -77,7 +82,6 @@ void Enemy::Update()
 	m_collisionObj->SetPosition(m_enemyPos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
-	CollisionUpdate();
 	CanHit();
 	m_enemyRender.Update();
 }
@@ -129,22 +133,81 @@ void Enemy::SetCollisionObj(int enemyModel)
 	
 }
 
+//スフィアコライダーの半径の設定関数。
+void Enemy::SetSphereColliderObj()
+{
+	const float radius = 2.0f;
+	m_sphereCollider.Create(radius);
+}
+
 //FindGO系はSetPlayerInfoに入れる。
 void Enemy::SetFindGOInfo() {
 	m_player = FindGO<Player>("player");
 }
 
-void Enemy::Move()
+
+
+void Enemy::Move() {
+	if (!IsFoundPlayer()) {
+		RandomWalk();
+	}
+	Tracking();
+}
+
+
+
+//追跡の関数。
+void Enemy::Tracking()
+{
+	//nullチェック。
+	if (m_player == nullptr)
+	{
+		m_player = FindGO<Player>("player");
+		return;
+	}
+
+	if (!IsFoundPlayer())
+	{
+		return;
+	}
+
+	//プレイヤーの座標を空のローカル変数に渡す。
+	Vector3 r_playerPos = m_player->m_position;
+
+	//プレイヤーの座標からエネミーの座標を引く。
+	Vector3 r_diff = r_playerPos - m_enemyPos;
+
+	//これがないとプレイヤーが上にいても追いかけてくる。
+	r_diff.y = 0.0f;
+
+	//ベクトルの距離計算。
+	float distance = r_diff.Length();
+
+	//ベクトルを正規化。
+	r_diff.Normalize();
+
+	//追跡計算を行う。
+	float targetSpeed = 200.0f;
+
+	//m_moveSpeedにどの方向でどんな速さで進むかを代入させる。
+	//「進行方向　×　速度」＝　実際の移動ベクトル。
+	m_moveSpeed = r_diff * targetSpeed;
+
+	UpdateEnemyInfo();
+	
+}
+
+void Enemy::RandomWalk()
 {
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 	
+
 	EnWalkVector vector;
 	//enumのEnWalkVector型をint型のrandを型変換して
 	vector = static_cast<EnWalkVector>(rand() % enWalkVector_Num);
 	Vector3 early = Vector3::Zero;
 	const float speed = ENEMY_MOVESPEED;
-	const float fall  = ENEMY_GRAVITY;
-	early.y += fall;
+
 	Vector3 moveVecCalc = m_enemyPos - m_enemyStartPos;
 	float moveLength    = moveVecCalc.Length();
 
@@ -193,12 +256,102 @@ void Enemy::Move()
 	}
 
 	m_enemyMoveSpeed = early;
-	m_enemyPos = m_charaCon.Execute(m_enemyMoveSpeed, 1.0f / 60.0f);
-	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRotation.SetRotationYFromDirectionXZ(m_enemyMoveSpeed);
-	m_enemyRender.SetRotation(m_enemyRotation);
+	UpdateEnemyInfo();
+
 }
 
+struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
+{
+	bool isHit = false;
+
+	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace)
+	{
+		//ボックスとぶつかったら
+		if (convexResult.m_hitCollisionObject->getUserIndex() != enCollisionAttr_Box)
+		{
+			return 0.0f;
+		}
+
+		//ボックスとぶつかったら。
+		//フラグをtrueに。
+		isHit = true;
+		return 0.0f;
+	}
+};
+
+//プレイヤーを見つけるかどうかの関数。
+const bool Enemy::IsFoundPlayer()
+{
+
+	m_forward = Vector3::AxisZ;
+	m_enemyRotation.Apply(m_forward);
+	
+	Vector3 playerPos = m_player->GetPosition();
+	Vector3 diff = playerPos - m_enemyPos;
+
+	//ベクトルを正規化する。
+	diff.Normalize();
+	//ベクトルの内積の計算。
+	float angle = acosf(diff.Dot(m_forward));
+
+	//プレイヤーが視界内にいるなら。
+	if (Math::PI * 0.35f >= fabsf(angle))
+	{
+		//プレイヤーが見つかったなら。
+		m_isSearchPlayer = true;
+		return true;
+	}
+
+	//プレイヤーが視界内に居なかったら。
+	else if(Math::PI * 0.35f <= fabsf(angle))
+	{
+		//プレイヤーが見つかってない。
+	    m_isSearchPlayer = false;
+		return false;
+	}
+
+
+	btTransform start, end;
+	start.setIdentity();
+	end.setIdentity();
+	//始点はエネミーの座標。
+	//エネミーのY座標を上げるのはプレイヤーの足元を見ないため。
+	start.setOrigin(btVector3(m_enemyPos.x, m_enemyPos.y + 70.0f, m_enemyPos.z));
+	//終点はプレイヤーの座標。
+	end.setOrigin(btVector3(playerPos.x, playerPos.y + 70.0f, playerPos.z));
+
+	//TODO:これより下のEnemyの視野角Y座標だけを上げる処理は別のbool型の関数に移動。
+	SweepResultWall callBack;
+	//コライダーが始点から終点まで動かして
+	//衝突するかどうかを調べる。
+	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callBack);
+	//壁と衝突してない。
+	if (callBack.isHit == true)
+	{
+		return false;
+	}
+	
+	//TODO:下の説明不要。
+	//壁と衝突してない!!
+	//プレイヤー見つけたフラグをtrueに。
+	return true;
+}
+
+//TODO:今からやること(関数分け)。
+const bool Enemy::EnemySweepTest(int enemyModel)
+{
+	return true;
+}
+
+void Enemy::UpdateEnemyInfo() {
+	m_enemyPos = m_charaCon.Execute(m_moveSpeed, 1.0f / 60.0f);
+	m_enemyRender.SetPosition(m_enemyPos);
+	m_enemyRender.SetRotation(m_enemyRotation);
+	m_enemyRender.Update();
+}
+
+//行動の関数。
 void Enemy::EnemyBehavior()
 {
 	//プレイヤーとの距離を測る。
@@ -217,21 +370,34 @@ void Enemy::EnemyBehavior()
 
 
 	switch (m_enemyActionState) {
+		//徘徊。
 	case enEnemyActionState_Wandering:
-
+		
 		break;
+		//追跡。
 	case enEnemyActionState_Chase:
 
 		break;
+		//待機。
 	case enEnemyActionState_Idle:
 
 		break;
+		//攻撃。
 	case enEnemyActionState_Attack:
 
 		break;
 	}
 }
 
+void Enemy::Damage(int damage)
+{
+	maxHp = hp;
+	hp -= damage;
+	if (hp < 0)
+	{
+		hp = 0;
+	}
+}
 
 void Enemy::CanHit()
 {
@@ -251,15 +417,6 @@ void Enemy::CanHit()
 	return;
 }
 
-void Enemy::Damage(int damage)
-{
-	maxHp = hp;
-	hp -= damage;
-	if (hp < 0)
-	{
-		hp = 0;
-	}
-}
 
 void Enemy::Attack()
 {
@@ -273,12 +430,15 @@ void Enemy::Render(RenderContext& rc)
 
 	//コリジョンの座標表示用。
 	m_collisionFontRender.Draw(rc);
-}
 
-void Enemy::CollisionUpdate() {
-	Vector3 collisionPos = m_enemyPos;
-	collisionPos.y += 50.0f;
-	m_collisionObj->SetPosition(collisionPos);
-	//m_collisionObj->SetRotation(m_enemyRotation);
-	//m_collisionObj->Update();
+	if (!m_isSearchPlayer)
+	{
+		m_fontRender.SetText(L"見つかってない・・・");
+		m_fontRender.SetPosition(m_fontPos);
+	}
+	else {
+		m_fontRender.SetText(L"見つけた!");
+		m_fontRender.SetPosition(m_fontPos);
+	}
+	m_fontRender.Draw(rc);
 }

@@ -6,8 +6,12 @@ public:
 	~Enemy();
 	void Update()override;
 	void Move();
+	void UpdateEnemyInfo();
+	void RandomWalk();
 	void Attack();
 	void EnemyBehavior();
+	void Tracking();
+	const bool IsFoundPlayer();
 	void Render(RenderContext& rc);
 
 protected:
@@ -15,9 +19,8 @@ protected:
 	void SetPhysicsGameObj(int enemyModels);
 	void SetCollisionObj(int enemyModel);
 	void SetFindGOInfo();
-
-private:
-	void CollisionUpdate();
+	void SetSphereColliderObj();
+	const bool EnemySweepTest(int enemyModel);
 
 public:
 	//中身を変えたくない時は後ろにconstをつける。
@@ -45,8 +48,11 @@ public:
 	Vector3 m_enemyMoveSpeed = Vector3::Zero;         //敵の移動速度。
 	Vector3 m_enemyScale = Vector3::One;              //敵の大きさ。
 	Vector3 m_enemyCollisionScale = Vector3(120.0f, 90.0f, 120.0f);//コリジョンのサイズ。
+	Vector3 m_moveSpeed = Vector3::Zero;              //敵の移動速度。
+	Vector3 m_forward = Vector3::Zero;
 
 	bool isHit = false;
+	
 
 private:
 	enum EnEnemyActionState {
@@ -73,6 +79,11 @@ public:
 		enWalkVector_Num         
 	};
 	
+
+	bool m_isSearchPlayer = false;
+	SphereCollider m_sphereCollider;
+	FontRender m_fontRender;
+	Vector3 m_fontPos = Vector3(-200.0f,500.0f,0.0f);
 private:
 	FontRender m_collisionFontRender;
 

@@ -18,7 +18,7 @@ public:
     void Render(RenderContext& rc);
 	void TreaderCollisionObj();
 	void FindGameObjInfo();
-
+	void ResPawn();
 
 private:
 	void Move();
@@ -27,7 +27,7 @@ private:
 	const bool JumpAttack()const;
 
 public:
-	Vector3 force = Vector3::Zero;
+	Vector3 force = Vector3::Zero;//外部から加える力(敵を踏んだ時にY座標を上げる用)。
 	const Vector3& GetPosition() const
 	{
 		return m_position;
@@ -63,10 +63,13 @@ public:
 	Vector3 m_setPos = Vector3(0.0f, 300.0f, 0.0f);     //ワープ先。
 
 	Vector3 m_fontPos = Vector3(100.0f, 300.0f, 0.0f);  //フォントの座標。
+	
+	Vector3 m_resPawnPos = Vector3::Zero;               //初期値に戻される値。
+
 	FontRender m_posFontRender;                         //座標の描画。
 
 	CharacterController m_charaCon;                     //TODO:キャラクターコントローラーの当たり判定。
-	CollisionObject* m_collisionObj;                    //TODO:コリジョンオブジェクト。
+	CollisionObject* m_collisionObj = nullptr;               //TODO:コリジョンオブジェクト。
 
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
 	

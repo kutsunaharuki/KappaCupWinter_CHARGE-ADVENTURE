@@ -64,11 +64,16 @@ Player::~Player()
 
 void Player::Update()
 {
+	Vector3 pos = m_position;
+	if (pos.y < -200.0f)
+	{
+		ResPawn();
+	}
+
 	Move();
 	Rotation();
 	ManageState();
 	TreaderCollisionObj();
-
 	
 
 	//プレイヤーの座標の描画準備。
@@ -81,8 +86,19 @@ void Player::Update()
 	m_modelRender.Update();
 }
 
+//リスポーンするだけの関数。
+void Player::ResPawn()
+{
+	m_position = m_resPawnPos;
+	m_charaCon.SetPosition(m_position);
+}
+
 void Player::Move()
 {
+	if (m_position.y < -200.0f)
+	{
+		m_modelRender.SetPosition(m_resPawnPos);
+	}
 
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
@@ -121,6 +137,8 @@ void Player::Move()
 	//地面に接しているなら
 	if (m_charaCon.IsOnGround())
 	{
+		delete m_collisionObj;
+		m_collisionObj = nullptr;
 		canJump = false;
 		m_jumpTime = 0.0f;
 		//押した瞬間に小ジャンプ。
@@ -129,9 +147,7 @@ void Player::Move()
 			moveSpeed.y = SMAL_JUMP_POWER;
 			canJump = true;
 		}
-		//delete m_collisionObj;
 	}
-
 	else
 	{
 		if (canJump)
@@ -156,7 +172,7 @@ void Player::Move()
 		//重力。
 		moveSpeed.y += GRAVITY;
 	}
-	
+
 	//キャラクターコントローラーを使って座標を移動させる。
 	m_position = m_charaCon.Execute(moveSpeed, deltaTime);
 	m_modelRender.SetPosition(m_position);
