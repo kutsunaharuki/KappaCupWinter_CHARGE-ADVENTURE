@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Enemy.h"
 #include "Player.h"
+#include "ObstacleBox.h"
 #include <time.h>
 
 namespace {
@@ -19,6 +20,7 @@ namespace {
 		Quaternion rot;
 
 		Vector3 collisionSc;
+		Vector3 collisionPos;
 
 		std::string GetFullPath() {
 			return FILE_PATH + fileName + FILE_EXTENSTION;
@@ -26,15 +28,15 @@ namespace {
 	};
 
 	EnemyInfo Enemys[Enemy::enEnemy_Num] = {
-		{"Enemy1", {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{1.0f,1.0f,1.0f}},
-		{"Enemy02",{200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{2.0f,2.5f,2.0f}},
-		{"Boss"  , {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{3.0f,3.0f,3.0f}}
+		{"Enemy1", {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{1.0f,1.0f,1.0f},{0.0f,100.0f,0.0f}},
+		{"Enemy02",{200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{2.0f,2.5f,2.0f},{0.0f,100.0f,0.0f}},
+		{"Boss"  , {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{3.0f,3.0f,3.0f},{0.0f,100.0f,0.0f}},
 	};
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 
 	const float CHARACON_RADIUS = 30.0f ;//カプセルコライダーの半径。
-	const float CHARACON_HEIGHT = 43.0f;//カプセルコライダーの高さ。
+	const float CHARACON_HEIGHT = 25.0f;//カプセルコライダーの高さ。
 
 	const float ENEMY_RANGE      = 120.0f;//Enemyの追従判定の範囲。
 	const float ENEMY_MOVESPEED  = 120.0f;//Eenemyの移動速度。
@@ -103,6 +105,7 @@ void Enemy::SetModel(int enemyModel)
 	m_enemyPos   = Enemys[enemyModel].pos;
 	m_enemyScale = Enemys[enemyModel].scale;
 	m_enemyRotation = Enemys[enemyModel].rot;
+	m_collisionObjStartPos = Enemys[enemyModel].collisionPos;
 
 	std::string file = Enemys[enemyModel].GetFullPath();
 	//敵の読み込み。
@@ -114,23 +117,32 @@ void Enemy::SetModel(int enemyModel)
 //コリジョンオブジェク初期化関数。
 void Enemy::SetCollisionObj(int enemyModel)
 {
+	m_collisionObjStartPos = Enemys[enemyModel].collisionPos;
+
 	wchar_t enemyPos[256];
-	swprintf_s(enemyPos, 256, L"pos X: %f, Y: %f, Z: %f", m_enemyPos.x, m_enemyPos.y, m_enemyPos.z);
+	swprintf_s(
+		enemyPos,
+		256, 
+		L"pos X: %f, Y: %f, Z: %f", 
+		m_collisionObjStartPos.x,
+		m_collisionObjStartPos.y,
+		m_collisionObjStartPos.z
+	);
+
 	m_collisionFontRender.SetText(enemyPos);
 
 	m_collisionObj = new CollisionObject;
 
 	//コリジョンオブジェクトの初期化。
 	m_collisionObj->CreateBox(
-		m_enemyPos,             
-		Quaternion::Identity,   
+		m_collisionObjStartPos,
+		Quaternion::Identity,
 		m_enemyCollisionScale
 	);
 
-	m_collisionObj->SetPosition(m_enemyPos);
+	m_collisionObj->SetPosition(m_collisionObjStartPos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
-	
 }
 
 //スフィアコライダーの半径の設定関数。
@@ -145,16 +157,12 @@ void Enemy::SetFindGOInfo() {
 	m_player = FindGO<Player>("player");
 }
 
-
-
 void Enemy::Move() {
 	if (!IsFoundPlayer()) {
 		RandomWalk();
 	}
 	Tracking();
 }
-
-
 
 //追跡の関数。
 void Enemy::Tracking()
@@ -389,14 +397,11 @@ void Enemy::EnemyBehavior()
 	}
 }
 
-void Enemy::Damage(int damage)
+//EnemyがPlayerに衝突したらダメージを与える処理。
+const bool Enemy::EnemyHit()
 {
-	maxHp = hp;
-	hp -= damage;
-	if (hp < 0)
-	{
-		hp = 0;
-	}
+	//if()
+	return false;
 }
 
 void Enemy::CanHit()
@@ -410,7 +415,8 @@ void Enemy::CanHit()
 	//敵のコリジョンがプレイヤーのコリジョンに
 	// 当たったらダメージを受ける。
 	if (m_collisionObj->IsHit(m_player->m_collisionObj) == true) {
-		Damage(20);
+		//
+		m_player->Damage(20);
 		m_player->force.y = 390.0f;
 		DeleteGO(this);
 	}
