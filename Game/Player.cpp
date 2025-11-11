@@ -45,6 +45,8 @@ bool Player::Start()
 
 	//キャラコンの初期化。
 	m_charaCon.Init(25.0f, 75.0f, m_position);
+
+	SetBodyCollision();
 	return true;
 }
 
@@ -74,7 +76,6 @@ void Player::Update()
 	Rotation();
 	ManageState();
 	TreaderCollisionObj();
-	
 
 	//プレイヤーの座標の描画準備。
 	wchar_t playerText[256];
@@ -93,8 +94,17 @@ void Player::ResPawn()
 	m_charaCon.SetPosition(m_position);
 }
 
+//現在の位置m_positionにdeltaを加算して、
+// 新しい位置を計算する。
+void Player::AddPosition(const Vector3& delta)
+{
+	m_position += delta;
+	m_charaCon.SetPosition(m_position);
+}
+
 void Player::Move()
 {
+	//リスポーン処理。
 	if (m_position.y < -200.0f)
 	{
 		m_modelRender.SetPosition(m_resPawnPos);
@@ -120,8 +130,8 @@ void Player::Move()
 	right.Normalize();
 
 	//歩きの処理。
-	moveSpeed += right   * stickL.x * 200.0f;
-	moveSpeed += forward * stickL.z * 200.0f;
+	moveSpeed += right   * stickL.x * 240.0f;
+	moveSpeed += forward * stickL.z * 240.0f;
 
 	//ダッシュの制御。
 	if (g_pad[0]->IsPress(enButtonB))
@@ -130,8 +140,8 @@ void Player::Move()
 	}
 	if (isDash)
 	{
-		moveSpeed.x *= 2.0f;
-		moveSpeed.z *= 2.0f;
+		moveSpeed.x *= 2.6f;
+		moveSpeed.z *= 2.6f;
 	}
 
 	//地面に接しているなら
@@ -166,6 +176,7 @@ void Player::Move()
 				canJump = false;
 			}
 		}
+		//敵を踏んだ後にY座標が+になる。
 		//外部から力を加える。
 		moveSpeed += force;
 		force *=0.7f;
@@ -219,11 +230,6 @@ void Player::ManageState()
 	m_modelRender.PlayAnimation(playerState);
 }
 
-//void Player::OnAnimationEvent(const wchar_t* clipName, const wchar_t* eventName)
-//{
-//
-//}
-
 void Player::TreaderCollisionObj()
 {
 	//もし地面に付いていなかったら(ジャンプ中)
@@ -254,6 +260,34 @@ void Player::TreaderCollisionObj()
 		m_modelRender.SetPosition(m_footCollisionPos);
 		m_modelRender.Update();
 	}
+}
+
+//プレイヤーの側面(横側から)に当たったらの処理。
+void Player::HitBodyPlayer()
+{
+	if (EnemyCollisionHit())
+	{
+		
+	}
+}
+
+//プレイヤーの体にコリジョンを付ける。
+void Player::SetBodyCollision()
+{
+	//コリジョンをnewする。
+	m_collisionObj = new CollisionObject;
+	m_playerBodyCollisionPos = m_position;
+
+	m_collisionObj->CreateBox(
+		m_playerBodyCollisionPos,
+		Quaternion::Identity,
+		m_playerCollisionScale
+	);
+
+	m_collisionObj->SetPosition(m_playerBodyCollisionPos);
+	m_collisionObj->SetRotation(Quaternion::Identity);
+	m_collisionObj->Update();
+	
 }
 
 /// <summary>
@@ -289,4 +323,18 @@ const bool Player::IsMove()const
 	else {
 		return false;
 	}
+}
+
+//Playerの側面のコリジョンがEnemyのコリジョンに当たった時に
+//Playerが少し後ろに下がる(ノックバックする)。
+const bool Player::EnemyCollisionHit()const
+{
+	if (m_collisionObj->IsHit(m_enemy->m_collisionObj) == true)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+	return true;
 }

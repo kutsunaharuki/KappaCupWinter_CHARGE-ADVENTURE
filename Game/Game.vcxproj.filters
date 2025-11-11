@@ -21,6 +21,7 @@
     <ClCompile Include="Stage1.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
+    <ClCompile Include="Scaffolding.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -37,5 +38,6 @@
     <ClInclude Include="Stage1.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="ObstacleBox.h" />
+    <ClInclude Include="Scaffolding.h" />
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@ public:
 	ModelRender m_stage1Render;
 	PhysicsStaticObject m_physicsStaticObj;
 	Vector3 m_Pos = Vector3::Zero;
-	Vector3 m_scale = Vector3::Zero;
+	Quaternion m_rot = Quaternion::Identity;
+	Vector3 m_scale = Vector3::One;
 };
 
