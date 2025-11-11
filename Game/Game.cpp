@@ -10,6 +10,7 @@
 #include "Enemy.h"
 #include "ObstacleBox.h"
 #include "Scaffolding.h"
+#include "MovingFloorUpDown.h"
 
 Game::~Game()
 {
@@ -28,6 +29,15 @@ Game::~Game()
 	{
 		DeleteGO(m_warpHole);
 	}*/
+	for (auto m_movingFloor : m_movingFloors)
+	{
+		DeleteGO(m_movingFloor);
+	}
+	for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
+	{
+		DeleteGO(m_movingFloorUpDown);
+	}
+
 }
 
 bool Game::Start()
@@ -37,6 +47,9 @@ bool Game::Start()
 
 	//ゲームカメラのオブジェクトを作成する。
 	m_gameCamera = NewGO<GameCamera>(0, "gameCamera");
+
+	//動く床の縦方向のオブジェクトを作成する。
+	//m_upDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
 
 	//浮遊足場のオブジェクトを作成する。
 	//m_skyGround = NewGO<SkyGround>(0, "skyGround");
@@ -91,6 +104,20 @@ bool Game::Start()
 			m_movingFloor->m_movingSc = objData.scale;
 
 			m_movingFloors.push_back(m_movingFloor);
+			return true;
+		}
+
+		if (objData.EqualObjectName(L"MovingFloorUpDown") == true)
+		{
+			//動く床(縦方向)を作成する。
+			auto m_movingFloorUpDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
+			m_movingFloorUpDown->m_movingSpeed = objData.position;
+			m_movingFloorUpDown->m_firstPos = objData.position;
+			m_movingFloorUpDown->m_movingPos = objData.position;
+			m_movingFloorUpDown->m_movingRot = objData.rotation;
+			m_movingFloorUpDown->m_movingScale = objData.scale;
+			
+			m_movingFloorUpDowns.push_back(m_movingFloorUpDown);
 			return true;
 		}
 		return false;

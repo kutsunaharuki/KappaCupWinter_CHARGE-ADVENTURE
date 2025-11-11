@@ -6,6 +6,7 @@ class Player;
 class GameCamera;
 class Warp;
 class MovingFloor;
+class MovingFloorUpDown;
 class WarpHole;
 class SkyGround;
 class Stage1;
@@ -35,6 +36,7 @@ public:
 	std::vector<Stage1*> m_stage1s;
 	std::vector<WarpHole*> m_warpHoles;
 	std::vector<MovingFloor*> m_movingFloors;
+	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
 
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
@@ -47,5 +49,6 @@ private:
 	Enemy      * m_enemy       = nullptr;//敵。
 	ObstacleBox* m_obstacleBox = nullptr;//障害物(ボックス)。
 	Scaffolding* m_scaffolding = nullptr;//足場。
+	MovingFloorUpDown* m_upDown = nullptr;//動く床(Y軸アップ)。
 };
 
