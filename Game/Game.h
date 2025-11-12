@@ -8,11 +8,13 @@ class Warp;
 class MovingFloor;
 class MovingFloorUpDown;
 class WarpHole;
-class SkyGround;
-class Stage1;
 class Enemy;
 class ObstacleBox;
 class Scaffolding;
+class Asiba;
+class SkyGround;
+class StageGround;
+class Poal;
 
 class Game : public IGameObject
 {
@@ -26,17 +28,19 @@ public:
 
 	//時間制限。
 	Vector3 m_timerFontPos = { -100.0f,520.0f,0.0f };
-	//float m_timer = 120.0f;
+	float m_timer = 120.0f;
 	//時間の確認用の秒数。
-	float m_timer = 5.0f;
+	//float m_timer = 5.0f;
 	FontRender m_timerFontRender;
 	//-----------------------------------
 
 	LevelRender m_levelRender;
-	std::vector<Stage1*> m_stage1s;
-	std::vector<WarpHole*> m_warpHoles;
+	std::vector<StageGround*> m_stageGrounds;
+	std::vector<Scaffolding*> m_scaffoldings;
+	std::vector<SkyGround*> m_skyGrounds;
 	std::vector<MovingFloor*> m_movingFloors;
 	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
+	std::vector<Poal*> m_poals;
 
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
@@ -44,11 +48,20 @@ private:
 	Warp      * m_warp         = nullptr;//ワープ。
 	MovingFloor* m_movingFloor = nullptr;//動く床。
 	WarpHole   * m_warpHole    = nullptr;//ワープボックス。
-	SkyGround  * m_skyGround   = nullptr;//浮遊足場。
-	Stage1     * m_stage1      = nullptr;//ステージ1。
+	//Stage1     * m_stage1      = nullptr;//ステージ1。
 	Enemy      * m_enemy       = nullptr;//敵。
 	ObstacleBox* m_obstacleBox = nullptr;//障害物(ボックス)。
 	Scaffolding* m_scaffolding = nullptr;//足場。
 	MovingFloorUpDown* m_upDown = nullptr;//動く床(Y軸アップ)。
+	Asiba* m_asiba              = nullptr;//足場。
+	SkyCube* m_skyCube = nullptr;//スカイキューブ。
+	SkyGround* m_skyGround = nullptr;//重力のない足場。
+	StageGround* m_stageGround = nullptr;//最初プレイヤーが触れる足場。
+	Poal* m_poal = nullptr;//ゴールポール。
+	/// <summary>
+	/// 空を初期化。
+	/// </summary>
+	void InitSky();
+	int m_skyCubeType = enSkyCubeType_Day;//昼間。
 };
 

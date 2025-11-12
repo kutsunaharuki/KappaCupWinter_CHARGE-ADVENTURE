@@ -223,6 +223,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Asiba.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameCamera.cpp" />
@@ -231,9 +232,10 @@
     <ClCompile Include="MovingFloorUpDown.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Poal.cpp" />
     <ClCompile Include="Scaffolding.cpp" />
     <ClCompile Include="SkyGround.cpp" />
-    <ClCompile Include="Stage1.cpp" />
+    <ClCompile Include="StageGround.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -244,6 +246,7 @@
     <ClCompile Include="WarpHole.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Asiba.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameCamera.h" />
@@ -251,9 +254,10 @@
     <ClInclude Include="MovingFloorUpDown.h" />
     <ClInclude Include="ObstacleBox.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Poal.h" />
     <ClInclude Include="Scaffolding.h" />
     <ClInclude Include="SkyGround.h" />
-    <ClInclude Include="Stage1.h" />
+    <ClInclude Include="StageGround.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system\system.h" />
     <ClInclude Include="Warp.h" />

@@ -17,7 +17,7 @@ public:
 	Vector3 m_firstPosition  = Vector3::Zero;            //初期位置。
 	Vector3 m_position = Vector3::Zero;                  //現在地。
 	Vector3 m_speed = Vector3::Zero;                     //移動速度。
-	Vector3 m_movingSc = Vector3(400.0f, 10.0f, 220.0f); //大きさ。
+	Vector3 m_movingSc = Vector3::One;                   //大きさ。
 	
 	Vector3 m_fontPos = Vector3(200.0f,100.0f,0.0f);     //フォントの座標。
 

@@ -5,7 +5,6 @@
 
 class Warp;
 class MovingFloor;
-class SkyGround;
 class Enemy;
 class Player:public IGameObject
 {
@@ -115,6 +114,5 @@ private:
 	int playerState    = 0;
 
 	MovingFloor* m_movingFloor = nullptr;
-	SkyGround  * m_skyGround   = nullptr;
 };
 

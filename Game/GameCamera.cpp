@@ -16,7 +16,8 @@ bool GameCamera::Start()
 {
 	m_player = FindGO<Player>("player");
 	//注視点からのベクトルを設定する。
-	m_toCameraPos.Set(200.0f, 180.0f, -420.0f);
+	m_toCameraPos.Set(200.0f, 180.0f, -600.0f);
+	//m_toCameraPos.Set(200.0f, 180.0f, -420.0f);
 	m_springCamera.Init(
 		*g_camera3D,//バネカメラの処理を行うカメラを指定する。
 		1000.0f,	//カメラの移動速度の最大値。
@@ -25,7 +26,7 @@ bool GameCamera::Start()
 	);
 
 	g_camera3D->SetNear(10.0f);
-	g_camera3D->SetFar(100000.0f);
+	g_camera3D->SetFar(200000.0f);
 	return true;
 }
 

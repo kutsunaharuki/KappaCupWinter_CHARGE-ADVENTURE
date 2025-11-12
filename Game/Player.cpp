@@ -2,7 +2,6 @@
 #include "Player.h"
 #include "Warp.h"//ゴーストオブジェクト。
 #include "MovingFloor.h"
-#include "SkyGround.h"
 #include "Enemy.h"
 
 namespace
@@ -53,7 +52,6 @@ bool Player::Start()
 
 void Player::FindGameObjInfo()
 {
-	m_skyGround    = FindGO<SkyGround>("skyGround");
 	m_warp         = FindGO<Warp>("warp");
 	m_enemy        = FindGO<Enemy>("enemy");
 	m_collisionObj = FindGO<CollisionObject>("collisionObject");

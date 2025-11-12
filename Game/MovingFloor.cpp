@@ -5,7 +5,7 @@
 namespace {
 	float SPEED = 300.0f;
 	float LIMITED = 400.0f;
-	Vector3 COLLISION_SIZE = Vector3(365.0f, 10.0f, 370.5f);
+	Vector3 COLLISION_SIZE = Vector3(600.0f, 5.0f, 600.0f);
 	Vector3 COLLISION_HEIGHT = Vector3(0.0f, 50.0f, 0.0f);
 	const char* MOVINGFLOOR_INIT = "Assets/modelData/MovingFloor.tkm";
 }

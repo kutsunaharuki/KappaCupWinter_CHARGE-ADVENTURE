@@ -5,12 +5,15 @@
 #include "Warp.h"
 #include "MovingFloor.h"
 #include "WarpHole.h"//ワープボックス(モデル)。
-#include "SkyGround.h"
-#include "Stage1.h"
+//#include "Stage1.h"
 #include "Enemy.h"
 #include "ObstacleBox.h"
 #include "Scaffolding.h"
 #include "MovingFloorUpDown.h"
+#include "Asiba.h"
+#include "SkyGround.h"
+#include "StageGround.h"
+#include "Poal.h"
 
 Game::~Game()
 {
@@ -19,43 +22,57 @@ Game::~Game()
 	DeleteGO(m_warp);
 	DeleteGO(m_warpHole);
 	DeleteGO(m_movingFloor);
+	DeleteGO(m_skyCube);
+}
 
-	//レベルを消すためのやつ。
-	/*for (auto m_stage1 : m_stage1s)
-	{
-		DeleteGO(m_stage1);
-	}*/
-	/*for (auto m_warpHole : m_warpHoles)
-	{
-		DeleteGO(m_warpHole);
-	}*/
-	for (auto m_movingFloor : m_movingFloors)
-	{
-		DeleteGO(m_movingFloor);
-	}
-	for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
-	{
-		DeleteGO(m_movingFloorUpDown);
-	}
+void Game::InitSky()
+{
+	//現在の空を破棄する。
+	DeleteGO(m_skyCube);
+	m_skyCube = NewGO<SkyCube>(0, "skyCube");
 
+	//スカイキューブの大きさを変更する。
+	m_skyCube->SetScale(10000.0f);
+	//明るさを設定する。
+	m_skyCube->SetLuminance(1.0f);
+	//スカイキューブを昼間に設定する。
+	m_skyCube->SetType((EnSkyCubeType)m_skyCubeType);
+
+	//環境光の計算の為のIBLテクスチャをセットする。
+	g_renderingEngine->SetAmbientByIBLTexture(m_skyCube->GetTextureFilePath(), 1.0f);
+
+	//環境日光の影響が分かりやすいように、ディレクションライトはオフに。
+	g_renderingEngine->SetDirectionLight(0, g_vec3Zero, g_vec3Zero);
 }
 
 bool Game::Start()
 {
+	InitSky();
+
 	//プレイヤーのオブジェクトを作成する。
 	m_player = NewGO<Player>(0, "player");
 
 	//ゲームカメラのオブジェクトを作成する。
 	m_gameCamera = NewGO<GameCamera>(0, "gameCamera");
 
+	//ステージ1-1の基盤を作成する。
+	//m_stageGround = NewGO<StageGround>(0, "stageGround");
+	
+	//重力のない足場。
+	//m_skyGround = NewGO<SkyGround>(0, "skyGround");
+
+	//動く床を作成する。
+	//m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
+
 	//動く床の縦方向のオブジェクトを作成する。
 	//m_upDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
 
-	//浮遊足場のオブジェクトを作成する。
-	//m_skyGround = NewGO<SkyGround>(0, "skyGround");
-
+	//高低差の足場。
+	//m_scaffolding = NewGO<Scaffolding>(0, "scaffolding");
+	
 	//ワープ(ゴーストオブジェクト)を作成する。
 	//m_warp = NewGO<Warp>(0, "warp");
+	
 
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");
@@ -65,36 +82,50 @@ bool Game::Start()
 	//仮の障害物(ボックス)を作成する。
 	//m_obstacleBox = NewGO<ObstacleBox>(0, "obstacleBox");
 
-	//高低差の足場。
-	//m_scaffolding = NewGO<Scaffolding>(0, "scaffolding");
 
 	//ワープボックスを作成する。
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
-
-	//動く床を作成する。
-	//m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
-
-	//仮ステージを作成する。
-	//m_stage1 = NewGO<Stage1>(0, "stage1");
 	
-	m_levelRender.Init("Assets/LevelRender/Stage00Level.tkl", [&](LevelObjectData& objData) {
-		if (objData.EqualObjectName(L"Stage01") == true)
+	//足場を作成する。
+	//m_asiba = NewGO<Asiba>(0, "asiba");
+
+	//ゴールポールを作成する。
+	m_poal = NewGO<Poal>(0, "poal");
+
+	m_levelRender.Init("Assets/LevelRender/Stage1-1Level.tkl", [&](LevelObjectData& objData) {
+		if (objData.EqualObjectName(L"StageGround") == true)
 		{
-			//ステージ1を作成する。
-			auto m_stage1 = NewGO<Stage1>(0, "stage1");
+			//最初に触れる足場。
+			auto m_stageGround = NewGO<StageGround>(0, "stageGround");
 
-			m_stage1->m_Pos   = objData.position;
-			m_stage1->m_rot   = objData.rotation;
-			m_stage1->m_scale = objData.scale;
-
-			m_stage1s.push_back(m_stage1);
-
+			m_stageGround->m_stageGroundPos = objData.position;
+			m_stageGround->m_stageGroundSc = objData.scale;
+			m_stageGrounds.push_back(m_stageGround);
 			return true;
 		}
+		if (objData.EqualObjectName(L"Koutei") == true)
+		{
+			//高低差のある段差の足場。
+			auto m_scaffolding = NewGO<Scaffolding>(0, "scaffolding");
+			
+			m_scaffolding->m_scaffoldingPos = objData.position;
+			m_scaffolding->m_scaffoldingSc = objData.scale;
+			m_scaffoldings.push_back(m_scaffolding);
+			return true;
+		}
+		if (objData.EqualObjectName(L"SkyGround") == true)
+		{
+			//重力のない足場。
+			auto m_skyGround = NewGO<SkyGround>(0, "skyGround");
 
+			m_skyGround->m_skyGroundPos = objData.position;
+			m_skyGround->m_skyGroundSc = objData.scale;
+			m_skyGrounds.push_back(m_skyGround);
+			return true;
+		}
 		if (objData.EqualObjectName(L"MovingFloor") == true)
 		{
-			//動く床を作成する。
+			//Z方向に動く床を作成する。
 			auto m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
 
 			m_movingFloor->m_speed = objData.position;
@@ -102,21 +133,18 @@ bool Game::Start()
 			m_movingFloor->m_position = objData.position;
 			m_movingFloor->m_movingFloorRotation = objData.rotation;
 			m_movingFloor->m_movingSc = objData.scale;
-
 			m_movingFloors.push_back(m_movingFloor);
 			return true;
 		}
-
 		if (objData.EqualObjectName(L"MovingFloorUpDown") == true)
 		{
-			//動く床(縦方向)を作成する。
+			//Y方向に動く床を作成する。
 			auto m_movingFloorUpDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
+
 			m_movingFloorUpDown->m_movingSpeed = objData.position;
 			m_movingFloorUpDown->m_firstPos = objData.position;
-			m_movingFloorUpDown->m_movingPos = objData.position;
 			m_movingFloorUpDown->m_movingRot = objData.rotation;
 			m_movingFloorUpDown->m_movingScale = objData.scale;
-			
 			m_movingFloorUpDowns.push_back(m_movingFloorUpDown);
 			return true;
 		}

@@ -17,12 +17,14 @@
     <ClCompile Include="Warp.cpp" />
     <ClCompile Include="MovingFloor.cpp" />
     <ClCompile Include="WarpHole.cpp" />
-    <ClCompile Include="SkyGround.cpp" />
-    <ClCompile Include="Stage1.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
     <ClCompile Include="Scaffolding.cpp" />
     <ClCompile Include="MovingFloorUpDown.cpp" />
+    <ClCompile Include="Asiba.cpp" />
+    <ClCompile Include="SkyGround.cpp" />
+    <ClCompile Include="StageGround.cpp" />
+    <ClCompile Include="Poal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -35,11 +37,13 @@
     <ClInclude Include="Warp.h" />
     <ClInclude Include="MovingFloor.h" />
     <ClInclude Include="WarpHole.h" />
-    <ClInclude Include="SkyGround.h" />
-    <ClInclude Include="Stage1.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="ObstacleBox.h" />
     <ClInclude Include="Scaffolding.h" />
     <ClInclude Include="MovingFloorUpDown.h" />
+    <ClInclude Include="Asiba.h" />
+    <ClInclude Include="SkyGround.h" />
+    <ClInclude Include="StageGround.h" />
+    <ClInclude Include="Poal.h" />
   </ItemGroup>
 </Project>
