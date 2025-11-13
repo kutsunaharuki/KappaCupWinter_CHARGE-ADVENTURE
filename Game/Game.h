@@ -15,6 +15,8 @@ class Asiba;
 class SkyGround;
 class StageGround;
 class Poal;
+class GameClear;
+class GameOver;
 
 class Game : public IGameObject
 {
@@ -30,7 +32,7 @@ public:
 	Vector3 m_timerFontPos = { -100.0f,520.0f,0.0f };
 	float m_timer = 120.0f;
 	//時間の確認用の秒数。
-	//float m_timer = 5.0f;
+	//float m_timer = 10.0f;
 	FontRender m_timerFontRender;
 	//-----------------------------------
 
@@ -58,10 +60,12 @@ private:
 	SkyGround* m_skyGround = nullptr;//重力のない足場。
 	StageGround* m_stageGround = nullptr;//最初プレイヤーが触れる足場。
 	Poal* m_poal = nullptr;//ゴールポール。
+	GameClear* m_gameClear = nullptr;//ゲームクリア。
+	GameOver* m_gameOver = nullptr;//ゲームオーバー。
 	/// <summary>
 	/// 空を初期化。
 	/// </summary>
 	void InitSky();
-	int m_skyCubeType = enSkyCubeType_Day;//昼間。
+	int m_skyCubeType = enSkyCubeType_DayToon_2;//昼間。
 };
 

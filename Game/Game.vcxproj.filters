@@ -25,6 +25,9 @@
     <ClCompile Include="SkyGround.cpp" />
     <ClCompile Include="StageGround.cpp" />
     <ClCompile Include="Poal.cpp" />
+    <ClCompile Include="Title.cpp" />
+    <ClCompile Include="GameClear.cpp" />
+    <ClCompile Include="GameOver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -45,5 +48,8 @@
     <ClInclude Include="SkyGround.h" />
     <ClInclude Include="StageGround.h" />
     <ClInclude Include="Poal.h" />
+    <ClInclude Include="Title.h" />
+    <ClInclude Include="GameClear.h" />
+    <ClInclude Include="GameOver.h" />
   </ItemGroup>
 </Project>

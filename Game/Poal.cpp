@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Poal.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace {
 	const char* POAL = "Assets/modelData/Poal.tkm";
-	const float RADIUS = 100.0f;//カプセルコライダーの半径。
-	const float HEIGHT = 300.0f;//カプセルコライダーの高さ。
+	const float RADIUS = 90.0f;//カプセルコライダーの半径。
+	const float HEIGHT = 500.0f;//カプセルコライダーの高さ。
 	const Vector3 POS_HEIGHT = { 0.0f,250.0f,0.0f };//座標を上に上げる。
 }
 
@@ -26,14 +27,23 @@ bool Poal::Start()
 	m_poalRender.Update();
 
 	SetCollisionObj();
+	m_collisionObj->SetPosition(m_pos);
+	m_collisionObj->SetRotation(m_rot);
+	m_collisionObj->Update();
 	return true;
+}
+
+void Poal::Update()
+{
+	PoalHit();
+	m_poalRender.Update();
 }
 
 void Poal::SetCollisionObj()
 {
 	m_collisionObj = new CollisionObject;
 	m_collisionObj->CreateCapsule(
-		m_colPos,           //座標。
+		m_pos,           //座標。
 		m_rot,              //回転。
 		RADIUS,             //半径。
 		HEIGHT              //高さ。
@@ -48,15 +58,18 @@ void Poal::SetCollisionObj()
 /// <summary>
 /// ゴールポールのコリジョンに当たった時の処理。
 /// </summary>
-void Poal::PoalHit()
+bool Poal::PoalHit()
 {
 	if (m_collisionObj != nullptr && m_player != nullptr)
 	{
 		if (m_collisionObj->IsHit(m_player->GetCharacterController()) == true)
 		{
-			DeleteGO(this);
+			isHit = true;
+			return true;
 		}
+		return true;
 	}
+	return true;
 }
 
 void Poal::Render(RenderContext& rc)

@@ -5,8 +5,9 @@ class Poal : public IGameObject
 public:
 	~Poal();
 	bool Start()override;
+	void Update();
 	void SetCollisionObj();
-	void PoalHit();
+	bool PoalHit();
 	void Render(RenderContext& rc);
 	ModelRender m_poalRender;//ÉÇÉfÉãÅB
 	PhysicsStaticObject m_physicsObj;

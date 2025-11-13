@@ -75,7 +75,12 @@ bool Boss::Start() {
 
 Enemy::~Enemy()
 {
-	delete m_collisionObj;
+	if (m_collisionObj != nullptr)
+	{
+		delete m_collisionObj;
+		m_collisionObj = nullptr;
+	}
+	
 }
 
 void Enemy::Update()

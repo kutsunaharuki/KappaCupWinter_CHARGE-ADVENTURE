@@ -59,7 +59,11 @@ void Player::FindGameObjInfo()
 
 Player::~Player()
 {
-	
+	if (m_collisionObj != nullptr)
+	{
+		delete m_collisionObj;
+		m_collisionObj = nullptr;
+	}
 }
 
 void Player::Update()
