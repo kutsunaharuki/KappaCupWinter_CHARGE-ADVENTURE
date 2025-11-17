@@ -62,7 +62,7 @@ bool Poal::PoalHit()
 {
 	if (m_collisionObj != nullptr && m_player != nullptr)
 	{
-		if (m_collisionObj->IsHit(m_player->GetCharacterController()) == true)
+		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
 		{
 			isHit = true;
 			return true;
