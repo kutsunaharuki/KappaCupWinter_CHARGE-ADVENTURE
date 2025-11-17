@@ -17,6 +17,7 @@ class StageGround;
 class Poal;
 class GameClear;
 class GameOver;
+class BossStage;
 
 class Game : public IGameObject
 {
@@ -43,6 +44,7 @@ public:
 	std::vector<MovingFloor*> m_movingFloors;
 	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
 	std::vector<Poal*> m_poals;
+	std::vector<Enemy*> m_enemys;
 
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
@@ -62,10 +64,11 @@ private:
 	Poal* m_poal = nullptr;//ゴールポール。
 	GameClear* m_gameClear = nullptr;//ゲームクリア。
 	GameOver* m_gameOver = nullptr;//ゲームオーバー。
+	BossStage* m_bossStage = nullptr;//ボスステージ。
 	/// <summary>
 	/// 空を初期化。
 	/// </summary>
 	void InitSky();
-	int m_skyCubeType = enSkyCubeType_DayToon_2;//昼間。
+	int m_skyCubeType = enSkyCubeType_DayToon;//昼間。
 };
 

@@ -18,10 +18,14 @@ bool GameOver::Start()
 
 void GameOver::Update()
 {
+
 	if (g_pad[0]->IsTrigger(enButtonY))
 	{
-		NewGO<Title>(0, "title");
-		DeleteGO(this);
+		//NewGO<Title>(0, "title");
+		auto title = FindGO<Title>("title");
+		title->Activate();
+		this->Deactivate();
+		//DeleteGO(this);
 	}
 }
 

@@ -28,6 +28,7 @@
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="GameClear.cpp" />
     <ClCompile Include="GameOver.cpp" />
+    <ClCompile Include="HPUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -51,5 +52,6 @@
     <ClInclude Include="Title.h" />
     <ClInclude Include="GameClear.h" />
     <ClInclude Include="GameOver.h" />
+    <ClInclude Include="HPUI.h" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,6 @@
 #include "Title.h"
 
 
-
 void ReportLiveObjects()
 {
 	IDXGIDebug* pDxgiDebug;

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Title.h"
 #include "Game.h"
+#include "GameClear.h"
+#include "GameOver.h"
 
 namespace {
 	const char* TITLE = "Assets/Sprite/Title.dds";
@@ -15,6 +17,12 @@ bool Title::Start()
 	m_fontRender.SetPosition(m_pos);
 	m_fontRender.SetColor(g_vec4Yellow);
 	m_fontRender.SetScale(2.2f);
+
+	m_gameClear = NewGO<GameClear>(0, "gameClear");
+	m_gameClear->Deactivate();
+	
+	m_gameOver = NewGO<GameOver>(0, "gameOver");
+	m_gameOver->Deactivate();
 	return true;
 }
 
@@ -22,8 +30,10 @@ void Title::Update()
 {
 	if (g_pad[0]->IsTrigger(enButtonA))
 	{
-		NewGO<Game>(0, "game");
-		DeleteGO(this);
+		m_game = nullptr;
+		m_game = NewGO<Game>(0, "game");
+	
+		this->Deactivate();
 	}
 }
 

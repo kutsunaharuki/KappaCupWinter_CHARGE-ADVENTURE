@@ -20,8 +20,11 @@ void GameClear::Update()
 {
 	if (g_pad[0]->IsTrigger(enButtonY))
 	{
-		NewGO<Title>(0, "title");
-		DeleteGO(this);
+		auto title = FindGO<Title>("title");
+		title->Activate();
+		this->Deactivate();
+		//NewGO<Title>(0, "title");
+		//DeleteGO(this);
 	}
 }
 

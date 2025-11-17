@@ -20,34 +20,51 @@
 Game::~Game()
 {
 	DeleteGO(m_player);
+	m_player = nullptr;
 	DeleteGO(m_gameCamera);
+	m_gameCamera = nullptr;
 	DeleteGO(m_warp);
+	m_warp = nullptr;
 	DeleteGO(m_warpHole);
+	m_warpHole = nullptr;
 	DeleteGO(m_movingFloor);
+	m_movingFloor = nullptr;
 	DeleteGO(m_skyCube);
-	for (auto m_stageGround : m_stageGrounds)
+	m_skyCube = nullptr;
+	for (auto stageGround : m_stageGrounds)
 	{
-		DeleteGO(m_stageGround);
+		DeleteGO(stageGround);
+		stageGround = nullptr;
 	}
-	for (auto m_scaffolding : m_scaffoldings)
+	for (auto scaffolding : m_scaffoldings)
 	{
-		DeleteGO(m_scaffolding);
+		DeleteGO(scaffolding);
+		scaffolding = nullptr;
 	}
-	for (auto m_skyGround : m_skyGrounds)
+	for (auto skyGround : m_skyGrounds)
 	{
-		DeleteGO(m_skyGround);
+		DeleteGO(skyGround);
+		skyGround = nullptr;
 	}
-	for (auto m_movingFloor : m_movingFloors)
+	for (auto movingFloor : m_movingFloors)
 	{
-		DeleteGO(m_movingFloor);
+		DeleteGO(movingFloor);
+		movingFloor = nullptr;
 	}
-	for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
+	for (auto movingFloorUpDown : m_movingFloorUpDowns)
 	{
-		DeleteGO(m_movingFloorUpDown);
+		DeleteGO(movingFloorUpDown);
+		movingFloorUpDown = nullptr;
 	}
-	for (auto m_poal : m_poals)
+	for (auto poal : m_poals)
 	{
-		DeleteGO(m_poal);
+		DeleteGO(poal);
+		poal = nullptr;
+	}
+	for (auto enemy : m_enemys)
+	{
+		DeleteGO(enemy);
+		enemy = nullptr;
 	}
 }
 
@@ -81,7 +98,7 @@ bool Game::Start()
 	m_gameCamera = NewGO<GameCamera>(0, "gameCamera");
 
 	//敵を作成する。
-	//m_enemy = NewGO<Enemy1>(0, "enemy1");
+	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
 	//m_enemy = NewGO<Enemy2>(0, "enemy2");
 	//m_enemy = NewGO<Boss>(0, "boss");
 
@@ -92,6 +109,17 @@ bool Game::Start()
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
 
 	m_levelRender.Init("Assets/LevelRender/Stage1-1Level.tkl", [&](LevelObjectData& objData) {
+		if (objData.EqualObjectName(L"Frogs") == true)
+		{
+			//Frog(Enemy1)を作成する。
+			auto m_enemy = NewGO<Enemy1>(0,"Frogs");
+		
+			m_enemy->SetPosition(objData.position);
+			m_enemy->SetRotation(objData.rotation);
+			m_enemy->SetScale(objData.scale);
+			m_enemys.push_back(m_enemy);
+			return true;
+		}
 		if (objData.EqualObjectName(L"StageGround") == true)
 		{
 			//最初に触れる足場。
@@ -166,21 +194,35 @@ void Game::Update()
 {
 	TimeDraw();
 	
+	//プレイヤーのHPが0になったら
+	//ゲームオーバーにする処理。
+	if (m_player->hp <= 0)
+	{
+		auto gameOver = FindGO<GameOver>("gameOver");
+		gameOver->Activate();
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(this);
+	}
+
 	//落下の処理。
 	if (m_player->m_position.y <= -200.0f)
 	{
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		auto gameOver = FindGO<GameOver>("gameOver");
+		gameOver->Activate();
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
 		DeleteGO(this);
 	}
 	for (auto m_poal : m_poals)
 	{
 		if (m_poal != nullptr && m_poal->m_collisionObj != nullptr)
 		{
-			if (m_poal->m_collisionObj->IsHit(m_player->GetCharacterController()) == true)
+			if (m_poal->m_collisionObj->IsHit(m_player->GetCharacterController()))
 			{
-				m_gameClear = NewGO<GameClear>(0, "gameClear");
+				auto gameClear = FindGO<GameClear>("gameClear");
+				gameClear->Activate();
+				//m_gameClear = NewGO<GameClear>(0, "gameClear");
 				DeleteGO(this);
-				break;
+				break;//ここで終了。
 			}
 		}
 	}
@@ -188,7 +230,9 @@ void Game::Update()
 	//制限時間終了後の処理。
 	if (m_timer <= 0.0f)
 	{
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		auto gameOver = FindGO<GameOver>("gameOver");
+		gameOver->Activate();
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
 		DeleteGO(this);
 	}
 
@@ -212,11 +256,6 @@ void Game::TimeDraw()
 
 	//時間が0になったら終了。
 	//今は実施しない。
-	if (m_timer <= 0.0f)
-	{
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
-		DeleteGO(this);
-	}
 	if (m_timer <= 0.0f)
 	{
 		m_timer = 0;
