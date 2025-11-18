@@ -16,6 +16,8 @@
 #include "Poal.h"
 #include "GameClear.h"
 #include "GameOver.h"
+#include "BossStage.h"
+#include "HPUI.h"
 
 Game::~Game()
 {
@@ -31,6 +33,8 @@ Game::~Game()
 	m_movingFloor = nullptr;
 	DeleteGO(m_skyCube);
 	m_skyCube = nullptr;
+	DeleteGO(m_hpui);
+	m_hpui = nullptr;
 	for (auto stageGround : m_stageGrounds)
 	{
 		DeleteGO(stageGround);
@@ -97,6 +101,8 @@ bool Game::Start()
 	//ゲームカメラのオブジェクトを作成する。
 	m_gameCamera = NewGO<GameCamera>(0, "gameCamera");
 
+	//HPUIを作成する。
+	m_hpui = NewGO<HPUI>(0, "hpui");
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
 	//m_enemy = NewGO<Enemy2>(0, "enemy2");
@@ -191,16 +197,20 @@ bool Game::Start()
 }
 
 void Game::Update()
-{
-	TimeDraw();
-	
+{	
+	//1-1のステージかボスステージの場合タイマーを描画する。
+	if (m_gameState == GameState::Normal || m_gameState == GameState::BossStage)
+	{
+		TimeDraw();
+	}
+
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
 	if (m_player->hp <= 0)
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
 		DeleteGO(this);
 	}
 
@@ -209,22 +219,8 @@ void Game::Update()
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
 		DeleteGO(this);
-	}
-	for (auto m_poal : m_poals)
-	{
-		if (m_poal != nullptr && m_poal->m_collisionObj != nullptr)
-		{
-			if (m_poal->m_collisionObj->IsHit(m_player->GetCharacterController()))
-			{
-				auto gameClear = FindGO<GameClear>("gameClear");
-				gameClear->Activate();
-				//m_gameClear = NewGO<GameClear>(0, "gameClear");
-				DeleteGO(this);
-				break;//ここで終了。
-			}
-		}
 	}
 
 	//制限時間終了後の処理。
@@ -232,11 +228,14 @@ void Game::Update()
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
 		DeleteGO(this);
 	}
 
 	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	
+	//auto型は推論なので、必要なのは右辺値が必要。
+	//auto型の為に#includeは必要ない。
 	// g_renderingEngine->DisableRaytracing();
 }
 
@@ -266,6 +265,7 @@ void Game::TimeDraw()
 
 void Game::Render(RenderContext& rc)
 {
+	int hp = m_player->hp;
 	//レベルの描画。
 	m_levelRender.Draw(rc);
 	//時間制限の描画。

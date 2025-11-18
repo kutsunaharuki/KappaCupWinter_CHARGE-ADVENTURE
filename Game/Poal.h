@@ -1,5 +1,6 @@
 #pragma once
 class Player;
+class BossStage;
 class Poal : public IGameObject
 {
 public:
@@ -7,7 +8,7 @@ public:
 	bool Start()override;
 	void Update();
 	void SetCollisionObj();
-	bool PoalHit();
+	//bool PoalHit();
 	void Render(RenderContext& rc);
 	ModelRender m_poalRender;//モデル。
 	PhysicsStaticObject m_physicsObj;
@@ -16,7 +17,7 @@ public:
 	Vector3 m_pos = Vector3::Zero;//座標。
 	Vector3 m_scale = { 1.5f,3.0f,1.5f };//スケール。
 	Vector3 m_colPos = { 0.0f,100.0f,0.0f };
-	bool isHit = false;//ゴールポールに当たったらのフラグ。
+	//bool isHit = false;//ゴールポールに当たったらのフラグ。
 private:
 	Player* m_player = nullptr;
 };

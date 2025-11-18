@@ -6,18 +6,16 @@
 
 namespace {
 	//ファイルの場所。
-	std::string FILE_PATH = "Assets/Enemy/";
+	std::string FILE_PATH = "Assets/modelData/";
 	//拡張子。
 	std::string FILE_EXTENSTION = ".tkm";
 	
+	
+
 	struct EnemyInfo
 	{
 		//ファイル名。
 		std::string fileName = "fileName";
-
-		Vector3 pos = Vector3::Zero;
-		Vector3 scale;
-		Quaternion rot;
 
 		Vector3 collisionSc;
 		Vector3 collisionPos;
@@ -27,10 +25,34 @@ namespace {
 		}
 	};
 
-	EnemyInfo Enemys[Enemy::enEnemy_Num] = {
-		{"Enemy1", {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{1.0f,1.0f,1.0f},{0.0f,100.0f,0.0f}},
-		{"Enemy02",{200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{2.0f,2.5f,2.0f},{0.0f,100.0f,0.0f}},
-		{"Boss"  , {200.0f,0.0f,200.0f},{0.12f,0.12f,0.12f},Quaternion::Identity,{3.0f,3.0f,3.0f},{0.0f,100.0f,0.0f}},
+
+	//ファイルの場所。
+	std::string ENEMY_ANIM_PATH = "Assets/EnemyAnimData/";
+	//拡張子。
+	std::string ENEMY_FILE_EXTENSTION = ".tka";
+
+	struct AnimInfo
+	{
+		//ファイル名。
+		std::string fileName = "fileName";
+
+		std::string GetAnimPath()
+		{
+			return ENEMY_ANIM_PATH + fileName + ENEMY_FILE_EXTENSTION;
+		}
+	};
+
+	EnemyInfo Enemys[enEnemy_Num] = {
+		{"Frogs",  {1.0f,1.0f,1.0f},{0.0f,100.0f,0.0f}},
+		{"Enemy02",{2.0f,2.5f,2.0f},{0.0f,100.0f,0.0f}},
+		{"Boss"  , {3.0f,3.0f,3.0f},{0.0f,100.0f,0.0f}},
+	};
+
+
+	AnimInfo Animas[enEnemy_Num] = {
+		{"Jumping"},
+		{},
+		{}
 	};
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
@@ -80,15 +102,16 @@ Enemy::~Enemy()
 		delete m_collisionObj;
 		m_collisionObj = nullptr;
 	}
-	
 }
 
 void Enemy::Update()
 {
 	Move();
+	EnemyBehavior();
 	m_collisionObj->SetPosition(m_enemyPos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
+	EnemyHit();
 	CanHit();
 	m_enemyRender.Update();
 }
@@ -107,9 +130,6 @@ void Enemy::SetPhysicsGameObj(int enemyModels)
 
 void Enemy::SetModel(int enemyModel)
 {
-	m_enemyPos   = Enemys[enemyModel].pos;
-	m_enemyScale = Enemys[enemyModel].scale;
-	m_enemyRotation = Enemys[enemyModel].rot;
 	m_collisionObjStartPos = Enemys[enemyModel].collisionPos;
 
 	std::string file = Enemys[enemyModel].GetFullPath();
@@ -135,6 +155,7 @@ void Enemy::SetCollisionObj(int enemyModel)
 	);
 
 	m_collisionFontRender.SetText(enemyPos);
+	m_collisionFontRender.SetPosition(m_fontPos);
 
 	m_collisionObj = new CollisionObject;
 
@@ -163,7 +184,7 @@ void Enemy::SetFindGOInfo() {
 }
 
 void Enemy::Move() {
-	if (!IsFoundPlayer()) {
+	if (IsFoundPlayer()) {
 		RandomWalk();
 	}
 	Tracking();
@@ -214,7 +235,6 @@ void Enemy::RandomWalk()
 {
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 	
-
 	EnWalkVector vector;
 	//enumのEnWalkVector型をint型のrandを型変換して
 	vector = static_cast<EnWalkVector>(rand() % enWalkVector_Num);
@@ -345,15 +365,6 @@ const bool Enemy::IsFoundPlayer()
 		return false;
 	}
 	
-	//TODO:下の説明不要。
-	//壁と衝突してない!!
-	//プレイヤー見つけたフラグをtrueに。
-	return true;
-}
-
-//TODO:今からやること(関数分け)。
-const bool Enemy::EnemySweepTest(int enemyModel)
-{
 	return true;
 }
 
@@ -391,10 +402,6 @@ void Enemy::EnemyBehavior()
 	case enEnemyActionState_Chase:
 
 		break;
-		//待機。
-	case enEnemyActionState_Idle:
-
-		break;
 		//攻撃。
 	case enEnemyActionState_Attack:
 
@@ -403,29 +410,44 @@ void Enemy::EnemyBehavior()
 }
 
 //EnemyがPlayerに衝突したらダメージを与える処理。
-const bool Enemy::EnemyHit()
+void Enemy::EnemyHit()
 {
-	//if()
-	return false;
+	if (!m_player || !m_player->m_bodyCollisionObj)
+	{
+		return;
+	}
+
+	//プレイヤーの体についてるコリジョンに当たったら
+	if (m_collisionObj->IsHit(m_player->m_bodyCollisionObj))
+	{
+		m_player->ReceiveDamage(1);
+	}
 }
 
 void Enemy::CanHit()
 {
 	//nullチェック。
-	//プレイヤーがnullなら
-	if (!m_player->m_collisionObj) {
+	//プレイヤーの体についてるコリジョンかプレイヤーがnullptrじゃないなら
+	if (!m_player->m_collisionObj || !m_player) {
 		return;
 	}
 
-	//敵のコリジョンがプレイヤーのコリジョンに
-	// 当たったらダメージを受ける。
-	if (m_collisionObj->IsHit(m_player->m_collisionObj) == true) {
-		//
-		m_player->Damage(20);
+	if (m_collisionObj->IsHit(m_player->m_collisionObj))
+	{
 		m_player->force.y = 390.0f;
 		DeleteGO(this);
 	}
-	return;
+	//敵のコリジョンがプレイヤーのコリジョンに
+	// 当たったらダメージを受ける。
+	//if(m_collisionObj->IsHit(m_player->m_bodyCollisionObj)) {
+		//m_player->GetHp();
+		//if (m_player->GetHp() > 0)
+		//{
+			//DeleteGO(m_player);
+		//}
+		//return;
+	//}
+	//踏んだ時にY方向に上がる。
 }
 
 
@@ -440,7 +462,7 @@ void Enemy::Render(RenderContext& rc)
 	m_enemyRender.Draw(rc);
 
 	//コリジョンの座標表示用。
-	m_collisionFontRender.Draw(rc);
+	//m_collisionFontRender.Draw(rc);
 
 	if (!m_isSearchPlayer)
 	{

@@ -3,6 +3,7 @@
 #include "Warp.h"//ゴーストオブジェクト。
 #include "MovingFloor.h"
 #include "Enemy.h"
+#include "HPUI.h"
 
 namespace
 {
@@ -10,6 +11,7 @@ namespace
 	const float SMAL_JUMP_POWER    = 500.0f;//小ジャンプ。
 	const float BIG_JUMP_POWER     = 590.0f;//大ジャンプ。
 
+	const Vector3 COLL_POS_HEIGHT = { 0.0f,42.0f,0.0f };
 	const float GRAVITY            = -10.2f * 2.8f;//重力。
 
 	const char* ANIM_PATH[static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num)] = {
@@ -45,16 +47,16 @@ bool Player::Start()
 	//キャラコンの初期化。
 	m_charaCon.Init(25.0f, 75.0f, m_position);
 
+	SetPlayerCollision();
 	SetBodyCollision();
+	m_hpui = FindGO<HPUI>("hpui");
 	return true;
 }
-
 
 void Player::FindGameObjInfo()
 {
 	m_warp         = FindGO<Warp>("warp");
 	m_enemy        = FindGO<Enemy>("enemy");
-	m_collisionObj = FindGO<CollisionObject>("collisionObject");
 }
 
 Player::~Player()
@@ -64,21 +66,29 @@ Player::~Player()
 		delete m_collisionObj;
 		m_collisionObj = nullptr;
 	}
+	if (m_bodyCollisionObj != nullptr)
+	{
+		delete m_bodyCollisionObj;
+		m_bodyCollisionObj = nullptr;
+	}
 }
 
 void Player::Update()
 {
-	Vector3 pos = m_position;
-	if (pos.y < -200.0f)
-	{
-		ResPawn();
-	}
+	//Vector3 pos = m_position;
+	//if (pos.y < -200.0f)
+	//{
+	//	ResPawn();
+	//}
 
 	Move();
 	Rotation();
 	ManageState();
+	m_collisionObj->SetPosition(m_position);
 	TreaderCollisionObj();
 
+	//m_modelRender.SetPosition(m_position);
+	//m_modelRender.SetScale()
 	//プレイヤーの座標の描画準備。
 	wchar_t playerText[256];
 	Vector3 Pos = Vector3(m_position);
@@ -87,6 +97,54 @@ void Player::Update()
 	m_posFontRender.SetPosition(m_fontPos);
 	m_posFontRender.SetScale(1.2f);
 	m_modelRender.Update();
+}
+
+//void Player::SetHP()
+//{
+//	int hpStorage = hp;
+//	
+//	if (hpStorage == 0)
+//	{
+//		m_hpui->m_hpState;
+//	}
+//
+//	if (hpStorage == 1)
+//	{
+//		m_hpui->m_hpState;
+//	}
+//
+//	if (hpStorage == 2)
+//	{
+//		m_hpui->m_hpState;
+//	}
+//}
+
+//ダメージを受けたらの処理。
+void Player::ReceiveDamage(int damage)
+{
+	hp -= damage;
+	if (hp < 0)
+	{
+		hp = 0;
+	}
+
+	switch (hp)
+	{
+	case 3:
+		m_hpui->TakeDamage(HPUI::HpState::enFull_Hp);
+		break;
+	case 2:
+		m_hpui->TakeDamage(HPUI::HpState::enBreak_Hp);
+		break;
+	case 1:
+		m_hpui->TakeDamage(HPUI::HpState::enAllBreak_Hp);
+		break;
+	case 0:
+		m_hpui->TakeDamage(HPUI::HpState::enAllBreak_Hp);
+		hp = 3;
+		m_hpui->TakeDamage(HPUI::HpState::enFull_Hp);
+		break;
+	}
 }
 
 //リスポーンするだけの関数。
@@ -104,6 +162,9 @@ void Player::AddPosition(const Vector3& delta)
 	m_charaCon.SetPosition(m_position);
 }
 
+/// <summary>
+/// 移動処理。
+/// </summary>
 void Player::Move()
 {
 	//リスポーン処理。
@@ -149,8 +210,6 @@ void Player::Move()
 	//地面に接しているなら
 	if (m_charaCon.IsOnGround())
 	{
-		delete m_collisionObj;
-		m_collisionObj = nullptr;
 		canJump = false;
 		m_jumpTime = 0.0f;
 		//押した瞬間に小ジャンプ。
@@ -170,6 +229,8 @@ void Player::Move()
 				if (m_jumpTime <= JUMP_FRAME_TIME)
 				{
 					moveSpeed.y = BIG_JUMP_POWER;
+					moveSpeed += force;
+					force *= 0.7f;
 				}
 			}
 			else
@@ -232,64 +293,80 @@ void Player::ManageState()
 	m_modelRender.PlayAnimation(playerState);
 }
 
-void Player::TreaderCollisionObj()
+const bool Player::TreaderCollisionObj()
 {
-	//もし地面に付いていなかったら(ジャンプ中)
-	//コリジョンを作成する。!
-	if (JumpAttack()) {
-
-		if (m_collisionObj) {
-			m_footCollisionPos = m_position;
-			m_collisionObj->SetPosition(m_footCollisionPos);
-			m_collisionObj->SetRotation(Quaternion::Identity);
-			m_collisionObj->Update();
+	bool isJumpAttack = JumpAttack();
+	//本体用コリジョン。
+	if (m_bodyCollisionObj)
+	{
+		m_bodyCollisionObj->SetIsEnable(isJumpAttack);
+		if (m_charaCon.IsOnGround())
+		{
+			m_bodyCollisionObj->SetPosition(m_position + COLL_POS_HEIGHT);
+			m_bodyCollisionObj->SetRotation(m_rot);
 		}
-
-		if (!m_collisionObj) {
-			m_collisionObj = new CollisionObject;
+		else {
+			//攻撃をしていない時は待避。
+			//めちゃくちゃ遠くにコリジョンを飛ばす。
+			m_bodyCollisionObj->SetPosition({ 0.0f,-10000.0f,0.0f });
 		}
-
-		m_collisionObj->SetIsEnableAutoDelete(false);
-		
-		m_footCollisionPos = m_position;
-
-		m_collisionObj->CreateBox(
-			m_footCollisionPos,      //足の座標。
-			Quaternion::Identity,    //回転。
-			m_playerCollisionScale   //コリジョンのサイズ。
-		);
-
-		m_modelRender.SetPosition(m_footCollisionPos);
-		m_modelRender.Update();
 	}
+	
+	//踏み判定用コリジョン。
+	if (m_collisionObj)
+	{
+		m_collisionObj->SetIsEnable(isJumpAttack);
+		if (isJumpAttack)
+		{
+			m_collisionObj->SetPosition(m_position);
+			m_collisionObj->SetRotation(m_rot);
+		}
+		else {
+			//遠くに待避させる。
+			//めちゃくちゃ遠くにコリジョンを飛ばす。
+			m_collisionObj->SetPosition({ 0.0f,-10000.0f,0.0f });
+		}
+	}
+
+	return false;
 }
 
-//プレイヤーの側面(横側から)に当たったらの処理。
-void Player::HitBodyPlayer()
+//プレイヤーのBodyコリジョンに当たったらの処理。
+bool Player::HitBodyPlayer()
+{	
+	return false;
+}
+
+//足元にコリジョンが生成される。
+void Player::SetPlayerCollision()
 {
-	if (EnemyCollisionHit())
-	{
-		
-	}
+	m_collisionObj = new CollisionObject;
+	m_position = m_position + m_footCollisionPos;
+	m_collisionObj->CreateBox(
+		m_position,
+		m_rot,
+		m_playerCollisionScale
+	);
+
+	m_collisionObj->SetPosition(m_footCollisionPos);
+	m_collisionObj->SetRotation(m_rot);
 }
 
 //プレイヤーの体にコリジョンを付ける。
 void Player::SetBodyCollision()
 {
 	//コリジョンをnewする。
-	m_collisionObj = new CollisionObject;
-	m_playerBodyCollisionPos = m_position;
+	m_bodyCollisionObj = new CollisionObject;
 
-	m_collisionObj->CreateBox(
-		m_playerBodyCollisionPos,
-		Quaternion::Identity,
-		m_playerCollisionScale
+	m_position = m_position + COLL_POS_HEIGHT;
+
+	m_bodyCollisionObj->CreateBox(
+		m_position,
+		m_rot,
+		m_playerBodyCollisionSc
 	);
-
-	m_collisionObj->SetPosition(m_playerBodyCollisionPos);
-	m_collisionObj->SetRotation(Quaternion::Identity);
-	m_collisionObj->Update();
-	
+	m_bodyCollisionObj->SetPosition(m_position);
+	m_bodyCollisionObj->SetRotation(m_rot);
 }
 
 /// <summary>
@@ -302,19 +379,20 @@ void Player::Render(RenderContext& rc)
 	m_modelRender.Draw(rc);
 
 	//座標の描画。
-	m_posFontRender.Draw(rc);
+	//m_posFontRender.Draw(rc);
 }
 
 const bool Player::JumpAttack()const
 {
-	//
 	if (m_charaCon.IsOnGround() == false) {
 		return true;
 	}
-	//地面についていれば実行しない。
 	else {
 		return false;
 	}
+	//地面についていれば実行しない。
+	return false;
+	
 }
 
 const bool Player::IsMove()const
@@ -322,21 +400,17 @@ const bool Player::IsMove()const
 	if (fabsf(moveSpeed.x) >= 0.001f || fabsf(moveSpeed.z) >= 0.001f) {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
+	
 }
 
 //Playerの側面のコリジョンがEnemyのコリジョンに当たった時に
 //Playerが少し後ろに下がる(ノックバックする)。
 const bool Player::EnemyCollisionHit()const
 {
-	if (m_collisionObj->IsHit(m_enemy->m_collisionObj) == true)
+	if (m_collisionObj->IsHit(m_enemy->GetCollision()))
 	{
 		return true;
 	}
-	else {
-		return false;
-	}
-	return true;
+	return false;
 }

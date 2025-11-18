@@ -18,6 +18,14 @@ class Poal;
 class GameClear;
 class GameOver;
 class BossStage;
+class HPUI;
+
+//ステージ遷移の場所。
+enum class GameState {
+	Normal,            //1-1のステージ。
+	StageTransition,   //遷移中(タイマー停止)。
+	BossStage          //ボスステージ。
+};
 
 class Game : public IGameObject
 {
@@ -29,9 +37,12 @@ public:
 	void TimeDraw();
 	void Render(RenderContext& rc);
 
+	GameState m_gameState = GameState::Normal;
+
 	//時間制限。
 	Vector3 m_timerFontPos = { -100.0f,520.0f,0.0f };
 	float m_timer = 120.0f;
+	const float GetTimer()const { return m_timer; }
 	//時間の確認用の秒数。
 	//float m_timer = 10.0f;
 	FontRender m_timerFontRender;
@@ -65,6 +76,7 @@ private:
 	GameClear* m_gameClear = nullptr;//ゲームクリア。
 	GameOver* m_gameOver = nullptr;//ゲームオーバー。
 	BossStage* m_bossStage = nullptr;//ボスステージ。
+	HPUI* m_hpui = nullptr;//UI。
 	/// <summary>
 	/// 空を初期化。
 	/// </summary>

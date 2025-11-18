@@ -6,6 +6,7 @@
 class Warp;
 class MovingFloor;
 class Enemy;
+class HPUI;
 class Player:public IGameObject
 {
 public:
@@ -15,37 +16,31 @@ public:
 	
 	void ManageState();
     void Render(RenderContext& rc);
-	void TreaderCollisionObj();
+	const bool TreaderCollisionObj();
+	//void TreaderCollisionObj();
 	void FindGameObjInfo();
 	void ResPawn();
+	void SetPlayerCollision();
 	void SetBodyCollision();
-	void HitBodyPlayer();
+	bool HitBodyPlayer();
+	void ReceiveDamage(int damage);
 
-
+	//これは使わない。
 	//HP計算。保持。
-	void HP(float damage)
-	{
-		hp -= damage;
-		if (hp < 0)
-		{
-			hp = 0;
-		}
-	}
+	//void HP(int damage)
+	//{
+	//	hp -= damage;
+	//	if (hp < 0)
+	//	{
+	//		hp = 0;
+	//	}
+	//}
 
-	void Damage(float damage)
-	{
-		hp -= damage;
-		if (hp < 0)
-		{
-			hp = 0;
-		}
-	}
-
-	bool  isDead  ()const { return hp <= 0; } //プレイヤーが死亡時。
-	float GetHp   ()const { return hp;      } //プレイヤーのHPの保持。
-	float GetMaxHp()const { return maxHp;   } //プレイヤーの最大HPの保持。
-	int hp    = 20;                           //HP。
-	int maxHp = 20;                           //最大HP。
+	bool  isDead()const   { return hp < 0;  } //プレイヤーが死亡時。
+	int GetHp   ()const   { return hp;      } //プレイヤーのHPの保持。
+	int GetMaxHp()const   { return maxHp;   } //プレイヤーの最大HPの保持。
+	int hp    = 3;                            //HP。
+	int maxHp = 3;                            //最大HP。
 
 	
 	Vector3 force = Vector3::Zero;//外部から加える力(敵を踏んだ時にY座標を上げる用)。
@@ -83,6 +78,7 @@ public:
 	Quaternion m_rot;                                   //TODO:回転。
 	Vector3 m_footCollisionPos = Vector3::Zero;         //TODO:足のコリジョンの座標。
 	Vector3 m_playerCollisionScale = Vector3(35.0f, 10.0f, 35.0f);//TODO:プレイヤーのコリジョンのサイズ。
+	Vector3 m_playerBodyCollisionSc = Vector3(42.0f, 140.0f, 42.0f);//プレイヤーのボディコリジョンのサイズ。敵のコリジョンに当たった時に必要。
 	Vector3 m_playerBodyCollisionPos = Vector3::Zero;
 
 	Vector3 m_setPos = Vector3(0.0f, 300.0f, 0.0f);     //ワープ先。
@@ -94,7 +90,7 @@ public:
 	FontRender m_posFontRender;                         //座標の描画。
 	CharacterController m_charaCon;                     //TODO:キャラクターコントローラーの当たり判定。
 	CollisionObject* m_collisionObj;                    //TODO:コリジョンオブジェクト。
-
+	CollisionObject* m_bodyCollisionObj;
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
 
 	bool isDash  = false;                            //歩きから走りに変わるフラグ。
@@ -109,6 +105,7 @@ private:
 	const bool JumpAttack()const;
 	const bool EnemyCollisionHit()const;
 
+	HPUI* m_hpui = nullptr;
 	Warp* m_warp   = nullptr;
 	Enemy* m_enemy = nullptr;
 	int playerState    = 0;

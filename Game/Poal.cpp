@@ -2,6 +2,7 @@
 #include "Poal.h"
 #include "Player.h"
 #include "Game.h"
+#include "BossStage.h"
 
 namespace {
 	const char* POAL = "Assets/modelData/Poal.tkm";
@@ -30,13 +31,26 @@ bool Poal::Start()
 	m_collisionObj->SetPosition(m_pos);
 	m_collisionObj->SetRotation(m_rot);
 	m_collisionObj->Update();
+
+	//auto player = FindGO<Player>("player");
+	//プレイヤーをステージの初期位置に戻す。
+	//player->SetPosition(Vector3::Zero);
+	
+	m_player = FindGO<Player>("player");
 	return true;
 }
 
 void Poal::Update()
 {
-	PoalHit();
 	m_poalRender.Update();
+	if (m_collisionObj->IsHit(m_player->GetCharacterController()))
+	{
+		bool isHit = true;
+		auto boss = NewGO<BossStage>(0, "bossStage");
+		auto game = FindGO<Game>("game");
+		DeleteGO(game);
+		return;
+	}
 }
 
 void Poal::SetCollisionObj()
@@ -58,19 +72,19 @@ void Poal::SetCollisionObj()
 /// <summary>
 /// ゴールポールのコリジョンに当たった時の処理。
 /// </summary>
-bool Poal::PoalHit()
-{
-	if (m_collisionObj != nullptr && m_player != nullptr)
-	{
-		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
-		{
-			isHit = true;
-			return true;
-		}
-		return true;
-	}
-	return true;
-}
+//bool Poal::PoalHit()
+//{
+//	if (m_collisionObj != nullptr && m_player != nullptr)
+//	{
+//		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
+//		{
+//			isHit = true;
+//			return true;
+//		}
+//		return true;
+//	}
+//	return true;
+//}
 
 void Poal::Render(RenderContext& rc)
 {

@@ -1,6 +1,21 @@
 #pragma once
 class Player;
 class ObstacleBox;
+
+enum EnEnemy {
+	enEnemy1,//ファイル番号0(クリボー)。
+	enEnemy2,//ファイル番号1(ノコノコ)。
+	enBoss,  //ファイル番号2(クッパ)。
+	enEnemy_Num
+};
+
+enum EnEnemyActionState {
+	enEnemyActionState_Wandering,        //徘徊。
+	enEnemyActionState_Chase,            //追跡。
+	enEnemyActionState_Attack,           //攻撃。
+	enEnemyActionState_Num               //総数(4個ある)。
+};
+
 class Enemy : public IGameObject
 {
 public:
@@ -14,8 +29,26 @@ public:
 	void Tracking();
 	const bool IsFoundPlayer();
 	void Render(RenderContext& rc);
-	const bool EnemyHit();
+	void EnemyHit();
 	
+
+public:
+	//inlineは関数に入らずに別のクラス内に持ち込むことができる。
+	inline void SetPosition(const Vector3& pos) { m_enemyPos = pos; }
+	inline void SetScale(const Vector3& scl) { m_enemyScale = scl; }
+	inline void SetRotation(const Quaternion& rot) { m_enemyRotation = rot; }
+
+	//inlineの中身は3行以内ですますように!
+	inline void SetTRS(const Vector3& pos, const Vector3& scl, const Quaternion& rot)
+	{
+		m_enemyPos = pos;
+		m_enemyScale = scl;
+		m_enemyRotation = rot;
+	}
+
+	inline CollisionObject* GetCollision() { return m_collisionObj; }
+
+protected:
 	enum EnWalkVector {
 		enWalkVector_Front,      //前。
 		enWalkVector_Back,       //後ろ。
@@ -47,40 +80,29 @@ public:
 	
 	SphereCollider m_sphereCollider;
 	FontRender m_fontRender;
-	Vector3 m_fontPos = Vector3(-200.0f, 500.0f, 0.0f);
+	Vector3 m_fontPos = Vector3(-400.0f, 500.0f, 0.0f);
+
+	std::array<AnimationClip, enEnemyActionState_Num> m_animationClips;
 
 	//中身を変えたくない時は後ろにconstをつける。
 	void CanHit();
 
-	enum EnEnemy {
-		enEnemy1,//ファイル番号0(クリボー)。
-		enEnemy2,//ファイル番号1(ノコノコ)。
-		enBoss,  //ファイル番号2(クッパ)。
-		enEnemy_Num
-	};
-
-	enum EnEnemyActionState {
-		enEnemyActionState_Wandering,        //徘徊。
-		enEnemyActionState_Chase,            //追跡。
-		enEnemyActionState_Idle,             //待機。
-		enEnemyActionState_Attack,           //攻撃。
-		enEnemyActionState_Num               //総数(4個ある)。
-	};
-
+	
 	//m_enemyActionStateに持たせる。
 	EnEnemyActionState m_enemyActionState = enEnemyActionState_Wandering;
 
 protected:
+	//protected
+	//派生クラスで使える。他の単体のクラスでは使えない。
 	void SetModel(int enemyModel);
 	void SetPhysicsGameObj(int enemyModels);
 	void SetCollisionObj(int enemyModel);
 	void SetFindGOInfo();
 	void SetSphereColliderObj();
-	const bool EnemySweepTest(int enemyModel);	
+	//void SetAnimData(int enemyModel);
+	//const bool EnemySweepTest(int enemyModel);	
 	
 private:
-	//protected
-	//派生クラスで使える。他の単体のクラスでは使えない。
 	FontRender m_collisionFontRender;
 
 	int m_enemyMoveState = 0;
