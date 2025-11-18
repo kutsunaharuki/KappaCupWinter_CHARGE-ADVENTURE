@@ -50,9 +50,37 @@ bool HPUI::Start()
 //	}
 //}
 
-void HPUI::TakeDamage(HPUI::HpState state)
+//ダメージ後のHPの値を外部から渡すための関数。
+void HPUI::TakeDamage(int hp)
 {
-	m_hpState = state;
+	if (hp == 3)
+	{
+		m_hpState = HpState::enFull_Hp;
+	}
+	else if (hp == 2)
+	{
+		m_hpState = HpState::enBreak_Hp;
+	}
+	else if (hp == 1)
+	{
+		m_hpState = HpState::enAllBreak_Hp;
+	}
+
+	switch (hp)
+	{
+	case 3:
+		m_hpState = HpState::enFull_Hp;
+		break;
+	case 2:
+		m_hpState = HpState::enBreak_Hp;
+		break;
+	case 1:
+	default:
+		m_hpState = HpState::enAllBreak_Hp;
+		break;
+	}
+
+	
 }
 
 void HPUI::Update()

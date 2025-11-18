@@ -206,7 +206,7 @@ void Game::Update()
 
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
-	if (m_player->hp <= 0)
+	if (m_player->hp < 0)
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();

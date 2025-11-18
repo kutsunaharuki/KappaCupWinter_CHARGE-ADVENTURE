@@ -75,6 +75,11 @@ Player::~Player()
 
 void Player::Update()
 {
+	//無敵時間の処理。
+	if (m_invinCibilityTime > 0.0f)
+	{
+		m_invinCibilityTime -= g_gameTime->GetFrameDeltaTime();
+	}
 	//Vector3 pos = m_position;
 	//if (pos.y < -200.0f)
 	//{
@@ -122,28 +127,17 @@ void Player::Update()
 //ダメージを受けたらの処理。
 void Player::ReceiveDamage(int damage)
 {
-	hp -= damage;
-	if (hp < 0)
-	{
-		hp = 0;
-	}
+	//無敵時間中はダメージを受けない。
+	if (m_invinCibilityTime > 0.0f)return;
 
-	switch (hp)
+	hp -= damage;
+	if (hp < 0)hp = 0;
+	//1.8秒間無敵。
+	m_invinCibilityTime = 3.2f;
+	
+	if (m_hpui)
 	{
-	case 3:
-		m_hpui->TakeDamage(HPUI::HpState::enFull_Hp);
-		break;
-	case 2:
-		m_hpui->TakeDamage(HPUI::HpState::enBreak_Hp);
-		break;
-	case 1:
-		m_hpui->TakeDamage(HPUI::HpState::enAllBreak_Hp);
-		break;
-	case 0:
-		m_hpui->TakeDamage(HPUI::HpState::enAllBreak_Hp);
-		hp = 3;
-		m_hpui->TakeDamage(HPUI::HpState::enFull_Hp);
-		break;
+		m_hpui->TakeDamage(hp);
 	}
 }
 
@@ -333,7 +327,7 @@ const bool Player::TreaderCollisionObj()
 
 //プレイヤーのBodyコリジョンに当たったらの処理。
 bool Player::HitBodyPlayer()
-{	
+{
 	return false;
 }
 

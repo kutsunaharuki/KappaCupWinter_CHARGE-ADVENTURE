@@ -17,13 +17,13 @@ public:
 	void ManageState();
     void Render(RenderContext& rc);
 	const bool TreaderCollisionObj();
-	//void TreaderCollisionObj();
 	void FindGameObjInfo();
 	void ResPawn();
 	void SetPlayerCollision();
 	void SetBodyCollision();
 	bool HitBodyPlayer();
 	void ReceiveDamage(int damage);
+	//void TreaderCollisionObj();
 
 	//これは使わない。
 	//HP計算。保持。
@@ -92,6 +92,7 @@ public:
 	CollisionObject* m_collisionObj;                    //TODO:コリジョンオブジェクト。
 	CollisionObject* m_bodyCollisionObj;
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
+	float m_invinCibilityTime = 0.0f;                  //無敵時間。
 
 	bool isDash  = false;                            //歩きから走りに変わるフラグ。
 	bool isHit   = false;                            //ゴーストオブジェクトに当たったらのフラグ。

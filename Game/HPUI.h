@@ -18,7 +18,7 @@ public:
 	//デストラクタ=>派生クラス->基底クラスの順番で呼ばれる。自動的に呼ばれる関数。
 	bool Start()override;
 	void Update();
-	void TakeDamage(HPUI::HpState state);
+	void TakeDamage(int hp);
 	void Render(RenderContext& rc);
 	Vector3 m_hpPos = { -520.0f,280.0f,0.0f };
 	Vector3 m_hpSc = Vector3::One * 2.0f;
