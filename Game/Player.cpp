@@ -366,11 +366,36 @@ void Player::SetBodyCollision()
 /// <summary>
 /// 描画処理。
 /// </summary>
-
 void Player::Render(RenderContext& rc)
 {
+	bool isDrawPlayer = true;
+	//無敵時間の間プレイヤーを点滅させる。
+	if (m_invinCibilityTime > 0.0f)
+	{
+		//点滅スピード(10回/s)。
+		const float blinkSpeed = 10.0f;
+		float flashingTime = m_invinCibilityTime * blinkSpeed;
+
+		//小数点(0～1)。
+		//小数点以下を切り捨てすることが出来て、
+		//"整数部分だけ"を取り出すことが出来る関数。
+		float decimalPoint = flashingTime - floorf(flashingTime);
+
+		//flashingTime < 0.6f ->表示,
+		//          or
+		// flashingTime >= 0.6f ->非表示。
+		isDrawPlayer = (decimalPoint < 0.6f);
+	}
+
+	//点滅表示。
+	//モデルの点滅。
+	if (isDrawPlayer)
+	{
+		m_modelRender.Draw(rc);
+	}
+
 	//プレイヤーモデルの描画。
-	m_modelRender.Draw(rc);
+	//m_modelRender.Draw(rc);
 
 	//座標の描画。
 	//m_posFontRender.Draw(rc);
