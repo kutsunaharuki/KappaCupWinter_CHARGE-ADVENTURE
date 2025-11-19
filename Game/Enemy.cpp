@@ -420,7 +420,7 @@ void Enemy::EnemyHit()
 	//プレイヤーの体についてるコリジョンに当たったら
 	if (m_collisionObj->IsHit(m_player->m_bodyCollisionObj))
 	{
-		m_player->ReceiveDamage(1);
+		m_player->ReceiveDamage(1,m_enemyPos);
 	}
 }
 
@@ -437,17 +437,6 @@ void Enemy::CanHit()
 		m_player->force.y = 390.0f;
 		DeleteGO(this);
 	}
-	//敵のコリジョンがプレイヤーのコリジョンに
-	// 当たったらダメージを受ける。
-	//if(m_collisionObj->IsHit(m_player->m_bodyCollisionObj)) {
-		//m_player->GetHp();
-		//if (m_player->GetHp() > 0)
-		//{
-			//DeleteGO(m_player);
-		//}
-		//return;
-	//}
-	//踏んだ時にY方向に上がる。
 }
 
 

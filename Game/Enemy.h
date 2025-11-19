@@ -30,7 +30,6 @@ public:
 	const bool IsFoundPlayer();
 	void Render(RenderContext& rc);
 	void EnemyHit();
-	
 
 public:
 	//inline‚ÍŠÖ”‚É“ü‚ç‚¸‚É•Ê‚ÌƒNƒ‰ƒX“à‚É‚¿‚Ş‚±‚Æ‚ª‚Å‚«‚éB

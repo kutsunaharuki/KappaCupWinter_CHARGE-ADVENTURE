@@ -81,6 +81,20 @@ void Player::Update()
 	{
 		m_invinCibilityTime -= g_gameTime->GetFrameDeltaTime();
 	}
+	//ノックバックの処理。
+	if (m_knockBackTime > 0.0f)
+	{
+		m_knockBackTime -= m_deltaTime;
+
+		//ノックバック移動を行う。
+		m_position = m_charaCon.Execute(m_backSpeed, m_deltaTime);
+		m_modelRender.SetPosition(m_position);
+
+		//returnを返そうとするとプレイヤーが
+		//当たった位置から動かずに瞬間移動している
+		//ように見えるのでreturnは返さない。
+
+	}
 	//Vector3 pos = m_position;
 	//if (pos.y < -200.0f)
 	//{
@@ -106,21 +120,36 @@ void Player::Update()
 }
 
 //ダメージを受けたらの処理。
-void Player::ReceiveDamage(int damage)
+void Player::ReceiveDamage(int damage, Vector3& enemyPos)
 {
 	//無敵時間中はダメージを受けない。
 	if (m_invinCibilityTime > 0.0f)return;
 
 	hp -= damage;
 	if (hp < 0)hp = 0;
-	//1.8秒間無敵。
+	//3.2秒間無敵。
 	m_invinCibilityTime = 3.2f;
 	
-
+	//現在のHPをとっている。
 	if (m_hpui)
 	{
 		m_hpui->TakeDamage(hp);
 	}
+
+	//ノックパック処理。
+	//ノックバック方向を決める式。
+	Vector3 backDir = m_position - enemyPos;
+	//プレイヤーのベクトルを正規化する。
+	backDir.Normalize();
+	//ノックバックパワー。
+	float backPower = 200.0f;
+
+	//ノックバック速度をそのまま速度にする。
+	m_backSpeed = backDir * backPower;
+
+	//1.8秒だけノックバックさせる。
+	m_knockBackTime = 1.8f;
+
 }
 
 //リスポーンするだけの関数。
@@ -152,8 +181,8 @@ void Player::Move()
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
 	//移動の制御。
-	moveSpeed.x = 0.0f;
-	moveSpeed.z = 0.0f;
+	m_moveSpeed.x = 0.0f;
+	m_moveSpeed.z = 0.0f;
 
 	Vector3 stickL;
 	stickL.x = g_pad[0]->GetLStickXF();
@@ -169,8 +198,8 @@ void Player::Move()
 	right.Normalize();
 
 	//歩きの処理。
-	moveSpeed += right   * stickL.x * 240.0f;
-	moveSpeed += forward * stickL.z * 240.0f;
+	m_moveSpeed += right   * stickL.x * 240.0f;
+	m_moveSpeed += forward * stickL.z * 240.0f;
 
 	//ダッシュの制御。
 	if (g_pad[0]->IsPress(enButtonB))
@@ -179,8 +208,8 @@ void Player::Move()
 	}
 	if (isDash)
 	{
-		moveSpeed.x *= 2.6f;
-		moveSpeed.z *= 2.6f;
+		m_moveSpeed.x *= 2.6f;
+		m_moveSpeed.z *= 2.6f;
 	}
 
 	//地面に接しているなら
@@ -191,7 +220,7 @@ void Player::Move()
 		//押した瞬間に小ジャンプ。
 		if (g_pad[0]->IsTrigger(enButtonA))
 		{
-			moveSpeed.y = SMAL_JUMP_POWER;
+			m_moveSpeed.y = SMAL_JUMP_POWER;
 			canJump = true;
 		}
 	}
@@ -204,8 +233,8 @@ void Player::Move()
 				m_jumpTime += deltaTime;
 				if (m_jumpTime <= JUMP_FRAME_TIME)
 				{
-					moveSpeed.y = BIG_JUMP_POWER;
-					moveSpeed += force;
+					m_moveSpeed.y = BIG_JUMP_POWER;
+					m_moveSpeed += force;
 					force *= 0.7f;
 				}
 			}
@@ -217,14 +246,14 @@ void Player::Move()
 		}
 		//敵を踏んだ後にY座標が+になる。
 		//外部から力を加える。
-		moveSpeed += force;
+		m_moveSpeed += force;
 		force *=0.7f;
 		//重力。
-		moveSpeed.y += GRAVITY;
+		m_moveSpeed.y += GRAVITY;
 	}
 
 	//キャラクターコントローラーを使って座標を移動させる。
-	m_position = m_charaCon.Execute(moveSpeed, deltaTime);
+	m_position = m_charaCon.Execute(m_moveSpeed, deltaTime);
 	m_modelRender.SetPosition(m_position);
 }
 
@@ -236,7 +265,7 @@ void Player::Rotation()
 {
 	if (IsMove())
 	{
-		m_rot.SetRotationYFromDirectionXZ(moveSpeed);
+		m_rot.SetRotationYFromDirectionXZ(m_moveSpeed);
 		m_modelRender.SetRotation(m_rot);
 	}
 }
@@ -399,7 +428,7 @@ const bool Player::JumpAttack()const
 
 const bool Player::IsMove()const
 {
-	if (fabsf(moveSpeed.x) >= 0.001f || fabsf(moveSpeed.z) >= 0.001f) {
+	if (fabsf(m_moveSpeed.x) >= 0.001f || fabsf(m_moveSpeed.z) >= 0.001f) {
 		return true;
 	}
 	return false;

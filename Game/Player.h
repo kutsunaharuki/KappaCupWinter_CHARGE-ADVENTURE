@@ -23,7 +23,7 @@ public:
 	void SetPlayerCollision();
 	void SetBodyCollision();
 	bool HitBodyPlayer();
-	void ReceiveDamage(int damage);
+	void ReceiveDamage(int damage, Vector3& enemyPos);
 	//void TreaderCollisionObj();
 
 	//これは使わない。
@@ -75,7 +75,7 @@ public:
 	ModelRender m_modelRender;
 	AnimationClip animationClips[static_cast<int>(EnAnimationClip::enAnimationClip_Num)];
 	Vector3 m_position = Vector3::Zero;                 //TODO:座標。
-	Vector3 moveSpeed = Vector3::Zero;                  //TODO:移動速度。
+	Vector3 m_moveSpeed = Vector3::Zero;                  //TODO:移動速度。
 	Quaternion m_rot;                                   //TODO:回転。
 	Vector3 m_footCollisionPos = Vector3::Zero;         //TODO:足のコリジョンの座標。
 	Vector3 m_playerCollisionScale = Vector3(35.0f, 10.0f, 35.0f);//TODO:プレイヤーのコリジョンのサイズ。
@@ -88,12 +88,16 @@ public:
 
 	Vector3 m_resPawnPos = Vector3::Zero;               //初期値に戻される値。
 
+	Vector3 m_backSpeed = Vector3::Zero;                //ノックバック速度を保持するための変数。
+
 	FontRender m_posFontRender;                         //座標の描画。
 	CharacterController m_charaCon;                     //TODO:キャラクターコントローラーの当たり判定。
 	CollisionObject* m_collisionObj;                    //TODO:コリジョンオブジェクト。
 	CollisionObject* m_bodyCollisionObj;
 	float m_jumpTime = 0.0f;                            //ジャンプしてる時間。	
-	float m_invinCibilityTime = 0.0f;                  //無敵時間。
+	float m_invinCibilityTime = 0.0f;                   //無敵時間。
+	float m_knockBackTime = 0.0f;                       //プレイヤーを飛ばす時間。
+	float m_deltaTime = g_gameTime->GetFrameDeltaTime();
 
 	bool isDash  = false;                            //歩きから走りに変わるフラグ。
 	bool isHit   = false;                            //ゴーストオブジェクトに当たったらのフラグ。
