@@ -49,6 +49,7 @@ public:
 	//-----------------------------------
 
 	LevelRender m_levelRender;
+	//Œã‚É”‚ªŒˆ‚Ü‚Á‚½‚Éstd::array<T, number*>~~;‚Æ‚·‚éB
 	std::vector<StageGround*> m_stageGrounds;
 	std::vector<Scaffolding*> m_scaffoldings;
 	std::vector<SkyGround*> m_skyGrounds;

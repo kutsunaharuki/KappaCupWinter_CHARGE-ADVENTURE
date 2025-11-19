@@ -36,41 +36,46 @@ Game::~Game()
 	DeleteGO(m_hpui);
 	m_hpui = nullptr; 
 
-	for (auto stageGround : m_stageGrounds)
+	for (auto m_stageGround : m_stageGrounds)
 	{
-		DeleteGO(stageGround);
-		stageGround = nullptr;
+		DeleteGO(m_stageGround);
+		m_stageGround = nullptr;
 	}
-	for (auto skyGround : m_skyGrounds)
+	for (auto m_skyGround : m_skyGrounds)
 	{
-		DeleteGO(skyGround);
-		skyGround = nullptr;
+		DeleteGO(m_skyGround);
+		m_skyGround = nullptr;
 	}
-	for (auto scaffolding : m_scaffoldings)
+	for (auto m_scaffolding : m_scaffoldings)
 	{
-		DeleteGO(scaffolding);
-		scaffolding = nullptr;
+		DeleteGO(m_scaffolding);
+		m_scaffolding = nullptr;
 	}
-	for (auto& movingFloorUpDown : m_movingFloorUpDowns)
+	for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
 	{
-		DeleteGO(movingFloorUpDown);
-		movingFloorUpDown = nullptr;
+		DeleteGO(m_movingFloorUpDown);
+		m_movingFloorUpDown = nullptr;
 	}
-	for (auto& movingFloor : m_movingFloors)
+	for (auto m_movingFloor : m_movingFloors)
 	{
-		DeleteGO(movingFloor);
-		movingFloor = nullptr;
+		DeleteGO(m_movingFloor);
+		m_movingFloor = nullptr;
 	}
-	for (auto& poal : m_poals)
+	for (auto m_poal : m_poals)
 	{
-		DeleteGO(poal);
-		poal = nullptr;
+		DeleteGO(m_poal);
+		m_poal = nullptr;
 	}
-	for (auto& enemy : m_enemys)
+	for (auto m_enemy : m_enemys)
 	{
-		DeleteGO(enemy);
-		enemy = nullptr;
+		DeleteGO(m_enemy);
+		m_enemy = nullptr;
 	}
+	/*for (auto m_enemy2 : m_enemys)
+	{
+		DeleteGO(m_enemy2);
+		m_enemy2 = nullptr;
+	}*/
 }
 
 void Game::InitSky()
@@ -106,8 +111,8 @@ bool Game::Start()
 	m_hpui = NewGO<HPUI>(0, "hpui");
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
-	//m_enemy = NewGO<Enemy2>(0, "enemy2");
-	//m_enemy = NewGO<Boss>(0, "boss");
+	//m_enemy = NewGO<Enemy2>(0, "enemy2");//Penguin(ペンギン)。
+	//m_enemy = NewGO<Boss>(0, "boss");//Gorem(ゴーレム)。
 
 	//仮の障害物(ボックス)を作成する。
 	//m_obstacleBox = NewGO<ObstacleBox>(0, "obstacleBox");
@@ -127,6 +132,17 @@ bool Game::Start()
 			m_enemys.push_back(m_enemy);
 			return true;
 		}
+		//if (objData.EqualObjectName(L"Penguin") == true)
+		//{
+		//	//Penguin(ペンギン)を作成する。
+		//	auto m_enemy2 = NewGO<Enemy2>(0, "Penguin");
+
+		//	m_enemy2->SetPosition(objData.position);
+		//	m_enemy2->SetRotation(objData.rotation);
+		//	m_enemy2->SetScale(objData.scale);
+		//	m_enemys.push_back(m_enemy2);
+		//	return true;
+		//}
 		if (objData.EqualObjectName(L"StageGround") == true)
 		{
 			//最初に触れる足場。
