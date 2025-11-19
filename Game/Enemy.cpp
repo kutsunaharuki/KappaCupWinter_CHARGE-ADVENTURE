@@ -206,26 +206,26 @@ void Enemy::Tracking()
 	}
 
 	//プレイヤーの座標を空のローカル変数に渡す。
-	Vector3 r_playerPos = m_player->m_position;
+	Vector3 playerPos = m_player->m_position;
 
 	//プレイヤーの座標からエネミーの座標を引く。
-	Vector3 r_diff = r_playerPos - m_enemyPos;
+	Vector3 diff = playerPos - m_enemyPos;
 
 	//これがないとプレイヤーが上にいても追いかけてくる。
-	r_diff.y = 0.0f;
+	diff.y = 0.0f;
 
 	//ベクトルの距離計算。
-	float distance = r_diff.Length();
+	float distance = diff.Length();
 
 	//ベクトルを正規化。
-	r_diff.Normalize();
+	diff.Normalize();
 
 	//追跡計算を行う。
 	float targetSpeed = 200.0f;
 
 	//m_moveSpeedにどの方向でどんな速さで進むかを代入させる。
 	//「進行方向　×　速度」＝　実際の移動ベクトル。
-	m_moveSpeed = r_diff * targetSpeed;
+	m_moveSpeed = diff * targetSpeed;
 
 	UpdateEnemyInfo();
 	
@@ -420,7 +420,6 @@ void Enemy::EnemyHit()
 	//プレイヤーの体についてるコリジョンに当たったら
 	if (m_collisionObj->IsHit(m_player->m_bodyCollisionObj))
 	{
-		m_player->m_back.z = 0.2f;
 		m_player->ReceiveDamage(1);
 	}
 }

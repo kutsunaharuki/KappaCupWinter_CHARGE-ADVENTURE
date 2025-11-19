@@ -36,6 +36,11 @@ Game::~Game()
 	DeleteGO(m_hpui);
 	m_hpui = nullptr; 
 
+	for (auto stageGround : m_stageGrounds)
+	{
+		DeleteGO(stageGround);
+		stageGround = nullptr;
+	}
 	for (auto skyGround : m_skyGrounds)
 	{
 		DeleteGO(skyGround);
