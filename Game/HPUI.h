@@ -9,9 +9,7 @@ public:
 	enum class HpState : uint8_t {
 		enFull_Hp,
 		enBreak_Hp,
-		enAllBreak_Hp,
-		//enGameOver,
-		enHp_Num
+		enAllBreak_Hp
 	};
 	//static_cast(キャスト処理。)
 	HpState m_hpState;

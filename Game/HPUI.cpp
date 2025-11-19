@@ -6,7 +6,7 @@
 namespace {
 	const char* HP_HEART  = "Assets/Sprite/HP.dds";
 	const char* HP_BREAK  = "Assets/Sprite/HPHeartBreak.dds";
-	const char* HP_PARLIN = "Assets/Sprite/HPAllBreak.dds";
+	const char* HP_PARLIN = "Assets/Sprite/HeartAllBreak.dds";
 }
 
 bool HPUI::Start()
@@ -50,16 +50,8 @@ void HPUI::TakeDamage(int hp)
 	{
 		m_hpState = HpState::enAllBreak_Hp;
 	}
-	/*else if (hp == 0)
-	{
-		m_hpState = HpState::enGameOver;
-	}*/
 }
 
-//void HPUI::Update()
-//{
-//
-//}
 
 /// <summary>
 /// HPUIÇÃï`âÊèàóùÅB
