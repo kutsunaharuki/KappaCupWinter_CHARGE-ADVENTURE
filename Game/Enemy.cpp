@@ -9,8 +9,8 @@ namespace {
 	std::string FILE_PATH = "Assets/modelData/";
 	//拡張子。
 	std::string FILE_EXTENSTION = ".tkm";
-	
-	
+
+
 
 	struct EnemyInfo
 	{
@@ -420,6 +420,7 @@ void Enemy::EnemyHit()
 	//プレイヤーの体についてるコリジョンに当たったら
 	if (m_collisionObj->IsHit(m_player->m_bodyCollisionObj))
 	{
+		m_player->m_back.z = 0.2f;
 		m_player->ReceiveDamage(1);
 	}
 }

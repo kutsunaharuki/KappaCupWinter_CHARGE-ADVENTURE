@@ -7,6 +7,7 @@ class Warp;
 class MovingFloor;
 class Enemy;
 class HPUI;
+class GameOver;
 class Player:public IGameObject
 {
 public:
@@ -42,7 +43,7 @@ public:
 	int hp    = 3;                            //HP。
 	int maxHp = 3;                            //最大HP。
 
-	
+
 	Vector3 force = Vector3::Zero;//外部から加える力(敵を踏んだ時にY座標を上げる用)。
 	
 	void AddPosition(const Vector3& delta);
@@ -106,6 +107,7 @@ private:
 	const bool JumpAttack()const;
 	const bool EnemyCollisionHit()const;
 
+	GameOver* m_gameOver = nullptr;
 	HPUI* m_hpui = nullptr;
 	Warp* m_warp   = nullptr;
 	Enemy* m_enemy = nullptr;

@@ -4,6 +4,7 @@
 #include "MovingFloor.h"
 #include "Enemy.h"
 #include "HPUI.h"
+#include "GameOver.h"
 
 namespace
 {
@@ -104,26 +105,6 @@ void Player::Update()
 	m_modelRender.Update();
 }
 
-//void Player::SetHP()
-//{
-//	int hpStorage = hp;
-//	
-//	if (hpStorage == 0)
-//	{
-//		m_hpui->m_hpState;
-//	}
-//
-//	if (hpStorage == 1)
-//	{
-//		m_hpui->m_hpState;
-//	}
-//
-//	if (hpStorage == 2)
-//	{
-//		m_hpui->m_hpState;
-//	}
-//}
-
 //ダメージを受けたらの処理。
 void Player::ReceiveDamage(int damage)
 {
@@ -135,6 +116,7 @@ void Player::ReceiveDamage(int damage)
 	//1.8秒間無敵。
 	m_invinCibilityTime = 3.2f;
 	
+
 	if (m_hpui)
 	{
 		m_hpui->TakeDamage(hp);
@@ -372,7 +354,8 @@ void Player::Render(RenderContext& rc)
 	//無敵時間の間プレイヤーを点滅させる。
 	if (m_invinCibilityTime > 0.0f)
 	{
-		//点滅スピード(10回/s)。
+		//点滅スピード(10回/秒(s))。
+		//無敵時間 * 点滅速度 = 点滅のクールタイム。
 		const float blinkSpeed = 10.0f;
 		float flashingTime = m_invinCibilityTime * blinkSpeed;
 

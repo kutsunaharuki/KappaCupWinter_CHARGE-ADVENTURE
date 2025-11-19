@@ -20,7 +20,7 @@
 #include "HPUI.h"
 
 Game::~Game()
-{
+{	
 	DeleteGO(m_player);
 	m_player = nullptr;
 	DeleteGO(m_gameCamera);
@@ -34,38 +34,34 @@ Game::~Game()
 	DeleteGO(m_skyCube);
 	m_skyCube = nullptr;
 	DeleteGO(m_hpui);
-	m_hpui = nullptr;
-	for (auto stageGround : m_stageGrounds)
+	m_hpui = nullptr; 
+
+	for (auto skyGround : m_skyGrounds)
 	{
-		DeleteGO(stageGround);
-		stageGround = nullptr;
+		DeleteGO(skyGround);
+		skyGround = nullptr;
 	}
 	for (auto scaffolding : m_scaffoldings)
 	{
 		DeleteGO(scaffolding);
 		scaffolding = nullptr;
 	}
-	for (auto skyGround : m_skyGrounds)
-	{
-		DeleteGO(skyGround);
-		skyGround = nullptr;
-	}
-	for (auto movingFloor : m_movingFloors)
-	{
-		DeleteGO(movingFloor);
-		movingFloor = nullptr;
-	}
-	for (auto movingFloorUpDown : m_movingFloorUpDowns)
+	for (auto& movingFloorUpDown : m_movingFloorUpDowns)
 	{
 		DeleteGO(movingFloorUpDown);
 		movingFloorUpDown = nullptr;
 	}
-	for (auto poal : m_poals)
+	for (auto& movingFloor : m_movingFloors)
+	{
+		DeleteGO(movingFloor);
+		movingFloor = nullptr;
+	}
+	for (auto& poal : m_poals)
 	{
 		DeleteGO(poal);
 		poal = nullptr;
 	}
-	for (auto enemy : m_enemys)
+	for (auto& enemy : m_enemys)
 	{
 		DeleteGO(enemy);
 		enemy = nullptr;
@@ -206,7 +202,7 @@ void Game::Update()
 
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
-	if (m_player->hp < 0)
+	if (m_player->hp <= 0)
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
@@ -232,7 +228,7 @@ void Game::Update()
 		DeleteGO(this);
 	}
 
-	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	//PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 	
 	//auto型は推論なので、必要なのは右辺値が必要。
 	//auto型の為に#includeは必要ない。
@@ -265,7 +261,6 @@ void Game::TimeDraw()
 
 void Game::Render(RenderContext& rc)
 {
-	int hp = m_player->hp;
 	//レベルの描画。
 	m_levelRender.Draw(rc);
 	//時間制限の描画。
