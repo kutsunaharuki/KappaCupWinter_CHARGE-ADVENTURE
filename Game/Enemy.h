@@ -1,7 +1,6 @@
 #pragma once
 class Player;
 class ObstacleBox;
-class Score;
 
 enum EnEnemy {
 	enEnemy1,//ファイル番号0(クリボー)。
@@ -67,7 +66,7 @@ protected:
 	ModelRender m_enemyRender;
 	Quaternion m_enemyRotation = Quaternion::Identity;//回転。
 	CharacterController m_charaCon;                   //キャラクターコントローラー。
-	CollisionObject* m_collisionObj = nullptr;                  //コリジョンオブジェクト。
+	CollisionObject* m_collisionObj;                  //コリジョンオブジェクト。
 
 	Vector3 m_collisionObjStartPos = Vector3::Zero;   //敵のコリジョンの最初の座標。
 	Vector3 m_enemyStartPos = Vector3::Zero;          //敵の最初座標。
@@ -112,7 +111,6 @@ private:
 	int enemyState = 0;
 	Player* m_player = nullptr;
 	ObstacleBox* m_obstacleBox = nullptr;
-	Score* m_score = nullptr;
 };
 
 //基底クラスはEnemy。

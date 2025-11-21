@@ -2,7 +2,6 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "ObstacleBox.h"
-#include "Score.h"
 #include <time.h>
 
 namespace {
@@ -44,9 +43,9 @@ namespace {
 	};
 
 	EnemyInfo Enemys[enEnemy_Num] = {
-		{"Frogs",   {200.0f,120.0f,200.0f},{0.0f,0.0f,0.0f}},
-		{"Enemy02", {120.0f,140.0f,100.0f},{0.0f,0.0f,0.0f}},
-		{"Golem1" , {120.0f,160.0f,140.0f},{0.0f,0.0f,0.0f}},
+		{"Frogs",   {200.0f,120.0f,200.0f},{0.0f,30.0f,0.0f}},
+		{"Enemy02", {120.0f,140.0f,100.0f},{0.0f,30.0f,0.0f}},
+		{"Golem1" , {120.0f,160.0f,140.0f},{0.0f,30.0f,0.0f}},
 	};
 
 
@@ -179,7 +178,7 @@ void Enemy::SetCollisionObj(int enemyModel)
 		Enemys[enemyModel].collisionSc
 	);
 
-	m_collisionObj->SetPosition(m_collisionObjStartPos);
+	m_collisionObj->SetPosition(pos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
 }
@@ -446,9 +445,6 @@ void Enemy::CanHit()
 	if (m_collisionObj->IsHit(m_player->m_collisionObj))
 	{
 		m_player->force.y = 390.0f;
-		/** “G‚ð“|‚µ‚½Œã‚Éƒ|ƒCƒ“ƒg‚ð‰ÁŽZ */
-		m_score = FindGO<Score>("score");
-		//m_score->ScoreCalculator(100,)
 		DeleteGO(this);
 	}
 }

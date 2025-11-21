@@ -19,8 +19,7 @@ class GameClear;
 class GameOver;
 class BossStage;
 class HPUI;
-class Score;
-class InGameTime;
+//class InGameTime;
 
 //ステージ遷移の場所。
 enum class GameState {
@@ -40,6 +39,7 @@ public:
 	void Render(RenderContext& rc);
 
 	bool isQuick = false;
+	bool isKill = false;
 
 	GameState m_gameState = GameState::Normal;
 
@@ -86,8 +86,7 @@ private:
 	GameOver* m_gameOver = nullptr;//ゲームオーバー。
 	BossStage* m_bossStage = nullptr;//ボスステージ。
 	HPUI* m_hpui = nullptr;//UI。
-	Score* m_score = nullptr;//スコア。
-	InGameTime* m_inGameTime = nullptr;//残り時間。
+	//InGameTime* m_inGameTime = nullptr;//残り時間。
 	/// <summary>
 	/// 空を初期化。
 	/// </summary>

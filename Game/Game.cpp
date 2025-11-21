@@ -18,8 +18,7 @@
 #include "GameOver.h"
 #include "BossStage.h"
 #include "HPUI.h"
-#include "Score.h"
-#include "InGameTime.h"
+//#include "InGameTime.h"
 
 namespace {
 	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStage.tkl";
@@ -40,11 +39,7 @@ Game::~Game()
 	DeleteGO(m_skyCube);
 	m_skyCube = nullptr;
 	DeleteGO(m_hpui);
-	m_hpui = nullptr; 
-	DeleteGO(m_score);
-	m_score = nullptr;
-	DeleteGO(m_inGameTime);
-	m_inGameTime = nullptr;
+	m_hpui = nullptr;
 
 	for (auto m_stageGround : m_stageGrounds)
 	{
@@ -130,11 +125,8 @@ bool Game::Start()
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
 
-	//スコアを作成する。
-	m_score = NewGO<Score>(0, "score");
-
 	//タイムを作成する。
-	m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
+	//m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
 	
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
@@ -314,6 +306,22 @@ void Game::Update()
 		}
 		isQuick = false;
 	}
+
+	/*if (!m_enemy && !m_poal)
+	{
+		m_enemy = FindGO<Enemy>("Golem1");
+		m_poal = FindGO<Poal>("poal");
+	}
+	if (m_enemy->GetCollision()->IsHit(m_player->GetCharacterController()) && !isKill)
+	{
+		isKill = true;
+		m_score->ScoreCalculator(500);
+		if (isKill)
+		{
+			auto m_poal = NewGO<Poal>(0, "poal");
+		}
+		isKill = false;
+	}*/
 
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
