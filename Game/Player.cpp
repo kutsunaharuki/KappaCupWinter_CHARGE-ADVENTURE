@@ -131,6 +131,7 @@ void Player::ReceiveDamage(int damage, Vector3& enemyPos)
 	m_invinCibilityTime = 3.2f;
 	
 	//現在のHPをとっている。
+	//現在のHPでスプライトも切り替える。
 	if (m_hpui)
 	{
 		m_hpui->TakeDamage(hp);
@@ -143,7 +144,7 @@ void Player::ReceiveDamage(int damage, Vector3& enemyPos)
 	backDir.Normalize();
 	//ノックバックパワー。
 	float backPower = 200.0f;
-
+	
 	//ノックバック速度をそのまま速度にする。
 	m_backSpeed = backDir * backPower;
 

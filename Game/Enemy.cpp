@@ -2,6 +2,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "ObstacleBox.h"
+#include "Score.h"
 #include <time.h>
 
 namespace {
@@ -43,9 +44,9 @@ namespace {
 	};
 
 	EnemyInfo Enemys[enEnemy_Num] = {
-		{"Frogs",  {1.0f,1.0f,1.0f},{0.0f,100.0f,0.0f}},
-		{"Enemy02",{2.0f,2.5f,2.0f},{0.0f,100.0f,0.0f}},
-		{"Boss"  , {3.0f,3.0f,3.0f},{0.0f,100.0f,0.0f}},
+		{"Frogs",   {200.0f,120.0f,200.0f},{0.0f,0.0f,0.0f}},
+		{"Enemy02", {120.0f,140.0f,100.0f},{0.0f,0.0f,0.0f}},
+		{"Golem1" , {120.0f,160.0f,140.0f},{0.0f,0.0f,0.0f}},
 	};
 
 
@@ -66,6 +67,19 @@ namespace {
 	Vector3 ENEMY_LIMIT = { 400.0f,0.0f,400.0f };
 	const float ENEMY_MOVE_LIMIT = 50.0f;//Enemyの行動距離。
 	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyの重力。
+
+	Vector3 FORWARD = Vector3::AxisZ;
+}
+
+Enemy::Enemy()
+{
+
+}
+
+
+bool Enemy::Start()
+{
+	return true;
 }
 
 bool Enemy1::Start() {
@@ -103,6 +117,7 @@ Enemy::~Enemy()
 		m_collisionObj = nullptr;
 	}
 }
+
 
 void Enemy::Update()
 {
@@ -142,16 +157,14 @@ void Enemy::SetModel(int enemyModel)
 //コリジョンオブジェク初期化関数。
 void Enemy::SetCollisionObj(int enemyModel)
 {
-	m_collisionObjStartPos = Enemys[enemyModel].collisionPos;
+	Vector3 pos = Enemys[enemyModel].collisionPos;
 
 	wchar_t enemyPos[256];
 	swprintf_s(
 		enemyPos,
 		256, 
 		L"pos X: %f, Y: %f, Z: %f", 
-		m_collisionObjStartPos.x,
-		m_collisionObjStartPos.y,
-		m_collisionObjStartPos.z
+		pos.x,	pos.y,	pos.z
 	);
 
 	m_collisionFontRender.SetText(enemyPos);
@@ -161,9 +174,9 @@ void Enemy::SetCollisionObj(int enemyModel)
 
 	//コリジョンオブジェクトの初期化。
 	m_collisionObj->CreateBox(
-		m_collisionObjStartPos,
+		pos,
 		Quaternion::Identity,
-		m_enemyCollisionScale
+		Enemys[enemyModel].collisionSc
 	);
 
 	m_collisionObj->SetPosition(m_collisionObjStartPos);
@@ -316,9 +329,7 @@ struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
 //プレイヤーを見つけるかどうかの関数。
 const bool Enemy::IsFoundPlayer()
 {
-
-	m_forward = Vector3::AxisZ;
-	m_enemyRotation.Apply(m_forward);
+	m_enemyRotation.Apply(FORWARD);
 	
 	Vector3 playerPos = m_player->GetPosition();
 	Vector3 diff = playerPos - m_enemyPos;
@@ -326,7 +337,7 @@ const bool Enemy::IsFoundPlayer()
 	//ベクトルを正規化する。
 	diff.Normalize();
 	//ベクトルの内積の計算。
-	float angle = acosf(diff.Dot(m_forward));
+	float angle = acosf(diff.Dot(FORWARD));
 
 	//プレイヤーが視界内にいるなら。
 	if (Math::PI * 0.35f >= fabsf(angle))
@@ -435,6 +446,9 @@ void Enemy::CanHit()
 	if (m_collisionObj->IsHit(m_player->m_collisionObj))
 	{
 		m_player->force.y = 390.0f;
+		/** 敵を倒した後にポイントを加算 */
+		m_score = FindGO<Score>("score");
+		//m_score->ScoreCalculator(100,)
 		DeleteGO(this);
 	}
 }

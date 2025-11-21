@@ -19,6 +19,8 @@ class GameClear;
 class GameOver;
 class BossStage;
 class HPUI;
+class Score;
+class InGameTime;
 
 //ステージ遷移の場所。
 enum class GameState {
@@ -37,6 +39,8 @@ public:
 	void TimeDraw();
 	void Render(RenderContext& rc);
 
+	bool isQuick = false;
+
 	GameState m_gameState = GameState::Normal;
 
 	//時間制限。
@@ -49,6 +53,7 @@ public:
 	//-----------------------------------
 
 	LevelRender m_levelRender;
+	LevelRender m_bossLevelRender;
 	//後に数が決まった時にstd::array<T, number*>~~;とする。
 	std::vector<StageGround*> m_stageGrounds;
 	std::vector<Scaffolding*> m_scaffoldings;
@@ -57,6 +62,9 @@ public:
 	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
 	std::vector<Poal*> m_poals;
 	std::vector<Enemy*> m_enemys;
+	std::vector<Enemy*> m_bossis;
+	std::vector<BossStage*> m_bossStages;
+
 
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
@@ -78,6 +86,8 @@ private:
 	GameOver* m_gameOver = nullptr;//ゲームオーバー。
 	BossStage* m_bossStage = nullptr;//ボスステージ。
 	HPUI* m_hpui = nullptr;//UI。
+	Score* m_score = nullptr;//スコア。
+	InGameTime* m_inGameTime = nullptr;//残り時間。
 	/// <summary>
 	/// 空を初期化。
 	/// </summary>

@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Game.h"
 #include "BossStage.h"
+#include "Enemy.h"
 
 namespace {
 	const char* POAL = "Assets/modelData/Poal.tkm";
@@ -32,10 +33,6 @@ bool Poal::Start()
 	m_collisionObj->SetRotation(m_rot);
 	m_collisionObj->Update();
 
-	//auto player = FindGO<Player>("player");
-	//プレイヤーをステージの初期位置に戻す。
-	//player->SetPosition(Vector3::Zero);
-	
 	m_player = FindGO<Player>("player");
 	return true;
 }
@@ -43,21 +40,13 @@ bool Poal::Start()
 void Poal::Update()
 {
 	m_poalRender.Update();
-	if (m_collisionObj->IsHit(m_player->GetCharacterController()))
-	{
-		bool isHit = true;
-		auto boss = NewGO<BossStage>(0, "bossStage");
-		auto game = FindGO<Game>("game");
-		DeleteGO(game);
-		return;
-	}
 }
 
 void Poal::SetCollisionObj()
 {
 	m_collisionObj = new CollisionObject;
 	m_collisionObj->CreateCapsule(
-		m_pos,           //座標。
+		m_pos,              //座標。
 		m_rot,              //回転。
 		RADIUS,             //半径。
 		HEIGHT              //高さ。
@@ -68,6 +57,15 @@ void Poal::SetCollisionObj()
 	m_collisionObj->SetRotation(m_rot);
 	m_collisionObj->Update();
 }
+
+
+/** レベルレンダーの描画準備用の関数 */
+//const bool Poal::SetLevelModel()
+//{
+//	
+//	return true;
+//}
+
 
 /// <summary>
 /// ゴールポールのコリジョンに当たった時の処理。
@@ -88,5 +86,6 @@ void Poal::SetCollisionObj()
 
 void Poal::Render(RenderContext& rc)
 {
+	//m_bossLevelRender.Draw(rc);
 	m_poalRender.Draw(rc);
 }

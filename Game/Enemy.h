@@ -1,6 +1,7 @@
 #pragma once
 class Player;
 class ObstacleBox;
+class Score;
 
 enum EnEnemy {
 	enEnemy1,//ファイル番号0(クリボー)。
@@ -19,8 +20,10 @@ enum EnEnemyActionState {
 class Enemy : public IGameObject
 {
 public:
-	~Enemy();
-	void Update()override;
+	Enemy();
+	virtual ~Enemy();
+	virtual bool Start()override;
+	virtual void Update()override;
 	void Move();
 	void UpdateEnemyInfo();
 	void RandomWalk();
@@ -28,14 +31,15 @@ public:
 	void EnemyBehavior();
 	void Tracking();
 	const bool IsFoundPlayer();
-	void Render(RenderContext& rc);
+	virtual void Render(RenderContext& rc);
 	void EnemyHit();
 
-public:
+
 	//inlineは関数に入らずに別のクラス内に持ち込むことができる。
 	inline void SetPosition(const Vector3& pos) { m_enemyPos = pos; }
 	inline void SetScale(const Vector3& scl) { m_enemyScale = scl; }
 	inline void SetRotation(const Quaternion& rot) { m_enemyRotation = rot; }
+
 
 	//inlineの中身は3行以内ですますように!
 	inline void SetTRS(const Vector3& pos, const Vector3& scl, const Quaternion& rot)
@@ -63,16 +67,16 @@ protected:
 	ModelRender m_enemyRender;
 	Quaternion m_enemyRotation = Quaternion::Identity;//回転。
 	CharacterController m_charaCon;                   //キャラクターコントローラー。
-	CollisionObject* m_collisionObj;                  //コリジョンオブジェクト。
+	CollisionObject* m_collisionObj = nullptr;                  //コリジョンオブジェクト。
 
 	Vector3 m_collisionObjStartPos = Vector3::Zero;   //敵のコリジョンの最初の座標。
 	Vector3 m_enemyStartPos = Vector3::Zero;          //敵の最初座標。
 	Vector3 m_enemyPos = Vector3::Zero;               //敵の座標。
 	Vector3 m_enemyMoveSpeed = Vector3::Zero;         //敵の移動速度。
 	Vector3 m_enemyScale = Vector3::One;              //敵の大きさ。
-	Vector3 m_enemyCollisionScale = Vector3(130.0f, 100.0f, 130.0f);//コリジョンのサイズ。
+	//Vector3 m_enemyCollisionScale = Vector3(130.0f, 100.0f, 130.0f);//コリジョンのサイズ。
 	Vector3 m_moveSpeed = Vector3::Zero;              //敵の移動速度。
-	Vector3 m_forward = Vector3::Zero;
+	
 
 	bool isHit = false;
 	bool m_isSearchPlayer = false;
@@ -108,6 +112,7 @@ private:
 	int enemyState = 0;
 	Player* m_player = nullptr;
 	ObstacleBox* m_obstacleBox = nullptr;
+	Score* m_score = nullptr;
 };
 
 //基底クラスはEnemy。
@@ -115,16 +120,19 @@ class Enemy1 : public Enemy
 {
 public:
 	bool Start()override;
+	//~Enemy1()override;
 };
 
 class Enemy2 : public Enemy
 {
 public:
 	bool Start()override;
+	//~Enemy2()override;
 };
 
 class Boss : public Enemy
 {
 public:
 	bool Start()override;
+	//~Boss()override;
 };

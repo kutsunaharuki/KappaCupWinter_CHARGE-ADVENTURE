@@ -9,6 +9,8 @@ bool BossStage::Start()
 {
 	m_bossStageRender.Init(BOSS_STAGE);
 	m_bossStageRender.SetPosition(m_pos);
+	m_bossStageRender.SetScale(m_sc);
+
 	m_bossStageRender.Update();
 
 	m_physicsObj.CreateFromModel(

@@ -18,6 +18,12 @@
 #include "GameOver.h"
 #include "BossStage.h"
 #include "HPUI.h"
+#include "Score.h"
+#include "InGameTime.h"
+
+namespace {
+	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStage.tkl";
+}
 
 Game::~Game()
 {	
@@ -35,6 +41,10 @@ Game::~Game()
 	m_skyCube = nullptr;
 	DeleteGO(m_hpui);
 	m_hpui = nullptr; 
+	DeleteGO(m_score);
+	m_score = nullptr;
+	DeleteGO(m_inGameTime);
+	m_inGameTime = nullptr;
 
 	for (auto m_stageGround : m_stageGrounds)
 	{
@@ -70,6 +80,16 @@ Game::~Game()
 	{
 		DeleteGO(m_enemy);
 		m_enemy = nullptr;
+	}
+	for (auto bossStage : m_bossStages)
+	{
+		DeleteGO(bossStage);
+		bossStage = nullptr;
+	}
+	for (auto enemy : m_bossis)
+	{
+		DeleteGO(enemy);
+		enemy = nullptr;
 	}
 	/*for (auto m_enemy2 : m_enemys)
 	{
@@ -109,6 +129,13 @@ bool Game::Start()
 
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
+
+	//スコアを作成する。
+	m_score = NewGO<Score>(0, "score");
+
+	//タイムを作成する。
+	m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
+	
 	//敵を作成する。
 	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
 	//m_enemy = NewGO<Enemy2>(0, "enemy2");//Penguin(ペンギン)。
@@ -132,17 +159,6 @@ bool Game::Start()
 			m_enemys.push_back(m_enemy);
 			return true;
 		}
-		//if (objData.EqualObjectName(L"Penguin") == true)
-		//{
-		//	//Penguin(ペンギン)を作成する。
-		//	auto m_enemy2 = NewGO<Enemy2>(0, "Penguin");
-
-		//	m_enemy2->SetPosition(objData.position);
-		//	m_enemy2->SetRotation(objData.rotation);
-		//	m_enemy2->SetScale(objData.scale);
-		//	m_enemys.push_back(m_enemy2);
-		//	return true;
-		//}
 		if (objData.EqualObjectName(L"StageGround") == true)
 		{
 			//最初に触れる足場。
@@ -221,6 +237,84 @@ void Game::Update()
 		TimeDraw();
 	}
 
+
+	/** 
+	 * プレイヤーのキャラコンがゴールポールに
+	 * 触れたら前のステージがdeleteされる
+	 * ゴールポールがnullじゃないなら
+	 * ゴールポールを呼ぶ。
+	 */
+	if(!m_poal)
+	{
+		m_poal = FindGO<Poal>("poal");
+	}
+	if (m_poal->GetCollision()->IsHit(m_player->GetCharacterController()) && !isQuick)
+	{
+		isQuick = true;
+		DeleteGO(m_poal);
+		if (isQuick) {
+			for (auto m_stageGround : m_stageGrounds)
+			{
+				DeleteGO(m_stageGround);
+				m_stageGround = nullptr;
+			}
+			for (auto m_skyGround : m_skyGrounds)
+			{
+				DeleteGO(m_skyGround);
+				m_skyGround = nullptr;
+			}
+			for (auto m_scaffolding : m_scaffoldings)
+			{
+				DeleteGO(m_scaffolding);
+				m_scaffolding = nullptr;
+			}
+			for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
+			{
+				DeleteGO(m_movingFloorUpDown);
+				m_movingFloorUpDown = nullptr;
+			}
+			for (auto m_movingFloor : m_movingFloors)
+			{
+				DeleteGO(m_movingFloor);
+				m_movingFloor = nullptr;
+			}
+			for (auto m_poal : m_poals)
+			{
+				DeleteGO(m_poal);
+				m_poal = nullptr;
+			}
+			for (auto m_enemy : m_enemys)
+			{
+				DeleteGO(m_enemy);
+				m_enemy = nullptr;
+			}
+		}
+		if (isQuick)
+		{
+			m_player->GetPosition();
+			m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objectData) {
+				if (objectData.EqualObjectName(L"BossStage") == true)
+				{
+					auto bossStage = NewGO<BossStage>(0, "bossStage");
+					bossStage->m_pos = objectData.position;
+					bossStage->m_sc = objectData.scale;
+					m_bossStages.push_back(bossStage);
+					return true;
+				}
+				if (objectData.EqualObjectName(L"Golem1") == true)
+				{
+					auto enemys = NewGO<Boss>(0, "Golem1");
+					enemys->SetPosition(objectData.position);
+					enemys->SetScale(objectData.scale);
+					m_bossis.push_back(enemys);
+					return true;
+				}
+				return false;
+			});
+		}
+		isQuick = false;
+	}
+
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
 	if (m_player->hp <= 0)
@@ -249,7 +343,7 @@ void Game::Update()
 		DeleteGO(this);
 	}
 
-	//PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 	
 	//auto型は推論なので、必要なのは右辺値が必要。
 	//auto型の為に#includeは必要ない。
