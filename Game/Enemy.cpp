@@ -2,6 +2,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "ObstacleBox.h"
+#include "Score.h"
 #include <time.h>
 
 namespace {
@@ -18,7 +19,7 @@ namespace {
 		std::string fileName = "fileName";
 
 		Vector3 collisionSc;
-		Vector3 collisionPos;
+		//Vector3 collisionPos;
 
 		std::string GetFullPath() {
 			return FILE_PATH + fileName + FILE_EXTENSTION;
@@ -27,7 +28,7 @@ namespace {
 
 
 	//ファイルの場所。
-	std::string ENEMY_ANIM_PATH = "Assets/EnemyAnimData/";
+	std::string ENEMY_ANIM_PATH = "Assets/EnmyAnimData/";
 	//拡張子。
 	std::string ENEMY_FILE_EXTENSTION = ".tka";
 
@@ -43,17 +44,21 @@ namespace {
 	};
 
 	EnemyInfo Enemys[enEnemy_Num] = {
-		{"Frogs",   {200.0f,120.0f,200.0f},{0.0f,30.0f,0.0f}},
-		{"Enemy02", {120.0f,140.0f,100.0f},{0.0f,30.0f,0.0f}},
-		{"Golem1" , {120.0f,160.0f,140.0f},{0.0f,30.0f,0.0f}},
+		{"Frogs"   ,   {200.0f,120.0f,200.0f}},
+		{"Enemy02" ,   {120.0f,140.0f,100.0f}},
+		{"Bear"    ,   {300.0f,200.0f,300.0f}},
 	};
 
 
 	AnimInfo Animas[enEnemy_Num] = {
 		{"Jumping"},
-		{},
-		{}
+		{""},
+		{""}
 	};
+
+	AnimInfo enemy1[1] = { "Jumping" };
+
+	AnimInfo enemy2[]
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 
@@ -122,11 +127,13 @@ void Enemy::Update()
 {
 	Move();
 	EnemyBehavior();
+	IsFoundPlayer();
 	m_collisionObj->SetPosition(m_enemyPos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
 	EnemyHit();
 	CanHit();
+	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.Update();
 }
 
@@ -144,7 +151,7 @@ void Enemy::SetPhysicsGameObj(int enemyModels)
 
 void Enemy::SetModel(int enemyModel)
 {
-	m_collisionObjStartPos = Enemys[enemyModel].collisionPos;
+	m_collisionObjStartPos = m_enemyPos;
 
 	std::string file = Enemys[enemyModel].GetFullPath();
 	//敵の読み込み。
@@ -153,21 +160,10 @@ void Enemy::SetModel(int enemyModel)
 	m_enemyRender.Update();
 }
 
-//コリジョンオブジェク初期化関数。
+//コリジョンオブジェクト初期化関数。
 void Enemy::SetCollisionObj(int enemyModel)
 {
-	Vector3 pos = Enemys[enemyModel].collisionPos;
-
-	wchar_t enemyPos[256];
-	swprintf_s(
-		enemyPos,
-		256, 
-		L"pos X: %f, Y: %f, Z: %f", 
-		pos.x,	pos.y,	pos.z
-	);
-
-	m_collisionFontRender.SetText(enemyPos);
-	m_collisionFontRender.SetPosition(m_fontPos);
+	Vector3 pos = m_enemyPos;
 
 	m_collisionObj = new CollisionObject;
 
@@ -243,6 +239,7 @@ void Enemy::Tracking()
 	
 }
 
+/** Enemyがランダムに動く */
 void Enemy::RandomWalk()
 {
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
@@ -438,6 +435,10 @@ void Enemy::CanHit()
 {
 	//nullチェック。
 	//プレイヤーの体についてるコリジョンかプレイヤーがnullptrじゃないなら
+	/*if (!m_score)
+	{
+		m_score = FindGO<Score>("score");
+	}*/
 	if (!m_player->m_collisionObj || !m_player) {
 		return;
 	}
@@ -445,6 +446,7 @@ void Enemy::CanHit()
 	if (m_collisionObj->IsHit(m_player->m_collisionObj))
 	{
 		m_player->force.y = 390.0f;
+		//m_score->AddScore(100);
 		DeleteGO(this);
 	}
 }

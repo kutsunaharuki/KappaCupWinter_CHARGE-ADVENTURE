@@ -1,6 +1,7 @@
 #pragma once
 class Player;
 class ObstacleBox;
+class Score;
 
 enum EnEnemy {
 	enEnemy1,//ファイル番号0(クリボー)。
@@ -111,6 +112,7 @@ private:
 	int enemyState = 0;
 	Player* m_player = nullptr;
 	ObstacleBox* m_obstacleBox = nullptr;
+	Score* m_score = nullptr;
 };
 
 //基底クラスはEnemy。

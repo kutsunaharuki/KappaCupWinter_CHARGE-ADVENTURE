@@ -118,5 +118,8 @@ private:
 	int playerState    = 0;
 
 	MovingFloor* m_movingFloor = nullptr;
+
+
+	FontRender m_debugFont;
 };
 

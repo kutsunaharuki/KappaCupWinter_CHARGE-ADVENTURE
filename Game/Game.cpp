@@ -18,10 +18,10 @@
 #include "GameOver.h"
 #include "BossStage.h"
 #include "HPUI.h"
-//#include "InGameTime.h"
+#include "Score.h"
 
-namespace {
-	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStage.tkl";
+namespace{
+	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStageLevel.tkl";
 }
 
 Game::~Game()
@@ -40,6 +40,7 @@ Game::~Game()
 	m_skyCube = nullptr;
 	DeleteGO(m_hpui);
 	m_hpui = nullptr;
+	DeleteGO(m_score);
 
 	for (auto m_stageGround : m_stageGrounds)
 	{
@@ -71,7 +72,7 @@ Game::~Game()
 		DeleteGO(m_poal);
 		m_poal = nullptr;
 	}
-	for (auto m_enemy : m_enemys)
+	for (auto m_enemy : m_enemies)
 	{
 		DeleteGO(m_enemy);
 		m_enemy = nullptr;
@@ -81,16 +82,16 @@ Game::~Game()
 		DeleteGO(bossStage);
 		bossStage = nullptr;
 	}
-	for (auto enemy : m_bossis)
+	for (auto enemy : m_enemies)
 	{
 		DeleteGO(enemy);
 		enemy = nullptr;
 	}
-	/*for (auto m_enemy2 : m_enemys)
+	for (auto bossStage : m_bossStages)
 	{
-		DeleteGO(m_enemy2);
-		m_enemy2 = nullptr;
-	}*/
+		DeleteGO(bossStage);
+		bossStage = nullptr;
+	}
 }
 
 void Game::InitSky()
@@ -125,6 +126,10 @@ bool Game::Start()
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
 
+	/** スコアを作成する */
+	//m_score = NewGO<Score>(0, "score");
+
+
 	//タイムを作成する。
 	//m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
 	
@@ -148,7 +153,7 @@ bool Game::Start()
 			m_enemy->SetPosition(objData.position);
 			m_enemy->SetRotation(objData.rotation);
 			m_enemy->SetScale(objData.scale);
-			m_enemys.push_back(m_enemy);
+			m_enemies.push_back(m_enemy);
 			return true;
 		}
 		if (objData.EqualObjectName(L"StageGround") == true)
@@ -212,9 +217,9 @@ bool Game::Start()
 			auto m_poal = NewGO<Poal>(0, "poal");
 			m_poal->m_pos = objData.position;
 			m_poal->m_rot = objData.rotation;
-			m_poal->m_scale = objData.scale;
+			m_poal->m_scale = objData.scale;                                                                                                                                                 
 			m_poals.push_back(m_poal);
-			return true;
+			return true;                                                                                                                                                                                                                                                                                                    
 		}
 		return false;
 	});
@@ -222,7 +227,7 @@ bool Game::Start()
 }
 
 void Game::Update()
-{	
+{
 	//1-1のステージかボスステージの場合タイマーを描画する。
 	if (m_gameState == GameState::Normal || m_gameState == GameState::BossStage)
 	{
@@ -275,30 +280,32 @@ void Game::Update()
 				DeleteGO(m_poal);
 				m_poal = nullptr;
 			}
-			for (auto m_enemy : m_enemys)
+			for (auto m_enemy : m_enemies)
 			{
 				DeleteGO(m_enemy);
 				m_enemy = nullptr;
+				m_enemies.clear();
 			}
 		}
 		if (isQuick)
 		{
-			m_player->GetPosition();
-			m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objectData) {
-				if (objectData.EqualObjectName(L"BossStage") == true)
+			m_player->SetPosition(m_player->m_position);
+			m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objData) {
+				if (objData.EqualObjectName(L"BossStage") == true)
 				{
 					auto bossStage = NewGO<BossStage>(0, "bossStage");
-					bossStage->m_pos = objectData.position;
-					bossStage->m_sc = objectData.scale;
+					bossStage->m_pos = objData.position;
+					bossStage->m_sc = objData.scale;
 					m_bossStages.push_back(bossStage);
 					return true;
 				}
-				if (objectData.EqualObjectName(L"Golem1") == true)
+				if (objData.EqualObjectName(L"Bear") == true)
 				{
-					auto enemys = NewGO<Boss>(0, "Golem1");
-					enemys->SetPosition(objectData.position);
-					enemys->SetScale(objectData.scale);
-					m_bossis.push_back(enemys);
+					auto enemys = NewGO<Boss>(0, "Bear");
+					enemys->SetPosition(objData.position);
+					enemys->SetRotation(objData.rotation);
+					enemys->SetScale(objData.scale);
+					m_enemies.push_back(enemys);
 					return true;
 				}
 				return false;
@@ -306,22 +313,6 @@ void Game::Update()
 		}
 		isQuick = false;
 	}
-
-	/*if (!m_enemy && !m_poal)
-	{
-		m_enemy = FindGO<Enemy>("Golem1");
-		m_poal = FindGO<Poal>("poal");
-	}
-	if (m_enemy->GetCollision()->IsHit(m_player->GetCharacterController()) && !isKill)
-	{
-		isKill = true;
-		m_score->ScoreCalculator(500);
-		if (isKill)
-		{
-			auto m_poal = NewGO<Poal>(0, "poal");
-		}
-		isKill = false;
-	}*/
 
 	//プレイヤーのHPが0になったら
 	//ゲームオーバーにする処理。
@@ -355,8 +346,16 @@ void Game::Update()
 	
 	//auto型は推論なので、必要なのは右辺値が必要。
 	//auto型の為に#includeは必要ない。
-	// g_renderingEngine->DisableRaytracing();
+	//g_renderingEngine->DisableRaytracing();
 }
+
+
+/** スコアを描画するための関数 */
+void Game::ScoreDraw()
+{
+	
+}
+
 
 //時間制限の描画関数。
 void Game::TimeDraw()

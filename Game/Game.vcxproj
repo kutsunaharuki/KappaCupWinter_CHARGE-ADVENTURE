@@ -231,7 +231,6 @@
     <ClCompile Include="GameClear.cpp" />
     <ClCompile Include="GameOver.cpp" />
     <ClCompile Include="HPUI.cpp" />
-    <ClCompile Include="InGameTime.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovingFloor.cpp" />
     <ClCompile Include="MovingFloorUpDown.cpp" />
@@ -261,7 +260,6 @@
     <ClInclude Include="GameClear.h" />
     <ClInclude Include="GameOver.h" />
     <ClInclude Include="HPUI.h" />
-    <ClInclude Include="InGameTime.h" />
     <ClInclude Include="MovingFloor.h" />
     <ClInclude Include="MovingFloorUpDown.h" />
     <ClInclude Include="ObstacleBox.h" />

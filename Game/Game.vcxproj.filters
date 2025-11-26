@@ -31,7 +31,6 @@
     <ClCompile Include="HPUI.cpp" />
     <ClCompile Include="BossStage.cpp" />
     <ClCompile Include="Score.cpp" />
-    <ClCompile Include="InGameTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -58,6 +57,5 @@
     <ClInclude Include="HPUI.h" />
     <ClInclude Include="BossStage.h" />
     <ClInclude Include="Score.h" />
-    <ClInclude Include="InGameTime.h" />
   </ItemGroup>
 </Project>
