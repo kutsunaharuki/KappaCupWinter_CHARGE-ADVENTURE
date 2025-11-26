@@ -35,6 +35,9 @@ public:
 	void EnemyHit();
 
 
+
+
+
 	//inline‚ÍŠÖ”‚É“ü‚ç‚¸‚É•Ê‚ÌƒNƒ‰ƒX“à‚É‚¿‚Ş‚±‚Æ‚ª‚Å‚«‚éB
 	inline void SetPosition(const Vector3& pos) { m_enemyPos = pos; }
 	inline void SetScale(const Vector3& scl) { m_enemyScale = scl; }

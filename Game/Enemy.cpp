@@ -45,7 +45,7 @@ namespace {
 
 	EnemyInfo Enemys[enEnemy_Num] = {
 		{"Frogs"   ,   {200.0f,120.0f,200.0f}},
-		{"Enemy02" ,   {120.0f,140.0f,100.0f}},
+		{"Skelton" ,   {120.0f,140.0f,100.0f}},
 		{"Bear"    ,   {300.0f,200.0f,300.0f}},
 	};
 
@@ -58,7 +58,14 @@ namespace {
 
 	AnimInfo enemy1[1] = { "Jumping" };
 
-	AnimInfo enemy2[]
+	AnimInfo enemy2[10] = { 
+		"SkeltonFall"    ,"SkeltonDeath"  ,"SkeltonIdle",
+		"SkeltonJump"    ,"SkeltonRun    ","SkeltonTurnRight",
+		"SkeltonTurnLeft","SkeltonSlash01","SkeltonSpawn",
+		"SkeltonWalk" 
+	};
+
+	AnimInfo boss[4] = { "Attack1","Buff","Death","Eat" };
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 

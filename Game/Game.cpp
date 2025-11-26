@@ -145,6 +145,19 @@ bool Game::Start()
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
 
 	m_levelRender.Init("Assets/LevelRender/Stage1-1Level.tkl", [&](LevelObjectData& objData) {
+		if (objData.EqualObjectName(L"Skelton") == true)
+		{
+			/** Skelton(Enemy2)‚ğì¬‚·‚é */
+			auto m_enemy = NewGO<Enemy2>(0, "skelton");
+
+			m_enemy->SetTRS(
+				objData.position,
+				objData.scale,
+				objData.rotation
+			);
+			m_enemies.push_back(m_enemy);
+			return true;
+		}
 		if (objData.EqualObjectName(L"Frogs") == true)
 		{
 			//Frog(Enemy1)‚ğì¬‚·‚éB
