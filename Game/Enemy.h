@@ -35,8 +35,19 @@ public:
 	void EnemyHit();
 
 
+	enum EnAnimationClip{
+		enAnimClip_Idle,
+		enAnimClip_Walk,
+		enAnimClip_Fall,
+		enAnimClip_TurnRight,
+		enAnimClip_TurnLeft,
+		enAnimClip_Run,
+		enAnimClip_Attack,
+		enAnimClip_Deth,
+		enAnimClip_Num
+	};
 
-
+	AnimationClip animClips[enAnimClip_Num];
 
 	//inline‚ÍŠÖ”‚É“ü‚ç‚¸‚É•Ê‚ÌƒNƒ‰ƒX“à‚É‚¿‚Ş‚±‚Æ‚ª‚Å‚«‚éB
 	inline void SetPosition(const Vector3& pos) { m_enemyPos = pos; }
