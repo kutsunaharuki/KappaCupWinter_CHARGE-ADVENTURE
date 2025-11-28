@@ -116,6 +116,8 @@ void Game::InitSky()
 
 bool Game::Start()
 {
+	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	
 	InitSky();
 	//プレイヤーのオブジェクトを作成する。
 	m_player = NewGO<Player>(0, "player");
@@ -355,7 +357,6 @@ void Game::Update()
 		DeleteGO(this);
 	}
 
-	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 	
 	//auto型は推論なので、必要なのは右辺値が必要。
 	//auto型の為に#includeは必要ない。

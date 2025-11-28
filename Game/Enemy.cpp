@@ -12,7 +12,6 @@ namespace {
 	std::string FILE_EXTENSTION = ".tkm";
 
 
-
 	struct EnemyInfo
 	{
 		//ファイル名。
@@ -32,6 +31,7 @@ namespace {
 	//拡張子。
 	std::string ENEMY_FILE_EXTENSTION = ".tka";
 
+
 	struct AnimInfo
 	{
 		//ファイル名。
@@ -43,8 +43,9 @@ namespace {
 		}
 	};
 
+
 	EnemyInfo Enemys[enEnemy_Num] = {
-		{"Frogs"   ,   {200.0f,120.0f,200.0f}},
+		{"Frogs"   ,   {220.0f,100.0f,220.0f}},
 		{"Skelton" ,   {120.0f,140.0f,100.0f}},
 		{"Bear"    ,   {300.0f,200.0f,300.0f}},
 	};
@@ -56,30 +57,39 @@ namespace {
 		{""}
 	};
 
+
 	AnimInfo enemy1[1] = { "Jumping" };
 
+
 	AnimInfo enemy2[8] = { 
-		"SkeltonFall"    ,"SkeltonDeath"    ,"SkeltonIdle",
-		"SkeltonRun     ","SkeltonTurnRight","SkeltonTurnLeft",
-		"SkeltonSlash01" ,"SkeltonWalk" 
+		"SkeltonWalk"     ,"SkeltonIdle"    ,"SkeltonFall",
+		"SkeltonTurnRight","SkeltonTurnLeft","SkeltonRun",
+		"SkeltonSlash01"  ,"SkeltonDeth"
 	};
 
-	AnimInfo boss[7] = { 
-		"Attack1","Buff","Death",
-		"Eat"    ,"Hit" ,"Idle" ,
-		"Run"
+
+	AnimInfo boss[9] = { 
+		"Walk","Idle","Hit","Buff",
+		"Sleep","Run","Eat","Attack1",
+		"Death"
 	};
+
 
 	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//敵の視認範囲用のゴーストオブジェクト。
 
 	const float CHARACON_RADIUS = 30.0f ;//カプセルコライダーの半径。
 	const float CHARACON_HEIGHT = 25.0f;//カプセルコライダーの高さ。
 
+	const float ENEMY_ATTACK_RANGE = 140.0f;//Enemyの攻撃判定の範囲。
 	const float ENEMY_RANGE      = 120.0f;//Enemyの追従判定の範囲。
 	const float ENEMY_MOVESPEED  = 120.0f;//Eenemyの移動速度。
 	
+	const Vector3 COLL_PLASS_POS = { 0.0f,70.0f,0.0f };//キャラコンの調整用namespace。
+
+	const float DISTANCE = 200.0f;
 	Vector3 ENEMY_LIMIT = { 400.0f,0.0f,400.0f };
-	const float ENEMY_MOVE_LIMIT = 50.0f;//Enemyの行動距離。
+	const float GRAVITY = -8.0f * 1.4;   //重力。
+	const float ENEMY_MOVE_LIMIT = 150.0f;//Enemyの行動距離。
 	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyの重力。
 
 	Vector3 FORWARD = Vector3::AxisZ;
@@ -97,27 +107,113 @@ bool Enemy::Start()
 }
 
 bool Enemy1::Start() {
+	m_animationClips.Load("Assets/EnmyAnimData/Jumping.tka");
+	m_animationClips.SetLoopFlag(true);
+	m_enemyRender.SetAnimationSpeed(0.6f);
+	std::string e1ModelFile = Enemys[enEnemy1].GetFullPath();
+	m_enemyRender.Init(e1ModelFile.c_str(), &m_animationClips,1, enModelUpAxisZ);
+	
+
 	SetModel(enEnemy1);
 	SetPhysicsGameObj(enEnemy1);
 	SetCollisionObj(enEnemy1);
+	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
 
 bool Enemy2::Start() {
+	for (int i = 0; i <= enEnemy2AnimClip_Deth; i++)
+	{
+		std::string animfile = enemy2[i].GetAnimPath();
+		m_animationClips[i].Load(animfile.c_str());
+		if (i == enEnemy2AnimClip_Run)
+		{
+			m_animationClips[i].SetLoopFlag(false);
+		}
+		else {
+			m_animationClips[i].SetLoopFlag(true);
+		}
+	}
+	std::string e2ModelFile = Enemys[enEnemy2].GetFullPath();
+	m_enemyRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName)
+		{
+			(void)clipName;
+			m_isAttack = true;
+			if (wcscmp(eventName, L"Attack") == 0)
+			{
+				m_isAttack = true;
+				m_enemy2AtCollisionObject = new CollisionObject;
+				m_enemy2AtCollisionObject->Activate();
+			}
+
+			else if (wcscmp(eventName, L"Attack_End") == 0)
+			{
+				m_isAttack = false;
+				m_enemy2AtCollisionObject->Deactivate();
+				if (m_enemy2AtCollisionObject != nullptr)
+				{
+					delete m_enemy2AtCollisionObject;
+					m_enemy2AtCollisionObject = nullptr;
+				}
+			}
+
+		});
+	m_enemyRender.Init(e2ModelFile.c_str(), m_animationClips, 8, enModelUpAxisZ);
+
+
 	SetModel(enEnemy2);
 	SetPhysicsGameObj(enEnemy2);
 	SetCollisionObj(enEnemy2);
+	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
 
 bool Boss::Start() {
+	for (int i = 0; i < enBossAnimClip_Num; i++)
+	{
+		std::string bAnimFile = boss[i].GetAnimPath();
+		m_animationClips[i].Load(bAnimFile.c_str());
+		if (i != enBossAnimClip_Death)
+		{
+			m_animationClips[i].SetLoopFlag(false);
+		}
+		else {
+			m_animationClips[i].SetLoopFlag(true);
+		}
+	}
+	std::string bossFile = Enemys[enBoss].GetFullPath();
+	m_enemyRender.Init(bossFile.c_str(), m_animationClips, 9, enModelUpAxisZ);
+	m_enemyRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName)
+	{
+		(void)clipName;
+		m_isAttack = true;
+		if (wcscmp(eventName, L"B_Attack_Start") == 0)
+		{
+			m_isAttack = true;
+			m_bossAtCollisionObject = new CollisionObject;
+			m_bossAtCollisionObject->Activate();
+		}
+		else if (wcscmp(eventName, L"B_Attack_End") == 0)
+		{
+			m_isAttack = false;
+			m_bossAtCollisionObject->Deactivate();
+			if (m_bossAtCollisionObject != nullptr)
+			{
+				delete m_bossAtCollisionObject;
+				m_bossAtCollisionObject = nullptr;
+			}
+		}
+	});
+
+	AnimationManager();
 	SetModel(enBoss);
 	SetPhysicsGameObj(enBoss);
 	SetCollisionObj(enBoss);
+	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
@@ -135,17 +231,122 @@ Enemy::~Enemy()
 
 void Enemy::Update()
 {
-	Move();
-	EnemyBehavior();
+	//Move();
+	
+	/** プレイヤーへの視認チェック */
 	IsFoundPlayer();
-	m_collisionObj->SetPosition(m_enemyPos);
+	
+	/** 行動ステートと速度を決定 */
+	EnemyBehavior();
+	
+	/** 重力と実際の移動を実行 */
+	UpdateEnemyInfo();
+	
+	/** アニメーションの再生 */
+	PlayAnimation();
+	
+	/** コリジョンの更新 */
+	m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
+	
+	/** ヒットチェック */
 	EnemyHit();
 	CanHit();
+
+	/** 描画位置更新 */
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.Update();
 }
+
+
+void Enemy1::PlayAnimation()
+{
+	/** Jumping.tkaを再生 */
+	m_enemyRender.PlayAnimation(0);
+}
+
+
+/** Enemy2のアニメーション管理 */
+void Enemy2::PlayAnimation()
+{
+	switch (m_enemyActionState)
+	{
+	case enEnemyActionState_Idle:
+		m_animStatus = enEnemy2AnimClip_Idle;
+		break;
+	case enEnemyActionState_Wandering:
+		m_animStatus = enEnemy2AnimClip_Walk;
+		break;
+	case enEnemyActionState_Run:
+		m_animStatus = enEnemy2AnimClip_Run;
+		break;
+	case enEnemyActionState_Attack:
+		m_animStatus = enEnemy2AnimClip_Slash01;
+		break;
+	case enEnemyActionState_Deth:
+		m_animStatus = enEnemy2AnimClip_Deth;
+		break;
+	case enEnemyActionState_Situ:
+		m_animStatus = enEnemy2AnimClip_Fall;
+		break;
+	}
+	m_enemyRender.PlayAnimation(m_animStatus);
+}
+
+
+/** ボスのアニメーション管理 */
+void Boss::PlayAnimation()
+{
+	switch (m_enemyActionState)
+	{
+	case enEnemyActionState_Idle:
+		m_animStatus = enBossAnimClip_Idle;		
+		break;
+	case enEnemyActionState_Wandering:
+		m_animStatus = enBossAnimClip_Walk;
+		break;
+	case enEnemyActionState_Run:
+		m_animStatus = enBossAnimClip_Run;
+		break;
+	case enEnemyActionState_Attack:
+		m_animStatus = enBossAnimClip_Attack1;
+		break;
+	case enEnemyActionState_Deth:
+		m_animStatus = enBossAnimClip_Death;
+		break;
+	case enEnemyActionState_Situ:
+		m_animStatus = enBossAnimClip_Sleep;
+		break;
+	}
+
+	m_enemyRender.PlayAnimation(m_animStatus);
+}
+
+
+/** Enemy1,Enemy2,Bossのアニメーションステート */
+void Enemy::AnimationManager()
+{
+	/** 待機アニメーション */
+	if (m_charaCon.IsOnGround())
+	{
+		m_enemyActionState = enEnemyActionState_Idle;
+	}
+	/** 追跡のアニメーション */
+	if (!IsFoundPlayer())
+	{
+		m_enemyActionState = enEnemyActionState_Chase;
+	}
+	else if(IsFoundPlayer()){
+		m_enemyActionState = enEnemyActionState_Wandering;
+	}
+	/** 攻撃アニメーション */
+	if (m_player->m_position.z >= DISTANCE)
+	{
+		m_enemyActionState = enEnemyActionState_Attack;
+	}
+}
+
 
 //キャラコンの初期化関数。
 void Enemy::SetPhysicsGameObj(int enemyModels)
@@ -163,9 +364,9 @@ void Enemy::SetModel(int enemyModel)
 {
 	m_collisionObjStartPos = m_enemyPos;
 
-	std::string file = Enemys[enemyModel].GetFullPath();
+	//std::string file = Enemys[enemyModel].GetFullPath();
 	//敵の読み込み。
-	m_enemyRender.Init(file.c_str());
+	//m_enemyRender.Init(file.c_str(),);
 	m_enemyRender.SetTRS(m_enemyPos, Quaternion::Identity, m_enemyScale);
 	m_enemyRender.Update();
 }
@@ -202,10 +403,12 @@ void Enemy::SetFindGOInfo() {
 }
 
 void Enemy::Move() {
-	if (IsFoundPlayer()) {
+	/*if (!IsFoundPlayer()) {
 		RandomWalk();
 	}
-	Tracking();
+	else if(IsFoundPlayer()){
+		Tracking();
+	}*/
 }
 
 //追跡の関数。
@@ -218,35 +421,32 @@ void Enemy::Tracking()
 		return;
 	}
 
-	if (!IsFoundPlayer())
+	if (m_isSearchPlayer == true)
 	{
-		return;
+		//プレイヤーの座標を空のローカル変数に渡す。
+		Vector3 playerPos = m_player->m_position;
+
+		//プレイヤーの座標からエネミーの座標を引く。
+		Vector3 diff = playerPos - m_enemyPos;
+
+		//これがないとプレイヤーが上にいても追いかけてくる。
+		diff.y = 0.0f;
+
+		//ベクトルの距離計算。
+		float distance = diff.Length();
+
+		//ベクトルを正規化。
+		diff.Normalize();
+
+		//追跡計算を行う。
+		float targetSpeed = 200.0f;
+
+		//m_moveSpeedにどの方向でどんな速さで進むかを代入させる。
+		//「進行方向　×　速度」＝　実際の移動ベクトル。
+		m_moveSpeed = diff * targetSpeed;
+
+		UpdateEnemyInfo();
 	}
-
-	//プレイヤーの座標を空のローカル変数に渡す。
-	Vector3 playerPos = m_player->m_position;
-
-	//プレイヤーの座標からエネミーの座標を引く。
-	Vector3 diff = playerPos - m_enemyPos;
-
-	//これがないとプレイヤーが上にいても追いかけてくる。
-	diff.y = 0.0f;
-
-	//ベクトルの距離計算。
-	float distance = diff.Length();
-
-	//ベクトルを正規化。
-	diff.Normalize();
-
-	//追跡計算を行う。
-	float targetSpeed = 200.0f;
-
-	//m_moveSpeedにどの方向でどんな速さで進むかを代入させる。
-	//「進行方向　×　速度」＝　実際の移動ベクトル。
-	m_moveSpeed = diff * targetSpeed;
-
-	UpdateEnemyInfo();
-	
 }
 
 /** Enemyがランダムに動く */
@@ -272,45 +472,47 @@ void Enemy::RandomWalk()
 		m_enemyStartPos  = m_enemyPos;
 	}
 
-	switch (m_enemyMoveState) {
-	case enWalkVector_Front:
-		early = { 0.0f, 0.0f, speed };
-		//early.y;
-		break;
-	case enWalkVector_Back:
-		early = { 0.0f,0.0f,-speed };
-		//early.y;
-		break;
-	case enWalkVector_Right:
-		early = { speed,0.0f,0.0f };
-		//early.y;
-		break;
-	case enWalkVector_Left:
-		early = { -speed,0.0f,0.0f };
-		//early.y;
-		break;
-	case enWalkVector_FrontRight:
-		early = { speed,0.0f,speed };
-		//early.y;
-		break;
-	case enWalkVector_FronLeft:
-		early = { -speed,0.0f,speed };
-		//early.y;
-		break;
-	case enWalkVector_BackRight:
-		early = { speed,0.0f,-speed };
-		//early.y;
-		break;
-	case enWalkVector_BackLeft:
-		early = { -speed,0.0f,-speed };
-		//early.y;
-		break;
+	/** todo::追加 */
+	if (!m_isSearchPlayer) {
+		switch (m_enemyMoveState) {
+		case enWalkVector_Front:
+			early = { 0.0f, 0.0f, speed };
+			//early.y;
+			break;
+		case enWalkVector_Back:
+			early = { 0.0f,0.0f,-speed };
+			//early.y;
+			break;
+		case enWalkVector_Right:
+			early = { speed,0.0f,0.0f };
+			//early.y;
+			break;
+		case enWalkVector_Left:
+			early = { -speed,0.0f,0.0f };
+			//early.y;
+			break;
+		case enWalkVector_FrontRight:
+			early = { speed,0.0f,speed };
+			//early.y;
+			break;
+		case enWalkVector_FronLeft:
+			early = { -speed,0.0f,speed };
+			//early.y;
+			break;
+		case enWalkVector_BackRight:
+			early = { speed,0.0f,-speed };
+			//early.y;
+			break;
+		case enWalkVector_BackLeft:
+			early = { -speed,0.0f,-speed };
+			//early.y;
+			break;
+		}
 	}
 
-	m_enemyMoveSpeed = early;
-	m_enemyRotation.SetRotationYFromDirectionXZ(m_enemyMoveSpeed);
-	UpdateEnemyInfo();
-
+	m_moveSpeed = early;
+	m_enemyRotation.SetRotationYFromDirectionXZ(m_moveSpeed);
+	//UpdateEnemyInfo();
 }
 
 struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
@@ -345,21 +547,29 @@ const bool Enemy::IsFoundPlayer()
 	//ベクトルの内積の計算。
 	float angle = acosf(diff.Dot(FORWARD));
 
-	//プレイヤーが視界内にいるなら。
-	if (Math::PI * 0.35f >= fabsf(angle))
+	/** todo::プレイヤーが視界以外にいるならfalse */
+	if (fabsf(angle) > Math::PI * 0.35f)
 	{
-		//プレイヤーが見つかったなら。
-		m_isSearchPlayer = true;
-		return true;
-	}
-
-	//プレイヤーが視界内に居なかったら。
-	else if(Math::PI * 0.35f <= fabsf(angle))
-	{
-		//プレイヤーが見つかってない。
-	    m_isSearchPlayer = false;
+		m_isSearchPlayer = false;
 		return false;
 	}
+
+
+	/** todo::プレイヤーが視界内にいるならtrue */
+	//if (Math::PI * 0.35f > fabsf(angle))
+	//{
+	//	//プレイヤーが見つかったなら。
+	//	m_isSearchPlayer = true;
+	//	return true;
+	//}
+
+	//プレイヤーが視界内に居なかったら。
+	//else if(Math::PI * 0.35f < fabsf(angle))
+	//{
+	//	//プレイヤーが見つかってない。
+	//    m_isSearchPlayer = false;
+	//	return false;
+	//}
 
 
 	btTransform start, end;
@@ -379,13 +589,21 @@ const bool Enemy::IsFoundPlayer()
 	//壁と衝突してない。
 	if (callBack.isHit == true)
 	{
+		m_isSearchPlayer = false;
 		return false;
 	}
-	
+	m_isSearchPlayer = true;
 	return true;
 }
 
 void Enemy::UpdateEnemyInfo() {
+	if (m_charaCon.IsOnGround())
+	{
+		m_moveSpeed.y = 0.0f;
+	}
+	else {
+		m_moveSpeed.y += GRAVITY;
+	}
 	m_enemyPos = m_charaCon.Execute(m_moveSpeed, 1.0f / 60.0f);
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.SetRotation(m_enemyRotation);
@@ -395,35 +613,73 @@ void Enemy::UpdateEnemyInfo() {
 //行動の関数。
 void Enemy::EnemyBehavior()
 {
+	/** nullチェック */
+	if (m_player == nullptr)
+	{
+		m_player = FindGO<Player>("player");
+	}
+
+
 	//プレイヤーとの距離を測る。
 	Vector3 diff = m_player->m_position - m_enemyPos;
 	float distance = diff.Length();
 
+
+	/**
+	 * 攻撃処理 
+	 */
+	if (distance <= ENEMY_ATTACK_RANGE)
+	{
+		/** 攻撃ステート */
+		m_enemyActionState = enEnemyActionState_Attack;
+		/** 攻撃中は移動を停止 */
+		m_moveSpeed = Vector3::Zero;
+
+		/** 敵の向きをプレイヤー方向に向ける */
+		Vector3 direction = diff;
+		direction.y = 0.0f;
+		m_enemyRotation.SetRotationYFromDirectionXZ(direction);
+	}
+
+
+	/**
+	 * 追跡処理 
+	 */
 	//一定距離内に入ると追跡モードに切り替わる。
-	if (distance <= ENEMY_RANGE)
+	else if (distance <= ENEMY_RANGE || m_isSearchPlayer)
 	{
 		m_enemyActionState = enEnemyActionState_Chase;
+		if (m_isSearchPlayer)
+		{
+			/** TODO::修正 */
+			/** プレイヤーの座標をローカル変数に渡す */
+			Vector3 playerPos = m_player->GetPosition();
+			/** プレイヤーからエネミーへのベクトルを測る */
+			Vector3 diff_to_player = playerPos - m_enemyPos;
+			/** エネミーのY座標は0に合わせる */
+			diff_to_player.y = 0.0f;
+			diff_to_player.Normalize();
+
+			/** 追跡した時の速度 */
+			float targetSpeed = 200.0f;
+			/** 追跡速度の設定 */
+			m_moveSpeed = diff_to_player * targetSpeed;
+
+			/** エネミーの回転を設定 */
+			m_enemyRotation.SetRotationYFromDirectionXZ(m_moveSpeed);
+		}
+		else {
+			/** 見失った場合は停止(速度を0) */
+			m_moveSpeed = Vector3::Zero;
+		}
 	}
 	//一定距離外なら徘徊モードに切り替わる。
 	else {
 		m_enemyActionState = enEnemyActionState_Wandering;
+		RandomWalk();
 	}
 
-
-	switch (m_enemyActionState) {
-		//徘徊。
-	case enEnemyActionState_Wandering:
-		
-		break;
-		//追跡。
-	case enEnemyActionState_Chase:
-
-		break;
-		//攻撃。
-	case enEnemyActionState_Attack:
-
-		break;
-	}
+	
 }
 
 //EnemyがPlayerに衝突したらダメージを与える処理。
@@ -475,7 +731,7 @@ void Enemy::Render(RenderContext& rc)
 	//コリジョンの座標表示用。
 	//m_collisionFontRender.Draw(rc);
 
-	if (!m_isSearchPlayer)
+	/*if (!m_isSearchPlayer)
 	{
 		m_fontRender.SetText(L"見つかってない・・・");
 		m_fontRender.SetPosition(m_fontPos);
@@ -484,5 +740,5 @@ void Enemy::Render(RenderContext& rc)
 		m_fontRender.SetText(L"見つけた!");
 		m_fontRender.SetPosition(m_fontPos);
 	}
-	m_fontRender.Draw(rc);
+	m_fontRender.Draw(rc);*/
 }

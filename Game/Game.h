@@ -64,6 +64,12 @@ private:
 	std::vector<Poal*> m_poals;
 	std::vector<Enemy*> m_enemies;
 	std::vector<BossStage*> m_bossStages;
+	/** 
+	 * std::array<T*, n>v 
+	 * ↑
+	 * 固定長配列[v]
+	 */
+	//std::array<Enemy*, 5>m_enemies;
 
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
