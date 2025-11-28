@@ -411,7 +411,7 @@ void Player::Render(RenderContext& rc)
 	//m_modelRender.Draw(rc);
 
 	//À•W‚Ì•`‰æB
-	m_posFontRender.Draw(rc);
+	//m_posFontRender.Draw(rc);
 }
 
 const bool Player::JumpAttack()const

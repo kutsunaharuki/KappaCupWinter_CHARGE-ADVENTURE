@@ -174,5 +174,5 @@ void MovingFloor::Render(RenderContext& rc)
 	m_movingFloorRender.Draw(rc);
 
 	//動く床のフォント座標。
-	m_movingFontRender.Draw(rc);
+	//m_movingFontRender.Draw(rc);
 }
