@@ -4,6 +4,8 @@
 
 namespace {
 	const char* GAME_CLEAR = "Assets/Sprite/Clear.dds";
+
+	const float BLINK = 0.52f;
 }
 
 bool GameClear::Start()
@@ -18,6 +20,25 @@ bool GameClear::Start()
 
 void GameClear::Update()
 {
+	float ti = g_gameTime->GetFrameDeltaTime();
+	switch (m_fadeSt) {
+		/** フェードイン状態 */
+	case enClear_FadeIn:
+		m_currentAlpha -= BLINK * ti;
+		if (m_currentAlpha <= 0.0f) {
+			m_currentAlpha = 0.0f;
+			m_fadeSt = enClear_FadeIn;
+		}
+		break;
+		/** フェードアウト状態 */
+	case enClear_FadeOut:
+		m_currentAlpha += BLINK * ti;
+		if (m_currentAlpha >= 1.0f) {
+			m_currentAlpha = 1.0f;
+			m_fadeSt = enClear_FadeOut;
+		}
+		break;
+	}
 	if (g_pad[0]->IsTrigger(enButtonY))
 	{
 		auto title = FindGO<Title>("title");
@@ -31,5 +52,8 @@ void GameClear::Update()
 void GameClear::Render(RenderContext& rc)
 {
 	m_gameClearRender.Draw(rc);
-	m_fontRender.Draw(rc);
+	if (m_currentAlpha > 0.0f) {
+		m_fontRender.SetColor(1.0f, 1.0f, m_currentAlpha, m_currentAlpha);
+		m_fontRender.Draw(rc);
+	}
 }

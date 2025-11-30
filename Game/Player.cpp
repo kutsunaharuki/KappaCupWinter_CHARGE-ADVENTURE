@@ -299,7 +299,7 @@ void Player::ManageState()
 	m_modelRender.PlayAnimation(playerState);
 }
 
-const bool Player::TreaderCollisionObj()
+void Player::TreaderCollisionObj()
 {
 	bool isJumpAttack = JumpAttack();
 	//本体用コリジョン。
@@ -310,11 +310,6 @@ const bool Player::TreaderCollisionObj()
 		{
 			m_bodyCollisionObj->SetPosition(m_position + COLL_POS_HEIGHT);
 			m_bodyCollisionObj->SetRotation(m_rot);
-		}
-		else {
-			//攻撃をしていない時は待避。
-			//めちゃくちゃ遠くにコリジョンを飛ばす。
-			m_bodyCollisionObj->SetPosition({ 0.0f,-10000.0f,0.0f });
 		}
 	}
 	
@@ -327,21 +322,10 @@ const bool Player::TreaderCollisionObj()
 			m_collisionObj->SetPosition(m_position);
 			m_collisionObj->SetRotation(m_rot);
 		}
-		else {
-			//遠くに待避させる。
-			//めちゃくちゃ遠くにコリジョンを飛ばす。
-			m_collisionObj->SetPosition({ 0.0f,-10000.0f,0.0f });
-		}
 	}
 
-	return false;
 }
 
-//プレイヤーのBodyコリジョンに当たったらの処理。
-bool Player::HitBodyPlayer()
-{
-	return false;
-}
 
 //足元にコリジョンが生成される。
 void Player::SetPlayerCollision()
@@ -361,6 +345,7 @@ void Player::SetPlayerCollision()
 //プレイヤーの体にコリジョンを付ける。
 void Player::SetBodyCollision()
 {
+	if (!m_collisionObj) return;
 	//コリジョンをnewする。
 	m_bodyCollisionObj = new CollisionObject;
 
@@ -440,7 +425,11 @@ const bool Player::IsMove()const
 //Playerが少し後ろに下がる(ノックバックする)。
 const bool Player::EnemyCollisionHit()const
 {
-	if (m_collisionObj->IsHit(m_enemy->GetCollision()))
+	if (!m_enemy)
+	{
+		return false;
+	}
+	if (!m_collisionObj->IsHit(m_enemy->GetCollision()))
 	{
 		return true;
 	}

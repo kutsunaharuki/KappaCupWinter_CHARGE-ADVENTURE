@@ -17,12 +17,11 @@ public:
 	
 	void ManageState();
     void Render(RenderContext& rc);
-	const bool TreaderCollisionObj();
+	void TreaderCollisionObj();
 	void FindGameObjInfo();
 	void ResPawn();
 	void SetPlayerCollision();
 	void SetBodyCollision();
-	bool HitBodyPlayer();
 	void ReceiveDamage(int damage, Vector3& enemyPos);
 	//void TreaderCollisionObj();
 
@@ -46,6 +45,8 @@ public:
 	
 	Vector3 force = Vector3::Zero;//外部から加える力(敵を踏んだ時にY座標を上げる用)。
 	
+	inline CollisionObject* GetBodyCollision() { return m_bodyCollisionObj; }
+
 	void AddPosition(const Vector3& delta);
 
 	const Vector3& GetPosition() const

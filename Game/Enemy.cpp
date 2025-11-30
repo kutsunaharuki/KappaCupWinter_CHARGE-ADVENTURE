@@ -106,6 +106,7 @@ bool Enemy::Start()
 	return true;
 }
 
+
 bool Enemy1::Start() {
 	m_animationClips.Load("Assets/EnmyAnimData/Jumping.tka");
 	m_animationClips.SetLoopFlag(true);
@@ -113,6 +114,9 @@ bool Enemy1::Start() {
 	std::string e1ModelFile = Enemys[enEnemy1].GetFullPath();
 	m_enemyRender.Init(e1ModelFile.c_str(), &m_animationClips,1, enModelUpAxisZ);
 	
+
+	m_gekihaHp = 1;
+
 
 	SetModel(enEnemy1);
 	SetPhysicsGameObj(enEnemy1);
@@ -124,6 +128,16 @@ bool Enemy1::Start() {
 }
 
 bool Enemy2::Start() {
+	m_enemy2AtCollisionObject = new CollisionObject;
+	m_enemy2AtCollisionObject->Activate();
+	Vector3 atPos = m_enemyPos * 50.0f;
+	m_enemy2AtCollisionObject->CreateSphere(
+		atPos,
+		m_enemyRotation,
+		70.0f
+	);
+	m_enemy2AtCollisionObject->Deactivate();
+
 	for (int i = 0; i <= enEnemy2AnimClip_Deth; i++)
 	{
 		std::string animfile = enemy2[i].GetAnimPath();
@@ -144,25 +158,22 @@ bool Enemy2::Start() {
 			if (wcscmp(eventName, L"Attack") == 0)
 			{
 				m_isAttack = true;
-				m_enemy2AtCollisionObject = new CollisionObject;
-				m_enemy2AtCollisionObject->Activate();
 			}
 
 			else if (wcscmp(eventName, L"Attack_End") == 0)
 			{
 				m_isAttack = false;
-				m_enemy2AtCollisionObject->Deactivate();
-				if (m_enemy2AtCollisionObject != nullptr)
-				{
-					delete m_enemy2AtCollisionObject;
-					m_enemy2AtCollisionObject = nullptr;
-				}
 			}
 
 		});
 	m_enemyRender.Init(e2ModelFile.c_str(), m_animationClips, 8, enModelUpAxisZ);
+	m_enemyRender.SetAnimationSpeed(0.5f);
 
 
+	m_gekihaHp = 2;
+
+
+	AnimationManager();
 	SetModel(enEnemy2);
 	SetPhysicsGameObj(enEnemy2);
 	SetCollisionObj(enEnemy2);
@@ -173,6 +184,17 @@ bool Enemy2::Start() {
 }
 
 bool Boss::Start() {
+	m_bossAtCollisionObject = new CollisionObject;
+	m_bossAtCollisionObject->Activate();
+	Vector3 CollPos = m_enemyPos * 70.0f;
+	m_bossAtCollisionObject->CreateSphere(
+		CollPos,
+		m_enemyRotation,
+		80.0f
+	);
+	m_bossAtCollisionObject->Deactivate();
+
+
 	for (int i = 0; i < enBossAnimClip_Num; i++)
 	{
 		std::string bAnimFile = boss[i].GetAnimPath();
@@ -186,7 +208,7 @@ bool Boss::Start() {
 		}
 	}
 	std::string bossFile = Enemys[enBoss].GetFullPath();
-	m_enemyRender.Init(bossFile.c_str(), m_animationClips, 9, enModelUpAxisZ);
+	m_enemyRender.SetAnimationSpeed(0.3f);
 	m_enemyRender.AddAnimationEvent([&](const wchar_t* clipName, const wchar_t* eventName)
 	{
 		(void)clipName;
@@ -194,20 +216,17 @@ bool Boss::Start() {
 		if (wcscmp(eventName, L"B_Attack_Start") == 0)
 		{
 			m_isAttack = true;
-			m_bossAtCollisionObject = new CollisionObject;
-			m_bossAtCollisionObject->Activate();
 		}
 		else if (wcscmp(eventName, L"B_Attack_End") == 0)
 		{
 			m_isAttack = false;
-			m_bossAtCollisionObject->Deactivate();
-			if (m_bossAtCollisionObject != nullptr)
-			{
-				delete m_bossAtCollisionObject;
-				m_bossAtCollisionObject = nullptr;
-			}
 		}
 	});
+	m_enemyRender.Init(bossFile.c_str(), m_animationClips, 9, enModelUpAxisZ);
+
+
+	m_gekihaHp = 5;
+
 
 	AnimationManager();
 	SetModel(enBoss);
@@ -246,9 +265,11 @@ void Enemy::Update()
 	PlayAnimation();
 	
 	/** コリジョンの更新 */
-	m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
-	m_collisionObj->SetRotation(Quaternion::Identity);
-	m_collisionObj->Update();
+	if (m_collisionObj) {
+		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
+		m_collisionObj->SetRotation(Quaternion::Identity);
+		m_collisionObj->Update();
+	}
 	
 	/** ヒットチェック */
 	EnemyHit();
@@ -295,6 +316,7 @@ void Enemy2::PlayAnimation()
 }
 
 
+
 /** ボスのアニメーション管理 */
 void Boss::PlayAnimation()
 {
@@ -339,11 +361,6 @@ void Enemy::AnimationManager()
 	}
 	else if(IsFoundPlayer()){
 		m_enemyActionState = enEnemyActionState_Wandering;
-	}
-	/** 攻撃アニメーション */
-	if (m_player->m_position.z >= DISTANCE)
-	{
-		m_enemyActionState = enEnemyActionState_Attack;
 	}
 }
 
@@ -537,6 +554,11 @@ struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
 //プレイヤーを見つけるかどうかの関数。
 const bool Enemy::IsFoundPlayer()
 {
+	if (m_player == nullptr)
+	{
+		m_isSearchPlayer = false;
+		return false;
+	}
 	m_enemyRotation.Apply(FORWARD);
 	
 	Vector3 playerPos = m_player->GetPosition();
@@ -685,36 +707,153 @@ void Enemy::EnemyBehavior()
 //EnemyがPlayerに衝突したらダメージを与える処理。
 void Enemy::EnemyHit()
 {
-	if (!m_player || !m_player->m_bodyCollisionObj)
+	if (!m_isAttack)
+	{
+		return;
+	}
+	if (!m_player || !m_player->GetBodyCollision())
 	{
 		return;
 	}
 
 	//プレイヤーの体についてるコリジョンに当たったら
-	if (m_collisionObj->IsHit(m_player->m_bodyCollisionObj))
+	if (m_collisionObj->IsHit(m_player->GetCharacterController() ))
 	{
 		m_player->ReceiveDamage(1,m_enemyPos);
 	}
 }
 
-void Enemy::CanHit()
+
+/** Enemy2がPlayerに衝突したらダメージを与える */
+void Enemy2::EnemyHit()
 {
-	//nullチェック。
-	//プレイヤーの体についてるコリジョンかプレイヤーがnullptrじゃないなら
-	/*if (!m_score)
+	/** 攻撃中だけ */
+	if (!m_isAttack)
 	{
-		m_score = FindGO<Score>("score");
-	}*/
-	if (!m_player->m_collisionObj || !m_player) {
+		return;
+	}
+	if (!m_player || !m_player->GetBodyCollision())
+	{
 		return;
 	}
 
+	if (m_enemy2AtCollisionObject->IsHit(m_player->GetBodyCollision() ))
+	{
+		m_player->ReceiveDamage(1, m_enemyPos);
+	}
+}
+
+
+void Boss::EnemyHit()
+{
+	/** 攻撃中だけ判定する */
+	if (!m_isAttack)
+	{
+		return;
+	}
+	if (!m_player || !m_player->GetBodyCollision())
+	{
+		return;
+	}
+	if (m_bossAtCollisionObject->IsHit(m_player->GetBodyCollision() ))
+	{
+		m_player->ReceiveDamage(1, m_enemyPos);
+	}
+}
+
+
+bool Enemy::CanHit()
+{
+	/** プレイヤーとコリジョンのnullチェック */
+	if (!m_player || !m_player->m_collisionObj || !m_collisionObj) {
+		return false;
+	}
+
+	if (m_isAttack)return false;
+
+	/** 敵のコリジョンに当たったかの判定 */
 	if (m_collisionObj->IsHit(m_player->m_collisionObj))
 	{
 		m_player->force.y = 390.0f;
-		//m_score->AddScore(100);
-		DeleteGO(this);
+		m_gekihaHp--;
+		m_hit = false;
+		if (m_gekihaHp <= 0)
+		{
+			/** 死亡処理 */
+			Death();
+			return true;
+		}
 	}
+	return false;
+}
+
+
+bool Enemy1::CanHit()
+{
+	return Enemy::CanHit();
+}
+
+
+bool Enemy2::CanHit()
+{
+	return Enemy::CanHit();
+}
+
+
+bool Boss::CanHit()
+{
+	return Enemy::CanHit();
+}
+
+
+/** 死亡処理 */
+void Enemy::Death()
+{
+	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	DeleteGO(this);
+}
+
+
+/** Enemy2の攻撃の時だけコリジョンを出す */
+bool Enemy2::AttackCollision()
+{
+	if (!m_enemy2AtCollisionObject)
+	{
+		return false;
+	}
+
+	if (m_isAttack)
+	{
+		m_enemyRotation.Apply(FORWARD);
+		m_enemy2AtCollisionObject->SetPosition(m_enemyPos + FORWARD * 50.0f);
+		m_enemy2AtCollisionObject->Activate();
+	}
+	else {
+		m_enemy2AtCollisionObject->Deactivate();
+	}
+
+	return true;
+}
+
+
+/** ボスの攻撃する時だけコリジョンを出す */
+bool Boss::AttackCollision()
+{
+	if (!m_bossAtCollisionObject)
+	{
+		return false;
+	}
+
+	if (m_isAttack)
+	{
+		m_enemyRotation.Apply(FORWARD);
+		m_bossAtCollisionObject->SetPosition(m_enemyPos + FORWARD *50.0f);
+		m_bossAtCollisionObject->Activate();
+	}
+	else {
+		m_bossAtCollisionObject->Deactivate();
+	}
+	return true;
 }
 
 

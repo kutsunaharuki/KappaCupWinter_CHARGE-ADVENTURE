@@ -238,6 +238,8 @@ bool Game::Start()
 		}
 		return false;
 	});
+
+	m_poal = FindGO<Poal>("poal");
 	return true;
 }
 
@@ -256,10 +258,7 @@ void Game::Update()
 	 * ゴールポールがnullじゃないなら
 	 * ゴールポールを呼ぶ。
 	 */
-	if(!m_poal)
-	{
-		m_poal = FindGO<Poal>("poal");
-	}
+	
 	if (m_poal->GetCollision()->IsHit(m_player->GetCharacterController()) && !isQuick)
 	{
 		isQuick = true;
@@ -304,8 +303,10 @@ void Game::Update()
 		}
 		if (isQuick)
 		{
-			m_player->SetPosition(m_player->m_position);
+			Vector3 getPos = Vector3::Zero;
+			m_player->SetPosition(getPos);
 			m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objData) {
+				
 				if (objData.EqualObjectName(L"BossStage") == true)
 				{
 					auto bossStage = NewGO<BossStage>(0, "bossStage");
@@ -357,6 +358,15 @@ void Game::Update()
 		DeleteGO(this);
 	}
 
+	/** ゴールポールに当たったらクリア画面を出す */
+	//if (m_poal->GetCollision()->IsHit(m_player->GetBodyCollision() ))
+	//{
+	//	auto gameClear = FindGO<GameClear>("gameClear");
+	//	gameClear->Activate();
+	//	m_gameClear = NewGO<GameClear>(0, "gameClear");
+	//	DeleteGO(this);
+	//}
+
 	
 	//auto型は推論なので、必要なのは右辺値が必要。
 	//auto型の為に#includeは必要ない。
@@ -378,6 +388,11 @@ void Game::TimeDraw()
 	int seconds = (int)m_timer % 60;
 	float distance = g_gameTime->GetFrameDeltaTime();
 	m_timer -= distance;
+	if (m_gameState == GameState::BossStage)
+	{
+		m_timer = 120.0f;
+		return;
+	}
 
 	wchar_t timer[256];
 	swprintf_s(timer, 256, L"%02d:%02d", minutes, seconds);

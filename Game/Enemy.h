@@ -46,8 +46,9 @@ public:
 	void Tracking();
 	const bool IsFoundPlayer();
 	virtual void Render(RenderContext& rc);
-	void EnemyHit();
+	//virtual void EnemyHit();
 	void AnimationManager();
+
 
 	//virtual void AnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
 
@@ -67,7 +68,6 @@ public:
 	}
 
 	inline CollisionObject* GetCollision() { return m_collisionObj; }
-
 protected:
 	enum EnWalkVector {
 		enWalkVector_Front,      //前。
@@ -100,7 +100,6 @@ protected:
 	CollisionObject* m_collisionObj;                  //コリジョンオブジェクト。
 	//CollisionObject* m_attackCollisionObj;            //アタック専用。
 
-
 	Vector3 m_collisionObjStartPos = Vector3::Zero;   //敵のコリジョンの最初の座標。
 	Vector3 m_enemyStartPos = Vector3::Zero;          //敵の最初座標。
 	Vector3 m_enemyPos = Vector3::Zero;               //敵の座標。
@@ -120,9 +119,9 @@ protected:
 	//std::array<AnimationClip, enEnemyActionState_Num> m_animationClips;
 
 	//中身を変えたくない時は後ろにconstをつける。
-	void CanHit();
+	virtual bool CanHit();
+	virtual void EnemyHit();
 
-	
 	//m_enemyActionStateに持たせる。
 	EnEnemyActionState m_enemyActionState = enEnemyActionState_Idle;
 	
@@ -136,6 +135,16 @@ protected:
 	void SetFindGOInfo();
 	void SetSphereColliderObj();
 	virtual void PlayAnimation() {};
+	virtual bool AttackCollision() = 0;
+	virtual void Death();
+
+	Player* m_player = nullptr;
+
+	/** 踏まれた回数 */
+	int m_gekihaHp = 1;
+	/** フラグ管理 */
+	bool m_hit = false;
+
 
 private:
 	FontRender m_collisionFontRender;
@@ -143,7 +152,6 @@ private:
 
 	int m_enemyMoveState = 0;
 	int enemyState = 0;
-	Player* m_player = nullptr;
 	ObstacleBox* m_obstacleBox = nullptr;
 	Score* m_score = nullptr;
 };
@@ -155,6 +163,10 @@ public:
 	bool Start()override;
 	void Attack()override {};
 	void PlayAnimation()override;
+	bool CanHit()override;
+
+	bool AttackCollision()override { return false; }
+	//void Death()override;
 
 
 private:
@@ -183,12 +195,16 @@ public:
 	bool Start()override;
 	void Attack()override {};
 	void PlayAnimation()override;
-	
+	bool CanHit()override;
+	//void Death()override;
+
 
 private:
 	AnimationClip m_animationClips[enEnemy2AnimClip_Num];
 	EnEnemy2AnimClip m_animStatus;
 	CollisionObject* m_enemy2AtCollisionObject;//敵2の攻撃専用のコリジョンオブジェクト
+	bool AttackCollision()override;
+	void EnemyHit()override;
 	void AnimationEvent(const wchar_t* clipName, const wchar_t* eventName) {};
 	//~Enemy2()override;
 };
@@ -215,12 +231,16 @@ public:
 	bool Start()override;
 	void Attack()override {};
 	void PlayAnimation()override;
+	bool CanHit()override;
+	//void Death()override;
 
 
 private:
 	AnimationClip m_animationClips[enBossAnimClip_Num];
 	EnBossAnimClip m_animStatus;
 	CollisionObject* m_bossAtCollisionObject;//攻撃専用のコリジョンオブジェクト。
+	void EnemyHit()override;
+	bool AttackCollision()override;
 	void AnimationEvent(const wchar_t* clipName, const wchar_t* eventName) {};
 	//~Boss()override;
 };

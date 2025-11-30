@@ -4,6 +4,8 @@
 
 namespace {
 	const char* GAME_OVER = "Assets/Sprite/GameOver.dds";
+
+	const float FLASH = 0.52f;
 }
 
 bool GameOver::Start()
@@ -18,6 +20,24 @@ bool GameOver::Start()
 
 void GameOver::Update()
 {
+	float t = g_gameTime->GetFrameDeltaTime();
+	switch (m_fadeState)
+	{
+	case enFadeIn:
+		m_currentAlpha -= FLASH * t;
+		if (m_currentAlpha <= 0.0f) {
+			m_currentAlpha = 0.0f;
+			m_fadeState = enFadeOut;
+		}
+		break;
+	case enFadeOut:
+		m_currentAlpha += FLASH * t;
+		if (m_currentAlpha >= 1.0f) {
+			m_currentAlpha = 1.0f;
+			m_fadeState = enFadeIn;
+		}
+		break;
+	}
 
 	if (g_pad[0]->IsTrigger(enButtonY))
 	{
@@ -32,5 +52,8 @@ void GameOver::Update()
 void GameOver::Render(RenderContext& rc)
 {
 	m_gameOverRender.Draw(rc);
-	m_fontRender.Draw(rc);
+	if (m_currentAlpha > 0.0f) {
+		m_fontRender.SetColor(1.0f, 1.0f, m_currentAlpha, m_currentAlpha);
+		m_fontRender.Draw(rc);
+	}
 }
