@@ -138,7 +138,7 @@ bool Game::Start()
 	m_hpui = NewGO<HPUI>(0, "hpui");
 
 	/** ファーストステージを作成 */
-	NewGO<FirstStage>(0, "firstStage");
+	//NewGO<FirstStage>(0, "firstStage");
 
 	/** スコアを作成する */
 	//m_score = NewGO<Score>(0, "score");
@@ -352,7 +352,7 @@ void Game::TimeDraw()
 void Game::Render(RenderContext& rc)
 {
 	//レベルの描画。
-	m_levelRender.Draw(rc);
+	//m_levelRender.Draw(rc);
 	//時間制限の描画。
 	m_timerFontRender.Draw(rc);
 }

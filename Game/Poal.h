@@ -11,6 +11,8 @@ public:
 	void SetCollisionObj();
 	//bool PoalHit();
 
+	void SpawnPoal();
+
 	CollisionObject* GetCollision() {
 		return m_collisionObj;
 	}
@@ -32,7 +34,7 @@ public:
 
 private:
 	Player* m_player = nullptr;
-	Enemy* m_enemy = nullptr;
+	Enemy* m_boss = nullptr;
 	BossStage* m_bossStage = nullptr;
 };
 

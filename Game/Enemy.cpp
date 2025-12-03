@@ -628,14 +628,13 @@ void Enemy::UpdateEnemyInfo() {
 //行動の関数。
 void Enemy::EnemyBehavior()
 {
+	m_player = FindGO<Player>("player");
 	/** nullチェック */
 	if (!m_player)
 	{
-		m_player = FindGO<Player>("player");
 		return;
 	}
-
-
+	
 	//プレイヤーとの距離を測る。
 	Vector3 diff = m_player->GetPosition() - m_enemyPos;
 	float distance = diff.Length();
@@ -701,13 +700,13 @@ void Enemy::EnemyBehavior()
 //EnemyがPlayerに衝突したらダメージを与える処理。
 void Enemy::EnemyHit()
 {
-	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
+	if (!m_player || !m_player->GetBodyCollision())
 	{
 		return;
 	}
 
 	//プレイヤーの体についてるコリジョンに当たったら
-	if (m_collisionObj->IsHit(m_player->GetBodyCollision()))
+	if (m_collisionObj->IsHit(m_player->GetCharacterController() ))
 	{
 		m_player->ReceiveDamage(1,m_enemyPos);
 	}

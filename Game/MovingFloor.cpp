@@ -104,9 +104,9 @@ void MovingFloor::Update()
 
 	//コリジョンオブジェクトとプレイヤーのキャラクターコントローラーが
 	////衝突したら(キャラクターが動く床の上に乗ったら)。
-	if (m_collisionObj != nullptr && m_player != nullptr)
+	if (!m_collisionObj && !m_player)
 	{
-		if (m_collisionObj->IsHit(m_player->GetCharacterController()) == true)
+		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
 		{
 			//動く床の移動速度をキャラクターの移動速度に加算。
 			m_player->AddPosition(moveDelta);

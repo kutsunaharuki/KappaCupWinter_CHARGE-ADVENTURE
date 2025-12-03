@@ -32,7 +32,6 @@ bool Poal::Start()
 	m_collisionObj->SetPosition(m_pos);
 	m_collisionObj->SetRotation(m_rot);
 	m_collisionObj->Update();
-
 	m_player = FindGO<Player>("player");
 	return true;
 }
@@ -56,6 +55,15 @@ void Poal::SetCollisionObj()
 	m_collisionObj->SetPosition(m_colPos);
 	m_collisionObj->SetRotation(m_rot);
 	m_collisionObj->Update();
+}
+
+void Poal::SpawnPoal()
+{
+	if (!m_boss)
+	{
+		m_boss = FindGO<Boss>("boss");
+		return;
+	}
 }
 
 

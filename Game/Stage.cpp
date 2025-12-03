@@ -109,7 +109,7 @@ void FirstStage::SetLevel()
 					objData.scale,
 					objData.rotation
 				);
-				m_skeltons.push_back(skelton);
+				//m_skeltons.push_back(skelton);
 				return true;
 			}
 			if (objData.EqualObjectName(L"Frogs"))
@@ -121,7 +121,7 @@ void FirstStage::SetLevel()
 					objData.scale,
 					objData.rotation
 				);
-				m_frogs.push_back(frog);
+				//m_frogs.push_back(frog);
 				return true;
 			}
 			if (objData.EqualObjectName(L"StageGround"))
