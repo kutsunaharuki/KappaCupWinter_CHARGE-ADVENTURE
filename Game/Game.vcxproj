@@ -238,8 +238,12 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Poal.cpp" />
     <ClCompile Include="Scaffolding.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="SkyGround.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="SpriteManager.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StageGround.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -247,6 +251,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Preview|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="system\system.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="Warp.cpp" />
     <ClCompile Include="WarpHole.cpp" />
@@ -266,11 +271,16 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Poal.h" />
     <ClInclude Include="Scaffolding.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="SkyGround.h" />
+    <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="SpriteManager.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="StageGround.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system\system.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="Warp.h" />
     <ClInclude Include="WarpHole.h" />
