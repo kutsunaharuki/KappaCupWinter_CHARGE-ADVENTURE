@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "ObstacleBox.h"
 #include "Score.h"
+#include "SoundManager.h"
 #include <time.h>
 
 namespace {
@@ -248,10 +249,9 @@ Enemy::~Enemy()
 }
 
 
+
 void Enemy::Update()
 {
-	//Move();
-	
 	/** プレイヤーへの視認チェック */
 	IsFoundPlayer();
 	
@@ -554,6 +554,17 @@ struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
 //プレイヤーを見つけるかどうかの関数。
 const bool Enemy::IsFoundPlayer()
 {
+	/** TODO::修正するところ */
+	/*if (!m_player)
+	{
+		m_player = FindGO<Player>("player");
+	}*/
+
+	if (m_player != nullptr)
+	{
+		m_isSearchPlayer = false;
+		return false;
+	}
 	if (m_player == nullptr)
 	{
 		m_isSearchPlayer = false;
@@ -575,24 +586,6 @@ const bool Enemy::IsFoundPlayer()
 		m_isSearchPlayer = false;
 		return false;
 	}
-
-
-	/** todo::プレイヤーが視界内にいるならtrue */
-	//if (Math::PI * 0.35f > fabsf(angle))
-	//{
-	//	//プレイヤーが見つかったなら。
-	//	m_isSearchPlayer = true;
-	//	return true;
-	//}
-
-	//プレイヤーが視界内に居なかったら。
-	//else if(Math::PI * 0.35f < fabsf(angle))
-	//{
-	//	//プレイヤーが見つかってない。
-	//    m_isSearchPlayer = false;
-	//	return false;
-	//}
-
 
 	btTransform start, end;
 	start.setIdentity();
@@ -636,14 +629,15 @@ void Enemy::UpdateEnemyInfo() {
 void Enemy::EnemyBehavior()
 {
 	/** nullチェック */
-	if (m_player == nullptr)
+	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");
+		return;
 	}
 
 
 	//プレイヤーとの距離を測る。
-	Vector3 diff = m_player->m_position - m_enemyPos;
+	Vector3 diff = m_player->GetPosition() - m_enemyPos;
 	float distance = diff.Length();
 
 
@@ -707,17 +701,13 @@ void Enemy::EnemyBehavior()
 //EnemyがPlayerに衝突したらダメージを与える処理。
 void Enemy::EnemyHit()
 {
-	if (!m_isAttack)
-	{
-		return;
-	}
-	if (!m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
 	{
 		return;
 	}
 
 	//プレイヤーの体についてるコリジョンに当たったら
-	if (m_collisionObj->IsHit(m_player->GetCharacterController() ))
+	if (m_collisionObj->IsHit(m_player->GetBodyCollision()))
 	{
 		m_player->ReceiveDamage(1,m_enemyPos);
 	}
@@ -727,12 +717,7 @@ void Enemy::EnemyHit()
 /** Enemy2がPlayerに衝突したらダメージを与える */
 void Enemy2::EnemyHit()
 {
-	/** 攻撃中だけ */
-	if (!m_isAttack)
-	{
-		return;
-	}
-	if (!m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
 	{
 		return;
 	}
@@ -746,17 +731,14 @@ void Enemy2::EnemyHit()
 
 void Boss::EnemyHit()
 {
-	/** 攻撃中だけ判定する */
-	if (!m_isAttack)
-	{
-		return;
-	}
-	if (!m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
 	{
 		return;
 	}
 	if (m_bossAtCollisionObject->IsHit(m_player->GetBodyCollision() ))
 	{
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_e_DamageSe = sound->PlayingSound(Sound::enSound_EnemyAttackSe, false, 1.9f);
 		m_player->ReceiveDamage(1, m_enemyPos);
 	}
 }
@@ -765,7 +747,9 @@ void Boss::EnemyHit()
 bool Enemy::CanHit()
 {
 	/** プレイヤーとコリジョンのnullチェック */
-	if (!m_player || !m_player->m_collisionObj || !m_collisionObj) {
+	if (!m_player || !m_player->m_collisionObj)
+	{
+		m_player = FindGO<Player>("player");
 		return false;
 	}
 
@@ -774,15 +758,19 @@ bool Enemy::CanHit()
 	/** 敵のコリジョンに当たったかの判定 */
 	if (m_collisionObj->IsHit(m_player->m_collisionObj))
 	{
-		m_player->force.y = 390.0f;
-		m_gekihaHp--;
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_gekihaSe = sound->PlayingSound(Sound::enSound_GekihaSe, false, 1.8f);
+		m_player->force.y = 190.0f;
 		m_hit = false;
-		if (m_gekihaHp <= 0)
+		/** TODO:修正 */
+		if (m_gekihaHp < 0)
 		{
 			/** 死亡処理 */
 			Death();
+			DeleteGO(m_gekihaSe);
 			return true;
 		}
+		m_gekihaHp--;
 	}
 	return false;
 }
@@ -799,10 +787,25 @@ bool Enemy2::CanHit()
 	return Enemy::CanHit();
 }
 
+/** TODO:死亡アニメーション追加 */
+void Enemy2::Death()
+{
+	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	m_isDead = true;
+	DeleteGO(this);
+}
+
 
 bool Boss::CanHit()
 {
 	return Enemy::CanHit();
+}
+
+/** TODO:死亡アニメーション追加 */
+void Boss::Death()
+{
+	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	DeleteGO(this);
 }
 
 
@@ -866,18 +869,4 @@ void Enemy::Render(RenderContext& rc)
 {
 	//敵の描画。
 	m_enemyRender.Draw(rc);
-
-	//コリジョンの座標表示用。
-	//m_collisionFontRender.Draw(rc);
-
-	/*if (!m_isSearchPlayer)
-	{
-		m_fontRender.SetText(L"見つかってない・・・");
-		m_fontRender.SetPosition(m_fontPos);
-	}
-	else {
-		m_fontRender.SetText(L"見つけた!");
-		m_fontRender.SetPosition(m_fontPos);
-	}
-	m_fontRender.Draw(rc);*/
 }

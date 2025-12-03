@@ -19,6 +19,8 @@
 #include "BossStage.h"
 #include "HPUI.h"
 #include "Score.h"
+#include "SoundManager.h"
+#include "Stage.h"
 
 namespace{
 	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStageLevel.tkl";
@@ -28,18 +30,22 @@ Game::~Game()
 {	
 	DeleteGO(m_player);
 	m_player = nullptr;
+
 	DeleteGO(m_gameCamera);
 	m_gameCamera = nullptr;
+	
 	DeleteGO(m_warp);
 	m_warp = nullptr;
+	
 	DeleteGO(m_warpHole);
 	m_warpHole = nullptr;
-	DeleteGO(m_movingFloor);
-	m_movingFloor = nullptr;
+	
 	DeleteGO(m_skyCube);
 	m_skyCube = nullptr;
+	
 	DeleteGO(m_hpui);
 	m_hpui = nullptr;
+	
 	DeleteGO(m_score);
 
 	for (auto m_stageGround : m_stageGrounds)
@@ -72,26 +78,27 @@ Game::~Game()
 		DeleteGO(m_poal);
 		m_poal = nullptr;
 	}
-	for (auto m_enemy : m_enemies)
+	for (auto m_enemy : m_flogs)
 	{
 		DeleteGO(m_enemy);
 		m_enemy = nullptr;
 	}
+	//m_enemies.clear();
 	for (auto bossStage : m_bossStages)
 	{
 		DeleteGO(bossStage);
 		bossStage = nullptr;
 	}
-	for (auto enemy : m_enemies)
-	{
-		DeleteGO(enemy);
-		enemy = nullptr;
+	for (auto skelton : m_skelton) {
+		DeleteGO(skelton);
+		skelton = nullptr;
 	}
-	for (auto bossStage : m_bossStages)
-	{
-		DeleteGO(bossStage);
-		bossStage = nullptr;
-	}
+
+	//for (auto bossStage : m_bossStages)
+	//{
+	//	DeleteGO(bossStage);
+	//	bossStage = nullptr;
+	//}
 }
 
 void Game::InitSky()
@@ -116,7 +123,9 @@ void Game::InitSky()
 
 bool Game::Start()
 {
-	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
+	/** ゲーム内の音 */
+	SoundManager* sound = FindGO<SoundManager>("soundManager");
+	m_gameBGM = sound->PlayingSound(Sound::enSound_GameBGM, true, 2.0f);
 	
 	InitSky();
 	//プレイヤーのオブジェクトを作成する。
@@ -127,6 +136,9 @@ bool Game::Start()
 
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
+
+	/** ファーストステージを作成 */
+	NewGO<FirstStage>(0, "firstStage");
 
 	/** スコアを作成する */
 	//m_score = NewGO<Score>(0, "score");
@@ -145,101 +157,7 @@ bool Game::Start()
 
 	//ワープボックスを作成する。
 	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
-
-	m_levelRender.Init("Assets/LevelRender/Stage1-1Level.tkl", [&](LevelObjectData& objData) {
-		if (objData.EqualObjectName(L"Skelton") == true)
-		{
-			/** Skelton(Enemy2)を作成する */
-			auto m_enemy = NewGO<Enemy2>(0, "skelton");
-
-			m_enemy->SetTRS(
-				objData.position,
-				objData.scale,
-				objData.rotation
-			);
-			m_enemies.push_back(m_enemy);
-			return true;
-		}
-		if (objData.EqualObjectName(L"Frogs") == true)
-		{
-			//Frog(Enemy1)を作成する。
-			auto m_enemy = NewGO<Enemy1>(0,"Frogs");
-		
-			m_enemy->SetPosition(objData.position);
-			m_enemy->SetRotation(objData.rotation);
-			m_enemy->SetScale(objData.scale);
-			m_enemies.push_back(m_enemy);
-			return true;
-		}
-		if (objData.EqualObjectName(L"StageGround") == true)
-		{
-			//最初に触れる足場。
-			auto m_stageGround = NewGO<StageGround>(0, "stageGround");
-
-			m_stageGround->m_stageGroundPos = objData.position;
-			m_stageGround->m_stageGroundSc = objData.scale;
-			m_stageGrounds.push_back(m_stageGround);
-			return true;
-		}
-		if (objData.EqualObjectName(L"Koutei") == true)
-		{
-			//高低差のある段差の足場。
-			auto m_scaffolding = NewGO<Scaffolding>(0, "scaffolding");
-			
-			m_scaffolding->m_scaffoldingPos = objData.position;
-			m_scaffolding->m_scaffoldingSc = objData.scale;
-			m_scaffoldings.push_back(m_scaffolding);
-			return true;
-		}
-		if (objData.EqualObjectName(L"SkyGround") == true)
-		{
-			//重力のない足場。
-			auto m_skyGround = NewGO<SkyGround>(0, "skyGround");
-
-			m_skyGround->m_skyGroundPos = objData.position;
-			m_skyGround->m_skyGroundSc = objData.scale;
-			m_skyGrounds.push_back(m_skyGround);
-			return true;
-		}
-		if (objData.EqualObjectName(L"MovingFloor") == true)
-		{
-			//Z方向に動く床を作成する。
-			auto m_movingFloor = NewGO<MovingFloor>(0, "movingFloor");
-
-			m_movingFloor->m_speed = objData.position;
-			m_movingFloor->m_firstPosition = objData.position;
-			m_movingFloor->m_position = objData.position;
-			m_movingFloor->m_movingFloorRotation = objData.rotation;
-			m_movingFloor->m_movingSc = objData.scale;
-			m_movingFloors.push_back(m_movingFloor);
-			return true;
-		}
-		if (objData.EqualObjectName(L"MovingFloorUpDown") == true)
-		{
-			//Y方向に動く床を作成する。
-			auto m_movingFloorUpDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
-
-			m_movingFloorUpDown->m_movingSpeed = objData.position;
-			m_movingFloorUpDown->m_firstPos = objData.position;
-			m_movingFloorUpDown->m_movingRot = objData.rotation;
-			m_movingFloorUpDown->m_movingScale = objData.scale;
-			m_movingFloorUpDowns.push_back(m_movingFloorUpDown);
-			return true;
-		}
-		if (objData.EqualObjectName(L"Poal") == true)
-		{
-			//ゴール条件のポールを作成する。
-			auto m_poal = NewGO<Poal>(0, "poal");
-			m_poal->m_pos = objData.position;
-			m_poal->m_rot = objData.rotation;
-			m_poal->m_scale = objData.scale;                                                                                                                                                 
-			m_poals.push_back(m_poal);
-			return true;                                                                                                                                                                                                                                                                                                    
-		}
-		return false;
-	});
-
-	m_poal = FindGO<Poal>("poal");
+	//m_poal = FindGO<Poal>("poal");
 	return true;
 }
 
@@ -258,7 +176,11 @@ void Game::Update()
 	 * ゴールポールがnullじゃないなら
 	 * ゴールポールを呼ぶ。
 	 */
-	
+	if (!m_poal)
+	{
+		m_poal = FindGO<Poal>("poal");
+		return;
+	}
 	if (m_poal->GetCollision()->IsHit(m_player->GetCharacterController()) && !isQuick)
 	{
 		isQuick = true;
@@ -294,19 +216,16 @@ void Game::Update()
 				DeleteGO(m_poal);
 				m_poal = nullptr;
 			}
-			for (auto m_enemy : m_enemies)
+			for (auto m_enemy : m_flogs)
 			{
 				DeleteGO(m_enemy);
 				m_enemy = nullptr;
-				m_enemies.clear();
+				//m_enemies.clear();
 			}
 		}
 		if (isQuick)
 		{
-			Vector3 getPos = Vector3::Zero;
-			m_player->SetPosition(getPos);
-			m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objData) {
-				
+			/*m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objData) {
 				if (objData.EqualObjectName(L"BossStage") == true)
 				{
 					auto bossStage = NewGO<BossStage>(0, "bossStage");
@@ -321,13 +240,23 @@ void Game::Update()
 					enemys->SetPosition(objData.position);
 					enemys->SetRotation(objData.rotation);
 					enemys->SetScale(objData.scale);
-					m_enemies.push_back(enemys);
+					m_flogs.push_back(enemys);
 					return true;
-				}
-				return false;
-			});
+				}*/
+				/*if (objData.EqualObjectName(L"Poal") == true)
+				{
+					auto poal = NewGO<Poal>(0, "poal");
+					poal->m_pos = objData.position;
+					poal->m_rot = objData.rotation;
+					poal->m_scale = objData.scale;
+					m_poals.push_back(poal);
+					return false;
+				}*/
+			//	return false;
+			//});
 		}
 		isQuick = false;
+
 	}
 
 	//プレイヤーのHPが0になったら
@@ -336,7 +265,11 @@ void Game::Update()
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		/** TODO::追加 */
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
+		DeleteGO(m_gameOverSe);
 		DeleteGO(this);
 	}
 
@@ -345,7 +278,11 @@ void Game::Update()
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		/** TODO::追加 */
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
+		DeleteGO(m_gameOverSe);
 		DeleteGO(this);
 	}
 
@@ -354,7 +291,12 @@ void Game::Update()
 	{
 		auto gameOver = FindGO<GameOver>("gameOver");
 		gameOver->Activate();
-		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		FindGO<GameOver>("gameOver")->Activate();
+		//m_gameOver = NewGO<GameOver>(0, "gameOver");
+		/** TODO::追加 */
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
+		DeleteGO(m_gameOverSe);
 		DeleteGO(this);
 	}
 
@@ -402,12 +344,9 @@ void Game::TimeDraw()
 
 	//時間が0になったら終了。
 	//今は実施しない。
-	if (m_timer <= 0.0f)
-	{
-		m_timer = 0;
-		return;
-	}
-
+	m_timer = std::max<float>(m_timer, 0.0f);
+	//参考演算子が  ?
+	m_isTimeUp = m_timer <= 0.0f ? true : false;
 }
 
 void Game::Render(RenderContext& rc)

@@ -39,8 +39,21 @@ public:
 	void ScoreDraw();
 	void Render(RenderContext& rc);
 
+
+	bool IsTimeUp()
+	{
+		return m_isTimeUp;
+	}
+	
+
+private:
+	bool m_isTimeUp = false;
+
+
+public:
 	bool isQuick = false;
 	bool isKill = false;
+	bool isGekiha = false;
 
 	GameState m_gameState = GameState::Normal;
 private:
@@ -62,7 +75,8 @@ private:
 	std::vector<MovingFloor*> m_movingFloors;
 	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
 	std::vector<Poal*> m_poals;
-	std::vector<Enemy*> m_enemies;
+	std::vector<Enemy*> m_flogs;
+	std::vector<Enemy*> m_skelton = { nullptr };
 	std::vector<BossStage*> m_bossStages;
 	/** 
 	 * std::array<T*, n>v 
@@ -92,6 +106,14 @@ private:
 	BossStage* m_bossStage = nullptr;//ボスステージ。
 	HPUI* m_hpui = nullptr;//UI。
 	Score* m_score = nullptr;//スコア。
+	
+	SoundSource* m_gameOverSe      = nullptr;//ゲームオーバーの音。
+	SoundSource* m_gameClearSe     = nullptr;//ゲームクリアの音。
+public:
+	SoundSource* m_gameBGM         = nullptr;
+
+
+private:
 	//InGameTime* m_inGameTime = nullptr;//残り時間。
 	/// <summary>
 	/// 空を初期化。

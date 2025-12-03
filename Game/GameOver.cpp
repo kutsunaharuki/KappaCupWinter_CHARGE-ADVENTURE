@@ -5,7 +5,7 @@
 namespace {
 	const char* GAME_OVER = "Assets/Sprite/GameOver.dds";
 
-	const float FLASH = 0.52f;
+	const float FLASH = 0.2f;
 }
 
 bool GameOver::Start()

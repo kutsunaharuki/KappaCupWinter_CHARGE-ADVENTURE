@@ -8,6 +8,8 @@ class MovingFloor;
 class Enemy;
 class HPUI;
 class GameOver;
+class Poal;
+
 class Player:public IGameObject
 {
 public:
@@ -36,7 +38,7 @@ public:
 	//	}
 	//}
 
-	bool  isDead()const   { return hp < 0;  } //プレイヤーが死亡時。
+	//bool  isDead()const   { return hp < 0;  } //プレイヤーが死亡時。
 	int GetHp   ()const   { return hp;      } //プレイヤーのHPの保持。
 	int GetMaxHp()const   { return maxHp;   } //プレイヤーの最大HPの保持。
 	int hp    = 3;                            //HP。
@@ -114,6 +116,7 @@ private:
 
 	GameOver* m_gameOver = nullptr;
 	HPUI* m_hpui = nullptr;
+	Poal* m_poal = nullptr;
 	Warp* m_warp   = nullptr;
 	Enemy* m_enemy = nullptr;
 	int playerState    = 0;

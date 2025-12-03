@@ -139,11 +139,15 @@ protected:
 	virtual void Death();
 
 	Player* m_player = nullptr;
-
 	/** 踏まれた回数 */
 	int m_gekihaHp = 1;
 	/** フラグ管理 */
 	bool m_hit = false;
+
+
+	SoundSource* m_gekihaSe = nullptr;//敵を踏んだ時の音。
+	SoundSource* m_e_DamageSe = nullptr;//プレイヤーを攻撃する音。
+	SoundSource* m_p_DamageSe = nullptr;//プレイヤーが敵にダメージを与える音。
 
 
 private:
@@ -192,11 +196,13 @@ private:
 
 
 public:
+	Enemy2(){}
+	~Enemy2()override {}
 	bool Start()override;
 	void Attack()override {};
 	void PlayAnimation()override;
 	bool CanHit()override;
-	//void Death()override;
+	void Death()override;
 
 
 private:
@@ -228,11 +234,13 @@ private:
 
 
 public:
+	Boss(){}
+	~Boss()override{}
 	bool Start()override;
 	void Attack()override {};
 	void PlayAnimation()override;
 	bool CanHit()override;
-	//void Death()override;
+	void Death()override;
 
 
 private:

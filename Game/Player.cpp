@@ -4,6 +4,7 @@
 #include "MovingFloor.h"
 #include "Enemy.h"
 #include "HPUI.h"
+#include "Poal.h"
 #include "GameOver.h"
 
 namespace
@@ -22,6 +23,8 @@ namespace
 		"Assets/animData/run.tka",
 	};
 	const char* PLAYER_1 = "Assets/modelData/unityChan.tkm";
+
+	const Vector3 NEAR_GOAL_POS = { -3144.0f, 7000.0f, 12410.0f };
 }
 
 bool Player::Start()
@@ -45,19 +48,23 @@ bool Player::Start()
 		enModelUpAxisY
 	);
 
-	//キャラコンの初期化。
-	m_charaCon.Init(25.0f, 75.0f, m_position);
+	
 
 	SetPlayerCollision();
 	SetBodyCollision();
 	m_hpui = FindGO<HPUI>("hpui");
+	//m_position = NEAR_GOAL_POS;
+	//m_modelRender.SetPosition(m_position);
+	//m_modelRender.Update();
+	//キャラコンの初期化。
+	m_charaCon.Init(25.0f, 75.0f, m_position);
 	return true;
 }
 
 void Player::FindGameObjInfo()
 {
 	m_warp         = FindGO<Warp>("warp");
-	m_enemy        = FindGO<Enemy>("enemy");
+	//m_enemy        = FindGO<Enemy>("enemy");
 }
 
 Player::~Player()
@@ -396,7 +403,7 @@ void Player::Render(RenderContext& rc)
 	//m_modelRender.Draw(rc);
 
 	//座標の描画。
-	//m_posFontRender.Draw(rc);
+	m_posFontRender.Draw(rc);
 }
 
 const bool Player::JumpAttack()const

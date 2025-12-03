@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameClear.h"
 #include "GameOver.h"
+#include "SoundManager.h"
 
 namespace {
 	const char* TITLE  = "Assets/Sprite/Title_CHARGEADVENTURE.dds";
@@ -53,10 +54,15 @@ void Title::Update()
 
 	if (g_pad[0]->IsTrigger(enButtonA))
 	{
+		/** ‰¹‚Ì’Ç‰Á */
+		SoundManager* sound = FindGO<SoundManager>("soundManager");
+		m_clickSe = sound->PlayingSound(Sound::enSound_ClickSe, false, 1.8f);
+
 		m_game = nullptr;
 		m_game = NewGO<Game>(0, "game");
-	
 		this->Deactivate();
+
+		DeleteGO(m_game->m_gameBGM);
 	}
 }
 

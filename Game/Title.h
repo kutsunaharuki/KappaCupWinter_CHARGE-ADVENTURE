@@ -33,7 +33,7 @@ public:
 	float m_currentAlpha = 1.0f;
 	/** -------------------------------- */
 
-
+	SoundSource* m_clickSe = nullptr;
 private:
 	/** ç°ÇÃèÛë‘ */
 	EnFadeState m_state = enFadeIn;
@@ -44,5 +44,6 @@ private:
 	Game* m_game = nullptr;
 	GameOver* m_gameOver = nullptr;
 	GameClear* m_gameClear = nullptr;
+
 };
 
