@@ -73,14 +73,13 @@ void MovingFloor::SetCollisionObj()
 	m_collisionObj = new CollisionObject;
 
 	//初期位置 + 高さ分。
-	Vector3 colPos = m_firstPosition + COLLISION_HEIGHT;
+	m_position = m_firstPosition + COLLISION_HEIGHT;
 	m_collisionObj->CreateBox(
-		colPos,
+		m_position,
 		Quaternion::Identity,
 		COLLISION_SIZE
 	);
-	m_collisionObj->SetIsEnableAutoDelete(false);
-	m_collisionObj->SetPosition(colPos);
+	m_collisionObj->SetPosition(m_position);
 	m_collisionObj->SetRotation(m_movingFloorRotation);
 	m_collisionObj->Update();
 }
@@ -104,9 +103,13 @@ void MovingFloor::Update()
 
 	//コリジョンオブジェクトとプレイヤーのキャラクターコントローラーが
 	////衝突したら(キャラクターが動く床の上に乗ったら)。
-	if (!m_collisionObj && !m_player)
+	if (!m_collisionObj && !m_player) {
+		return;
+	}
+
+	if (m_collisionObj && m_player)
 	{
-		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
+		if (m_collisionObj->IsHit(m_player->GetCharacterController() ))
 		{
 			//動く床の移動速度をキャラクターの移動速度に加算。
 			m_player->AddPosition(moveDelta);

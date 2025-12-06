@@ -21,6 +21,9 @@ MovingFloorUpDown::~MovingFloorUpDown()
 
 bool MovingFloorUpDown::Start()
 {
+	m_firstPos = m_movingPos;
+	m_movingSpeed = m_movingPos;
+
 	SetModel();
 	SetPhysicsStaticObj();
 	SetCollisionObj();
@@ -36,7 +39,7 @@ void MovingFloorUpDown::SetModel()
 {
 	m_movingFloorUpDownRender.Init(MOVING_UPDOWN);
 	m_movingFloorUpDownRender.SetTRS(
-		m_movingPos,
+		m_movingSpeed,
 		m_movingRot,
 		m_movingScale
 	);
@@ -64,18 +67,14 @@ void MovingFloorUpDown::SetPhysicsStaticObj()
 void MovingFloorUpDown::SetCollisionObj()
 {
 	//コリジョンを消して再作成する。
-	delete m_collisionObj;
 	m_collisionObj = new CollisionObject;
 	m_collisionObj->CreateBox(
-		m_movingPos,
+		m_movingSpeed,
 		m_movingRot,
 		COLLISION_SIZE
 	);
-	//コリジョンを自動で消すかどうかの判定をとる。
-	m_collisionObj->SetIsEnableAutoDelete(false);
 	m_collisionObj->SetPosition(m_movingPos);
 	m_collisionObj->SetRotation(m_movingRot);
-	m_collisionObj->Update();
 }
 
 void MovingFloorUpDown::Update()
