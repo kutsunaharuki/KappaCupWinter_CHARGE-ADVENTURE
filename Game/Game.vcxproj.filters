@@ -19,11 +19,8 @@
     <ClCompile Include="WarpHole.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
-    <ClCompile Include="Scaffolding.cpp" />
     <ClCompile Include="MovingFloorUpDown.cpp" />
-    <ClCompile Include="Asiba.cpp" />
     <ClCompile Include="SkyGround.cpp" />
-    <ClCompile Include="StageGround.cpp" />
     <ClCompile Include="Poal.cpp" />
     <ClCompile Include="Title.cpp" />
     <ClCompile Include="GameClear.cpp" />
@@ -32,10 +29,13 @@
     <ClCompile Include="BossStage.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="SoundManager.cpp" />
-    <ClCompile Include="Stage.cpp" />
-    <ClCompile Include="SpriteManager.cpp" />
-    <ClCompile Include="Text.cpp" />
-    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SecondGround.cpp" />
+    <ClCompile Include="SinkScaffold.cpp" />
+    <ClCompile Include="RouteC.cpp" />
+    <ClCompile Include="ChargeItem.cpp" />
+    <ClCompile Include="Pause.cpp" />
+    <ClCompile Include="FallBox.cpp" />
+    <ClCompile Include="Stage1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -50,11 +50,8 @@
     <ClInclude Include="WarpHole.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="ObstacleBox.h" />
-    <ClInclude Include="Scaffolding.h" />
     <ClInclude Include="MovingFloorUpDown.h" />
-    <ClInclude Include="Asiba.h" />
     <ClInclude Include="SkyGround.h" />
-    <ClInclude Include="StageGround.h" />
     <ClInclude Include="Poal.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="GameClear.h" />
@@ -63,9 +60,12 @@
     <ClInclude Include="BossStage.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="SoundManager.h" />
-    <ClInclude Include="Stage.h" />
-    <ClInclude Include="SpriteManager.h" />
-    <ClInclude Include="Text.h" />
-    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SecondGround.h" />
+    <ClInclude Include="SinkScaffold.h" />
+    <ClInclude Include="RouteC.h" />
+    <ClInclude Include="ChargeItem.h" />
+    <ClInclude Include="Pause.h" />
+    <ClInclude Include="FallBox.h" />
+    <ClInclude Include="Stage1.h" />
   </ItemGroup>
 </Project>

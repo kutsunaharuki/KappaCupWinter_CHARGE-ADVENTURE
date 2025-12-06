@@ -5,14 +5,9 @@
 #include "Warp.h"
 #include "MovingFloor.h"
 #include "WarpHole.h"//ワープボックス(モデル)。
-//#include "Stage1.h"
 #include "Enemy.h"
 #include "ObstacleBox.h"
-#include "Scaffolding.h"
 #include "MovingFloorUpDown.h"
-#include "Asiba.h"
-#include "SkyGround.h"
-#include "StageGround.h"
 #include "Poal.h"
 #include "GameClear.h"
 #include "GameOver.h"
@@ -20,10 +15,16 @@
 #include "HPUI.h"
 #include "Score.h"
 #include "SoundManager.h"
-#include "Stage.h"
+#include "SecondGround.h"
+#include "RouteC.h"
+#include "SinkScaffold.h"
+#include "ChargeItem.h"
+#include "Stage1.h"
 
 namespace{
-	const char* BOSS_STAGE_LEVEL = "Assets/LevelRender/BossStageLevel.tkl";
+	const char* FIRST_STAGE_LEVEL_FILE_PATH = "Assets/LevelRender/Stage1-1Level.tkl";
+	const char* BOSS_STAGE_LEVEL_FILE_PATH = "Assets/LevelRender/BossStageLevel.tkl";
+	const char* SECOND_STAGE_LEVEL_FILE_PATH = "Assets/LevelRender/SecondStageLevel.tkl";
 }
 
 Game::~Game()
@@ -47,58 +48,55 @@ Game::~Game()
 	m_hpui = nullptr;
 	
 	DeleteGO(m_score);
+	m_score = nullptr;
 
-	for (auto m_stageGround : m_stageGrounds)
-	{
-		DeleteGO(m_stageGround);
-		m_stageGround = nullptr;
+	for (auto frog : m_frogs) {
+		DeleteGO(frog);
+		frog = nullptr;
 	}
-	for (auto m_skyGround : m_skyGrounds)
-	{
-		DeleteGO(m_skyGround);
-		m_skyGround = nullptr;
-	}
-	for (auto m_scaffolding : m_scaffoldings)
-	{
-		DeleteGO(m_scaffolding);
-		m_scaffolding = nullptr;
-	}
-	for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
-	{
-		DeleteGO(m_movingFloorUpDown);
-		m_movingFloorUpDown = nullptr;
-	}
-	for (auto m_movingFloor : m_movingFloors)
-	{
-		DeleteGO(m_movingFloor);
-		m_movingFloor = nullptr;
-	}
-	for (auto m_poal : m_poals)
-	{
-		DeleteGO(m_poal);
-		m_poal = nullptr;
-	}
-	for (auto m_enemy : m_flogs)
-	{
-		DeleteGO(m_enemy);
-		m_enemy = nullptr;
-	}
-	//m_enemies.clear();
-	for (auto bossStage : m_bossStages)
-	{
-		DeleteGO(bossStage);
-		bossStage = nullptr;
-	}
-	for (auto skelton : m_skelton) {
+	m_frogs.clear();
+
+	for (auto skelton : m_skeltons) {
 		DeleteGO(skelton);
 		skelton = nullptr;
 	}
+	m_skeltons.clear();
 
-	//for (auto bossStage : m_bossStages)
-	//{
-	//	DeleteGO(bossStage);
-	//	bossStage = nullptr;
-	//}
+	for (auto moving : m_movings) {
+		DeleteGO(moving);
+		moving = nullptr;
+	}
+	m_movings.clear();
+
+	for (auto upDown : m_upDowns) {
+		DeleteGO(upDown);
+		upDown = nullptr;
+	}
+	m_upDowns.clear();
+
+	for (auto poal : m_poals) {
+		DeleteGO(poal);
+		poal = nullptr;
+	}
+	m_poals.clear();
+
+	for (auto secondGround : m_secondGrounds) {
+		DeleteGO(secondGround);
+		secondGround = nullptr;
+	}
+	m_secondGrounds.clear();
+
+	for (auto sinkScaffold : m_sinkScaffolds) {
+		DeleteGO(sinkScaffold);
+		sinkScaffold = nullptr;
+	}
+	m_sinkScaffolds.clear();
+
+	for (auto routeC : m_routeCs) {
+		DeleteGO(routeC);
+		routeC = nullptr;
+	}
+	m_routeCs.clear();
 }
 
 void Game::InitSky()
@@ -137,27 +135,71 @@ bool Game::Start()
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
 
+	m_levelRender.Init(FIRST_STAGE_LEVEL_FILE_PATH, [&](LevelObjectData& objData) {
+		if (objData.EqualObjectName(L"Stage1-1LevelCopy")) {
+			m_stage1 = NewGO<Stage1>(0, "stage1");
+			m_stage1->m_stage1Pos = objData.position;
+			m_stage1->m_stage1Rot = objData.rotation;
+			m_stage1->m_stage1Scale = objData.scale;
+			return true;
+		}
+		if (objData.EqualObjectName(L"Frogs")) {
+			auto frog = NewGO<Enemy1>(0, "Frogs");
+			frog->SetTRS(
+				objData.position,
+				objData.scale,
+				objData.rotation
+			);;
+			m_frogs.push_back(frog);
+			return true;
+		}
+		if (objData.EqualObjectName(L"Skelton")) {
+			auto skelton = NewGO<Enemy2>(0, "Skelton");
+			skelton->SetTRS(
+				objData.position,
+				objData.scale,
+				objData.rotation
+			);
+			m_skeltons.push_back(skelton);
+			return true;
+		}
+		if (objData.EqualObjectName(L"MovingFloor")) {
+			auto moving = NewGO<MovingFloor>(0, "movingFloor");
+			moving->m_speed = objData.position;
+			moving->m_firstPosition = objData.position;
+			moving->m_position = objData.position;
+			moving->m_movingFloorRotation = objData.rotation;
+			moving->m_movingSc = objData.scale;
+			m_movings.push_back(moving);
+			return true;
+		}
+		if (objData.EqualObjectName(L"MovingFloorUpDown")) {
+			auto upDown = NewGO<MovingFloorUpDown>(0, "movingFloorUpDown");
+			upDown->m_movingPos = objData.position;
+			upDown->m_movingSpeed = objData.position;
+			upDown->m_movingRot = objData.rotation;
+			upDown->m_movingScale = objData.scale;
+			m_upDowns.push_back(upDown);
+			return true;
+		}
+		if (objData.EqualObjectName(L"Poal")) {
+			auto poal = NewGO<Poal>(0, "poal");
+			poal->m_pos = objData.position;
+			poal->m_rot = objData.rotation;
+			poal->m_scale = objData.scale;
+			m_poals.push_back(poal);
+			return true;
+		}
+		return false;
+	});
+
 	/** ファーストステージを作成 */
 	//NewGO<FirstStage>(0, "firstStage");
-
-	/** スコアを作成する */
+    /** スコアを作成する */
 	//m_score = NewGO<Score>(0, "score");
-
-
 	//タイムを作成する。
 	//m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
 	
-	//敵を作成する。
-	//m_enemy = NewGO<Enemy1>(0, "enemy1");//Frog(カエル)。
-	//m_enemy = NewGO<Enemy2>(0, "enemy2");//Penguin(ペンギン)。
-	//m_enemy = NewGO<Boss>(0, "boss");//Gorem(ゴーレム)。
-
-	//仮の障害物(ボックス)を作成する。
-	//m_obstacleBox = NewGO<ObstacleBox>(0, "obstacleBox");
-
-	//ワープボックスを作成する。
-	//m_warpHole = NewGO<WarpHole>(0, "warpHole");
-	//m_poal = FindGO<Poal>("poal");
 	return true;
 }
 
@@ -167,161 +209,108 @@ void Game::Update()
 	if (m_gameState == GameState::Normal || m_gameState == GameState::BossStage)
 	{
 		TimeDraw();
+		ItemDraw();
+	}
+
+	if (!m_player) {
+		m_player = FindGO<Player>("player");
+		return;
+	}
+	if (m_player->m_position.y <= -200.0f) {
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(this);
+	}
+	if (m_player->hp == 0) {
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(this);
+	}
+	if (m_timer <= 0.0f) {
+		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(this);
 	}
 
 
-	/** 
-	 * プレイヤーのキャラコンがゴールポールに
-	 * 触れたら前のステージがdeleteされる
-	 * ゴールポールがnullじゃないなら
-	 * ゴールポールを呼ぶ。
-	 */
 	if (!m_poal)
 	{
 		m_poal = FindGO<Poal>("poal");
-		return;
 	}
-	if (m_poal->GetCollision()->IsHit(m_player->GetCharacterController()) && !isQuick)
-	{
+	if (m_poal->GetCollision()->IsHit(m_player->GetCharacterController())) {
 		isQuick = true;
-		DeleteGO(m_poal);
 		if (isQuick) {
-			for (auto m_stageGround : m_stageGrounds)
-			{
-				DeleteGO(m_stageGround);
-				m_stageGround = nullptr;
+			DeleteGO(m_stage1);
+			for (auto frog : m_frogs) {
+				DeleteGO(frog);
+				frog = nullptr;
 			}
-			for (auto m_skyGround : m_skyGrounds)
-			{
-				DeleteGO(m_skyGround);
-				m_skyGround = nullptr;
+			for (auto skelton : m_skeltons) {
+				DeleteGO(skelton);
+				skelton = nullptr;
 			}
-			for (auto m_scaffolding : m_scaffoldings)
-			{
-				DeleteGO(m_scaffolding);
-				m_scaffolding = nullptr;
+			for (auto moving : m_movings) {
+				DeleteGO(moving);
+				moving = nullptr;
 			}
-			for (auto m_movingFloorUpDown : m_movingFloorUpDowns)
-			{
-				DeleteGO(m_movingFloorUpDown);
-				m_movingFloorUpDown = nullptr;
+			for (auto upDown : m_upDowns) {
+				DeleteGO(upDown);
+				upDown = nullptr;
 			}
-			for (auto m_movingFloor : m_movingFloors)
-			{
-				DeleteGO(m_movingFloor);
-				m_movingFloor = nullptr;
+			for (auto poal : m_poals) {
+				DeleteGO(poal);
+				poal = nullptr;
 			}
-			for (auto m_poal : m_poals)
-			{
-				DeleteGO(m_poal);
-				m_poal = nullptr;
-			}
-			for (auto m_enemy : m_flogs)
-			{
-				DeleteGO(m_enemy);
-				m_enemy = nullptr;
-				//m_enemies.clear();
-			}
-		}
-		if (isQuick)
-		{
-			/*m_bossLevelRender.Init(BOSS_STAGE_LEVEL, [&](LevelObjectData& objData) {
-				if (objData.EqualObjectName(L"BossStage") == true)
-				{
-					auto bossStage = NewGO<BossStage>(0, "bossStage");
-					bossStage->m_pos = objData.position;
-					bossStage->m_sc = objData.scale;
-					m_bossStages.push_back(bossStage);
-					return true;
-				}
-				if (objData.EqualObjectName(L"Bear") == true)
-				{
-					auto enemys = NewGO<Boss>(0, "Bear");
-					enemys->SetPosition(objData.position);
-					enemys->SetRotation(objData.rotation);
-					enemys->SetScale(objData.scale);
-					m_flogs.push_back(enemys);
-					return true;
-				}*/
-				/*if (objData.EqualObjectName(L"Poal") == true)
-				{
-					auto poal = NewGO<Poal>(0, "poal");
-					poal->m_pos = objData.position;
-					poal->m_rot = objData.rotation;
-					poal->m_scale = objData.scale;
-					m_poals.push_back(poal);
-					return false;
-				}*/
-			//	return false;
-			//});
 		}
 		isQuick = false;
-
+		if (!isQuick) {
+			m_secondLevelRender.Init(BOSS_STAGE_LEVEL_FILE_PATH, [&](LevelObjectData& objData) {
+				if (objData.EqualObjectName(L"BossStage")) {
+					m_bossStage = NewGO<BossStage>(0, "bossStage");
+					m_bossStage->m_pos = objData.position;
+					m_bossStage->m_sc = objData.scale;
+					return true;
+				}
+				if (objData.EqualObjectName(L"Bear")) {
+					m_enemy = NewGO<Boss>(0, "Bear");
+					m_enemy->SetTRS(
+						objData.position,
+						objData.scale,
+						objData.rotation
+					);
+					return true;
+				}
+				if (objData.EqualObjectName(L"Skelton")) {
+					auto skelton = NewGO<Enemy2>(0, "Skelton");
+					skelton->SetTRS(
+						objData.position,
+						objData.scale,
+						objData.rotation
+					);
+					return true;
+				}
+				return false;
+			});
+		}
 	}
 
-	//プレイヤーのHPが0になったら
-	//ゲームオーバーにする処理。
-	if (m_player->hp <= 0)
-	{
-		auto gameOver = FindGO<GameOver>("gameOver");
-		gameOver->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
-		/** TODO::追加 */
-		SoundManager* sound = FindGO<SoundManager>("soundManager");
-		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
-		DeleteGO(m_gameOverSe);
-		DeleteGO(this);
-	}
-
-	//落下の処理。
-	if (m_player->m_position.y <= -200.0f)
-	{
-		auto gameOver = FindGO<GameOver>("gameOver");
-		gameOver->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
-		/** TODO::追加 */
-		SoundManager* sound = FindGO<SoundManager>("soundManager");
-		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
-		DeleteGO(m_gameOverSe);
-		DeleteGO(this);
-	}
-
-	//制限時間終了後の処理。
-	if (m_timer <= 0.0f)
-	{
-		auto gameOver = FindGO<GameOver>("gameOver");
-		gameOver->Activate();
-		FindGO<GameOver>("gameOver")->Activate();
-		//m_gameOver = NewGO<GameOver>(0, "gameOver");
-		/** TODO::追加 */
-		SoundManager* sound = FindGO<SoundManager>("soundManager");
-		m_gameOverSe = sound->PlayingSound(Sound::enSound_GameOverSe, false, 2.0f);
-		DeleteGO(m_gameOverSe);
-		DeleteGO(this);
-	}
-
-	/** ゴールポールに当たったらクリア画面を出す */
-	//if (m_poal->GetCollision()->IsHit(m_player->GetBodyCollision() ))
-	//{
-	//	auto gameClear = FindGO<GameClear>("gameClear");
-	//	gameClear->Activate();
-	//	m_gameClear = NewGO<GameClear>(0, "gameClear");
-	//	DeleteGO(this);
-	//}
-
-	
 	//auto型は推論なので、必要なのは右辺値が必要。
+	
 	//auto型の為に#includeは必要ない。
 	//g_renderingEngine->DisableRaytracing();
 }
 
+void Game::ItemDraw()
+{
+	wchar_t itemText[256];
+	swprintf_s(itemText, 256, L"ITEM:%d", m_player->m_itemCount);
+	m_itemFontRender.SetText(itemText);
+	m_itemFontRender.SetPosition(m_itemFontPos);
+	m_itemFontRender.SetScale(1.8f);
+}
 
 /** スコアを描画するための関数 */
 void Game::ScoreDraw()
 {
 	
 }
-
 
 //時間制限の描画関数。
 void Game::TimeDraw()
@@ -333,7 +322,7 @@ void Game::TimeDraw()
 	if (m_gameState == GameState::BossStage)
 	{
 		m_timer = 120.0f;
-		return;
+		m_timer-=distance;
 	}
 
 	wchar_t timer[256];
@@ -352,7 +341,11 @@ void Game::TimeDraw()
 void Game::Render(RenderContext& rc)
 {
 	//レベルの描画。
-	//m_levelRender.Draw(rc);
+	m_levelRender.Draw(rc);
+	//2ステージ目のレベルの描画。
+	m_secondLevelRender.Draw(rc);
 	//時間制限の描画。
 	m_timerFontRender.Draw(rc);
+	//アイテムの描画。
+	m_itemFontRender.Draw(rc);
 }

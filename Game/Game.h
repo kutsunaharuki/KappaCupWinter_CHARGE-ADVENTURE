@@ -20,6 +20,12 @@ class GameOver;
 class BossStage;
 class HPUI;
 class Score;
+class SecondGround;
+class SinkScaffold;
+class RouteC;
+class ChargeItem;
+class Stage;
+class Stage1;
 
 //ステージ遷移の場所。
 enum class GameState {
@@ -40,14 +46,15 @@ public:
 	void Render(RenderContext& rc);
 
 
-	bool IsTimeUp()
+	/*bool IsTimeUp()
 	{
 		return m_isTimeUp;
-	}
+	}*/
 	
 
 private:
 	bool m_isTimeUp = false;
+	Stage1* m_stage1 = nullptr;
 
 
 public:
@@ -57,6 +64,11 @@ public:
 
 	GameState m_gameState = GameState::Normal;
 private:
+	//アイテム。
+	void ItemDraw();
+	Vector3 m_itemFontPos = { 400.0f,500.0f,0.0f };
+	FontRender m_itemFontRender;
+
 	//時間制限。
 	Vector3 m_timerFontPos = { -100.0f,520.0f,0.0f };
 	float m_timer = 120.0f;
@@ -65,19 +77,23 @@ private:
 	//float m_timer = 10.0f;
 	FontRender m_timerFontRender;
 	//-----------------------------------
-
+	
 	LevelRender m_levelRender;
+	LevelRender m_secondLevelRender;
 	LevelRender m_bossLevelRender;
+
 	//後に数が決まった時にstd::array<T, number*>~~;とする。
-	std::vector<StageGround*> m_stageGrounds;
-	std::vector<Scaffolding*> m_scaffoldings;
-	std::vector<SkyGround*> m_skyGrounds;
-	std::vector<MovingFloor*> m_movingFloors;
-	std::vector<MovingFloorUpDown*> m_movingFloorUpDowns;
+	std::vector<Enemy*> m_frogs;
+	std::vector<Enemy*> m_skeltons;
+	std::vector<MovingFloor*> m_movings;
+	std::vector<MovingFloorUpDown*> m_upDowns;
 	std::vector<Poal*> m_poals;
-	std::vector<Enemy*> m_flogs;
-	std::vector<Enemy*> m_skelton = { nullptr };
-	std::vector<BossStage*> m_bossStages;
+
+
+	std::vector<RouteC*> m_routeCs;
+	std::vector<SecondGround*> m_secondGrounds;
+	std::vector<SinkScaffold*> m_sinkScaffolds;
+	std::vector<ChargeItem*> m_chargeItems;
 	/** 
 	 * std::array<T*, n>v 
 	 * ↑
@@ -107,6 +123,17 @@ private:
 	HPUI* m_hpui = nullptr;//UI。
 	Score* m_score = nullptr;//スコア。
 	
+	SecondGround* m_secondGround = nullptr;
+	SinkScaffold* m_sinkScaffold = nullptr;
+	RouteC* m_routeC = nullptr;
+	ChargeItem* m_chargeItem = nullptr;
+
+	/** TODO:2ステージ目の素材 */
+	//SecondGround* m_secondGround = nullptr;//2ステージ目の地面。
+	//SinkScaffold* m_sinkScaffold = nullptr;//沈む足場。
+	//RouteC      * m_routeC       = nullptr;//Cの形状の道。
+
+
 	SoundSource* m_gameOverSe      = nullptr;//ゲームオーバーの音。
 	SoundSource* m_gameClearSe     = nullptr;//ゲームクリアの音。
 public:
