@@ -240,6 +240,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Poal.cpp" />
     <ClCompile Include="RouteC.cpp" />
+    <ClCompile Include="Scaffold.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="SecondGround.cpp" />
     <ClCompile Include="SinkScaffold.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Poal.h" />
     <ClInclude Include="RouteC.h" />
+    <ClInclude Include="Scaffold.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="SecondGround.h" />
     <ClInclude Include="SinkScaffold.h" />

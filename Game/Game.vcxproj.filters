@@ -36,6 +36,7 @@
     <ClCompile Include="Pause.cpp" />
     <ClCompile Include="FallBox.cpp" />
     <ClCompile Include="Stage1.cpp" />
+    <ClCompile Include="Scaffold.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -67,5 +68,6 @@
     <ClInclude Include="Pause.h" />
     <ClInclude Include="FallBox.h" />
     <ClInclude Include="Stage1.h" />
+    <ClInclude Include="Scaffold.h" />
   </ItemGroup>
 </Project>
