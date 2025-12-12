@@ -7,8 +7,6 @@
 //#include "Game.h"
 #include "Title.h"
 #include "SoundManager.h"
-#include "SceneManager.h"
-
 void ReportLiveObjects()
 {
 	IDXGIDebug* pDxgiDebug;
@@ -39,12 +37,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	//Gameクラスのオブジェクトを作成。
 	//NewGO<Game>(0, "game");
-	//NewGO<Title>(0, "title");
+	NewGO<Title>(0, "title");
 	
-	//PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
-
-
-	NewGO<SceneManagerObject>(0, "sceneManagerObject");
+	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 
 	NewGO<SoundManager>(0, "soundManager");
 

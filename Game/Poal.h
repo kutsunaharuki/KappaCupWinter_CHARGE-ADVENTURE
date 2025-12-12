@@ -11,7 +11,10 @@ public:
 	void SetCollisionObj();
 	//bool PoalHit();
 
-	void SpawnPoal();
+	//void SpawnPoal();
+
+	/** “’B‚µ‚½‚ç‚ÌŠÖ” */
+	void ReachedPoal();
 
 	CollisionObject* GetCollision() {
 		return m_collisionObj;

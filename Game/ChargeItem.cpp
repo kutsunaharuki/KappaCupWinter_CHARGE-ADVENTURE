@@ -35,20 +35,16 @@ void ChargeItem::Update()
 /** アイテムの設定 */
 void ChargeItem::GetItem()
 {
-	float time = g_gameTime->GetFrameDeltaTime();
+	/*float time = g_gameTime->GetFrameDeltaTime();*/
 	if (!m_player) {
-		m_player = FindGO<Player>("plaeyr");
+		m_player = FindGO<Player>("player");
 		return;
 	}
-	if (m_player->m_position.z >= ITEM_LENGTH)
-	{
-		DeleteGO(this);
-		return;
-	}
-	if (m_isDead) {
-		DeleteGO(this);
-		return;
-	}
+	
+	//if (m_isDead) {
+	//	DeleteGO(this);
+	//	return;
+	//}
 
 	Vector3 playerPos = m_player->GetPosition();
 	/** 距離計算 */

@@ -38,6 +38,7 @@ bool Poal::Start()
 
 void Poal::Update()
 {
+	ReachedPoal();
 	m_poalRender.Update();
 }
 
@@ -57,40 +58,14 @@ void Poal::SetCollisionObj()
 	m_collisionObj->Update();
 }
 
-void Poal::SpawnPoal()
+
+void Poal::ReachedPoal()
 {
-	if (!m_boss)
-	{
-		m_boss = FindGO<Boss>("boss");
-		return;
+	if (m_collisionObj->IsHit(m_player->GetCharacterController())) {
+		Game::SetIsGoal(true);
 	}
 }
 
-
-/** レベルレンダーの描画準備用の関数 */
-//const bool Poal::SetLevelModel()
-//{
-//	
-//	return true;
-//}
-
-
-/// <summary>
-/// ゴールポールのコリジョンに当たった時の処理。
-/// </summary>
-//bool Poal::PoalHit()
-//{
-//	if (m_collisionObj != nullptr && m_player != nullptr)
-//	{
-//		if (m_collisionObj->IsHit(m_player->GetCharacterController()))
-//		{
-//			isHit = true;
-//			return true;
-//		}
-//		return true;
-//	}
-//	return true;
-//}
 
 void Poal::Render(RenderContext& rc)
 {
