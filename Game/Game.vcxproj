@@ -236,7 +236,7 @@
     <ClCompile Include="MovingFloor.cpp" />
     <ClCompile Include="MovingFloorUpDown.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
-    <ClCompile Include="Pause.cpp" />
+    <ClCompile Include="PauseScene.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Poal.cpp" />
     <ClCompile Include="RouteC.cpp" />
@@ -254,9 +254,7 @@
     </ClCompile>
     <ClCompile Include="system\system.cpp" />
     <ClCompile Include="Title.cpp" />
-    <ClCompile Include="Warp.cpp" />
     <ClCompile Include="WarpBox.cpp" />
-    <ClCompile Include="WarpHole.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BossStage.h" />
@@ -271,7 +269,7 @@
     <ClInclude Include="MovingFloor.h" />
     <ClInclude Include="MovingFloorUpDown.h" />
     <ClInclude Include="ObstacleBox.h" />
-    <ClInclude Include="Pause.h" />
+    <ClInclude Include="PauseScene.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Poal.h" />
     <ClInclude Include="RouteC.h" />
@@ -285,9 +283,10 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system\system.h" />
     <ClInclude Include="Title.h" />
-    <ClInclude Include="Warp.h" />
     <ClInclude Include="WarpBox.h" />
-    <ClInclude Include="WarpHole.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Users\Public\Desktop\Razer Cortex.lnk" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

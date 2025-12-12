@@ -14,9 +14,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameCamera.cpp" />
-    <ClCompile Include="Warp.cpp" />
     <ClCompile Include="MovingFloor.cpp" />
-    <ClCompile Include="WarpHole.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="ObstacleBox.cpp" />
     <ClCompile Include="MovingFloorUpDown.cpp" />
@@ -33,11 +31,11 @@
     <ClCompile Include="SinkScaffold.cpp" />
     <ClCompile Include="RouteC.cpp" />
     <ClCompile Include="ChargeItem.cpp" />
-    <ClCompile Include="Pause.cpp" />
     <ClCompile Include="FallBox.cpp" />
     <ClCompile Include="Stage1.cpp" />
     <ClCompile Include="Scaffold.cpp" />
     <ClCompile Include="WarpBox.cpp" />
+    <ClCompile Include="PauseScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -47,9 +45,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="GameCamera.h" />
-    <ClInclude Include="Warp.h" />
     <ClInclude Include="MovingFloor.h" />
-    <ClInclude Include="WarpHole.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="ObstacleBox.h" />
     <ClInclude Include="MovingFloorUpDown.h" />
@@ -66,10 +62,15 @@
     <ClInclude Include="SinkScaffold.h" />
     <ClInclude Include="RouteC.h" />
     <ClInclude Include="ChargeItem.h" />
-    <ClInclude Include="Pause.h" />
     <ClInclude Include="FallBox.h" />
     <ClInclude Include="Stage1.h" />
     <ClInclude Include="Scaffold.h" />
     <ClInclude Include="WarpBox.h" />
+    <ClInclude Include="PauseScene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Users\Public\Desktop\Razer Cortex.lnk">
+      <Filter>system</Filter>
+    </None>
   </ItemGroup>
 </Project>
