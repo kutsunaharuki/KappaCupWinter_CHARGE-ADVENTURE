@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MovingFloor.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace {
 	float SPEED = 300.0f;
@@ -89,6 +90,10 @@ void MovingFloor::SetCollisionObj()
 /// </summary>
 void MovingFloor::Update()
 {
+	const bool& isPause = Game::GetIsPause();
+	if (isPause) {
+		return;
+	}
 	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");

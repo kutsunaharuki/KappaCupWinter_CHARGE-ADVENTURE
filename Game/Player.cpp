@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "Player.h"
-#include "Warp.h"//ゴーストオブジェクト。
 #include "MovingFloor.h"
 #include "Enemy.h"
 #include "HPUI.h"
 #include "Poal.h"
+#include "Game.h"
 #include "GameOver.h"
 
 namespace
@@ -25,6 +25,7 @@ namespace
 	const char* PLAYER_1 = "Assets/modelData/unityChan.tkm";
 
 	const Vector3 NEAR_GOAL_POS = { -3144.0f, 7000.0f, 12410.0f };
+	const Vector3 SET_POSITION = Vector3::Zero;
 }
 
 bool Player::Start()
@@ -48,14 +49,15 @@ bool Player::Start()
 		enModelUpAxisY
 	);
 
-	
-
 	SetPlayerCollision();
-	SetBodyCollision();
 	m_hpui = FindGO<HPUI>("hpui");
-	//m_position = NEAR_GOAL_POS;
-	//m_modelRender.SetPosition(m_position);
-	//m_modelRender.Update();
+	m_position = NEAR_GOAL_POS;
+	m_modelRender.SetTRS(
+		m_position,
+		m_rot,
+		m_scale
+	);
+	m_modelRender.Update();
 	//キャラコンの初期化。
 	m_charaCon.Init(25.0f, 75.0f, m_position);
 	return true;
@@ -63,7 +65,6 @@ bool Player::Start()
 
 void Player::FindGameObjInfo()
 {
-	m_warp         = FindGO<Warp>("warp");
 	//m_enemy        = FindGO<Enemy>("enemy");
 }
 
@@ -74,15 +75,18 @@ Player::~Player()
 		delete m_collisionObj;
 		m_collisionObj = nullptr;
 	}
-	if (m_bodyCollisionObj != nullptr)
-	{
-		delete m_bodyCollisionObj;
-		m_bodyCollisionObj = nullptr;
-	}
 }
 
 void Player::Update()
 {
+	const bool& isPause = Game::GetIsPause();
+	if (g_pad[0]->IsTrigger(enButtonSelect)) {
+		Game::SetIsPause(isPause);
+	}
+	if (isPause) {
+		return;
+	}
+
 	//無敵時間の処理。
 	if (m_invinCibilityTime > 0.0f)
 	{
@@ -102,11 +106,6 @@ void Player::Update()
 		//ように見えるのでreturnは返さない。
 
 	}
-	//Vector3 pos = m_position;
-	//if (pos.y < -200.0f)
-	//{
-	//	ResPawn();
-	//}
 
 	Move();
 	Rotation();
@@ -157,15 +156,21 @@ void Player::ReceiveDamage(int damage, Vector3& enemyPos)
 
 	//1.8秒だけノックバックさせる。
 	m_knockBackTime = 1.8f;
-
 }
+
+
+/** ゴールポールに当たった時だけ呼び出す */
+//void Player::ReStart()
+//{
+//}
+
 
 //リスポーンするだけの関数。
-void Player::ResPawn()
-{
-	m_position = m_resPawnPos;
-	m_charaCon.SetPosition(m_position);
-}
+//void Player::ReStartPos()
+//{
+//	m_position = m_resPawnPos;
+//	m_charaCon.SetPosition(m_position);
+//}
 
 //現在の位置m_positionにdeltaを加算して、
 // 新しい位置を計算する。
@@ -175,16 +180,17 @@ void Player::AddPosition(const Vector3& delta)
 	m_charaCon.SetPosition(m_position);
 }
 
+
 /// <summary>
 /// 移動処理。
 /// </summary>
 void Player::Move()
 {
 	//リスポーン処理。
-	if (m_position.y < -200.0f)
+	/*if (m_position.y < -200.0f)
 	{
 		m_modelRender.SetPosition(m_resPawnPos);
-	}
+	}*/
 
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
@@ -309,16 +315,6 @@ void Player::ManageState()
 void Player::TreaderCollisionObj()
 {
 	bool isJumpAttack = JumpAttack();
-	//本体用コリジョン。
-	if (m_bodyCollisionObj)
-	{
-		m_bodyCollisionObj->SetIsEnable(isJumpAttack);
-		if (m_charaCon.IsOnGround())
-		{
-			m_bodyCollisionObj->SetPosition(m_position + COLL_POS_HEIGHT);
-			m_bodyCollisionObj->SetRotation(m_rot);
-		}
-	}
 	
 	//踏み判定用コリジョン。
 	if (m_collisionObj)
@@ -328,9 +324,9 @@ void Player::TreaderCollisionObj()
 		{
 			m_collisionObj->SetPosition(m_position);
 			m_collisionObj->SetRotation(m_rot);
+			m_collisionObj->Update();
 		}
 	}
-
 }
 
 
@@ -345,27 +341,10 @@ void Player::SetPlayerCollision()
 		m_playerCollisionScale
 	);
 
-	m_collisionObj->SetPosition(m_footCollisionPos);
+	m_collisionObj->SetPosition(m_position);
 	m_collisionObj->SetRotation(m_rot);
 }
 
-//プレイヤーの体にコリジョンを付ける。
-void Player::SetBodyCollision()
-{
-	if (!m_collisionObj) return;
-	//コリジョンをnewする。
-	m_bodyCollisionObj = new CollisionObject;
-
-	m_position = m_position + COLL_POS_HEIGHT;
-
-	m_bodyCollisionObj->CreateBox(
-		m_position,
-		m_rot,
-		m_playerBodyCollisionSc
-	);
-	m_bodyCollisionObj->SetPosition(m_position);
-	m_bodyCollisionObj->SetRotation(m_rot);
-}
 
 /// <summary>
 /// 描画処理。
@@ -403,7 +382,7 @@ void Player::Render(RenderContext& rc)
 	//m_modelRender.Draw(rc);
 
 	//座標の描画。
-	m_posFontRender.Draw(rc);
+	//m_posFontRender.Draw(rc);
 }
 
 const bool Player::JumpAttack()const
@@ -413,10 +392,7 @@ const bool Player::JumpAttack()const
 	}
 	else {
 		return false;
-	}
-	//地面についていれば実行しない。
-	return false;
-	
+	}	
 }
 
 const bool Player::IsMove()const

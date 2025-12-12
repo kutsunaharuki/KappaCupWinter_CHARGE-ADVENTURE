@@ -136,6 +136,7 @@ private:
 	std::vector<SecondGround*> m_secondGrounds;
 	std::vector<SinkScaffold*> m_sinkScaffolds;
 	std::vector<ChargeItem*> m_chargeItems;
+	std::vector<WarpBox*> m_warpBoxs;
 
 	/** 
 	 * std::array<T*, n>v 
@@ -163,7 +164,7 @@ private:
 	BossStage* m_bossStage = nullptr;//ボスステージ。
 	HPUI* m_hpui = nullptr;//UI。
 	Score* m_score = nullptr;//スコア。
-
+	WarpBox* m_warpBox = nullptr;//ワープ。
 
 	PauseScene* m_pauseScene = nullptr;//ポーズ画面。
 

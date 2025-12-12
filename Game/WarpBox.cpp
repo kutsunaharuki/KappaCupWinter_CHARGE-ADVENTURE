@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "WarpBox.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace {
 	const char* WARP_BOX_MODEL_FILE_PATH = "Assets/modelData/WarpBox.tkm";
@@ -18,17 +19,20 @@ WarpBox::~WarpBox()
 bool WarpBox::Start()
 {
 	m_warpBoxModelRender.Init(WARP_BOX_MODEL_FILE_PATH);
-	m_warpBoxModelRender.SetTRS(
-		m_warpBoxPos,
-		m_warpBoxRot,
-		m_warpBoxScale
-	);
+	m_warpBoxModelRender.SetPosition(m_warpBoxPos);
+	m_warpBoxModelRender.SetRotation(m_warpBoxRot);
+	m_warpBoxModelRender.SetScale(m_warpBoxScale);
+	m_warpBoxModelRender.Update();
 	SetCollisionObj();
 	return true;
 }
 
 void WarpBox::Update()
 {
+	const bool& isPause = Game::GetIsPause();
+	if (isPause) {
+		return;
+	}
 
 	if (m_warpCollisionObj) {
 		m_warpCollisionObj->SetPosition(m_warpBoxPos);
@@ -58,7 +62,7 @@ void WarpBox::Warp()
 		return;
 	}
 	if (m_warpCollisionObj->IsHit(m_player->GetCharacterController())) {
-		//m_player->m_modelRender.SetPosition()
+		
 	}
 }
 

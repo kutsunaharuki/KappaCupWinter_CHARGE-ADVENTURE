@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MovingFloorUpDown.h"
 #include "Player.h"
+#include "Game.h"
 
 namespace {
 	const float UP_SPEED = 280.0f;
@@ -79,6 +80,11 @@ void MovingFloorUpDown::SetCollisionObj()
 
 void MovingFloorUpDown::Update()
 {
+	const bool& isPause = Game::GetIsPause();
+	if (isPause) {
+		return;
+	}
+
 	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");

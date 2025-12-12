@@ -2,7 +2,7 @@
 class Player;
 class ObstacleBox;
 class Score;
-
+class SoundManager;
 
 enum EnEnemy {
 	enEnemy1,//ファイル番号0(クリボー)。
@@ -37,7 +37,6 @@ public:
 	Enemy();
 	virtual ~Enemy();
 	virtual bool Start()override;
-	virtual void Update()override;
 	void Move();
 	void UpdateEnemyInfo();
 	void RandomWalk();
@@ -50,9 +49,7 @@ public:
 	void AnimationManager();
 
 
-	//virtual void AnimationEvent(const wchar_t* clipName, const wchar_t* eventName);
-
-
+	
 	//inlineは関数に入らずに別のクラス内に持ち込むことができる。
 	inline void SetPosition(const Vector3& pos) { m_enemyPos = pos; }
 	inline void SetScale(const Vector3& scl) { m_enemyScale = scl; }
@@ -82,18 +79,6 @@ protected:
 	};
 
 
-	/*enum  EnAnimationClip {
-		enAnimClip_A,
-		enAnimClip_B,
-		enAnimClip_C,
-		enAnimClip_D,
-		enAnimClip_E,
-		enAnimClip_F,
-		enAnimClip_G,
-		enAnimClip_H,
-		enAnimClip_Num
-	};*/
-
 	ModelRender m_enemyRender;
 	Quaternion m_enemyRotation = Quaternion::Identity;//回転。
 	CharacterController m_charaCon;                   //キャラクターコントローラー。
@@ -109,28 +94,25 @@ protected:
 
 
 	bool m_isAttack       = false;
-	bool isHit            = false;
 	bool m_isSearchPlayer = false;
 	
 	SphereCollider m_sphereCollider;
 	FontRender m_fontRender;
 	Vector3 m_fontPos = Vector3(-400.0f, 500.0f, 0.0f);
 
-	//std::array<AnimationClip, enEnemyActionState_Num> m_animationClips;
+	
 
 	//中身を変えたくない時は後ろにconstをつける。
-	virtual bool CanHit();
+	void CanHit();
 	virtual void EnemyHit();
 
 	//m_enemyActionStateに持たせる。
 	EnEnemyActionState m_enemyActionState = enEnemyActionState_Idle;
 	
 protected:
-	//protected
-	//派生クラスで使える。他の単体のクラスでは使えない。
 	void SetModel(int enemyModel);
 	//void Rotation(int enemyModel);
-	void SetPhysicsGameObj(int enemyModels);
+	void SetCharacon(int enemyModels);
 	void SetCollisionObj(int enemyModel);
 	void SetFindGOInfo();
 	void SetSphereColliderObj();
@@ -141,8 +123,6 @@ protected:
 	Player* m_player = nullptr;
 	/** 踏まれた回数 */
 	int m_gekihaHp = 1;
-	/** フラグ管理 */
-	bool m_hit = false;
 
 
 	SoundSource* m_gekihaSe = nullptr;//敵を踏んだ時の音。
@@ -165,9 +145,10 @@ class Enemy1 : public Enemy
 {
 public:
 	bool Start()override;
+	void Update()override;
 	void Attack()override {};
 	void PlayAnimation()override;
-	bool CanHit()override;
+	//bool CanHit()override;
 
 	bool AttackCollision()override { return false; }
 	//void Death()override;
@@ -199,9 +180,10 @@ public:
 	Enemy2(){}
 	~Enemy2()override {}
 	bool Start()override;
+	void Update()override;
 	void Attack()override {};
 	void PlayAnimation()override;
-	bool CanHit()override;
+	//bool CanHit()override;
 	void Death()override;
 
 
@@ -237,9 +219,10 @@ public:
 	Boss(){}
 	~Boss()override{}
 	bool Start()override;
+	void Update()override;
 	void Attack()override {};
 	void PlayAnimation()override;
-	bool CanHit()override;
+	//bool CanHit()override;
 	void Death()override;
 
 

@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "ObstacleBox.h"
 #include "Score.h"
+#include "Game.h"
 #include "SoundManager.h"
 #include <time.h>
 
@@ -89,7 +90,7 @@ namespace {
 
 	const float DISTANCE = 200.0f;
 	Vector3 ENEMY_LIMIT = { 400.0f,0.0f,400.0f };
-	const float GRAVITY = -8.0f * 1.4;   //重力。
+	const float ENEMY_GRAVITY = 8.0f * 1.4;   //重力。
 	const float ENEMY_MOVE_LIMIT = 150.0f;//Enemyの行動距離。
 	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyの重力。
 
@@ -120,13 +121,53 @@ bool Enemy1::Start() {
 
 
 	SetModel(enEnemy1);
-	SetPhysicsGameObj(enEnemy1);
+	SetCharacon(enEnemy1);
 	SetCollisionObj(enEnemy1);
 	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
+
+
+void Enemy1::Update()
+{
+	const bool& isPause = Game::GetIsPause();
+	if (g_pad[0]->IsTrigger(enButtonSelect)) {
+		Game::SetIsPause(!isPause);
+	}
+	if (isPause) {
+		return;
+	}
+
+	/** プレイヤーへの視認チェック */
+	IsFoundPlayer();
+
+	/** 行動ステートと速度を決定 */
+	EnemyBehavior();
+
+	/** 重力と実際の移動を実行 */
+	UpdateEnemyInfo();
+
+	/** アニメーションの再生 */
+	PlayAnimation();
+
+	/** コリジョンの更新 */
+	if (m_collisionObj) {
+		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
+		m_collisionObj->SetRotation(Quaternion::Identity);
+		m_collisionObj->Update();
+	}
+
+	/** ヒットチェック */
+	EnemyHit();
+	CanHit();
+
+	/** 描画位置更新 */
+	m_enemyRender.SetPosition(m_enemyPos);
+	m_enemyRender.Update();
+}
+
 
 bool Enemy2::Start() {
 	m_enemy2AtCollisionObject = new CollisionObject;
@@ -176,13 +217,53 @@ bool Enemy2::Start() {
 
 	AnimationManager();
 	SetModel(enEnemy2);
-	SetPhysicsGameObj(enEnemy2);
+	SetCharacon(enEnemy2);
 	SetCollisionObj(enEnemy2);
 	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
+
+
+void Enemy2::Update()
+{
+	const bool& isPause = Game::GetIsPause();
+	if (g_pad[0]->IsTrigger(enButtonSelect)) {
+		Game::SetIsPause(!isPause);
+	}
+	if (isPause) {
+		return;
+	}
+
+	/** プレイヤーへの視認チェック */
+	IsFoundPlayer();
+
+	/** 行動ステートと速度を決定 */
+	EnemyBehavior();
+
+	/** 重力と実際の移動を実行 */
+	UpdateEnemyInfo();
+
+	/** アニメーションの再生 */
+	PlayAnimation();
+
+	/** コリジョンの更新 */
+	if (m_collisionObj) {
+		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
+		m_collisionObj->SetRotation(Quaternion::Identity);
+		m_collisionObj->Update();
+	}
+
+	/** ヒットチェック */
+	EnemyHit();
+	CanHit();
+
+	/** 描画位置更新 */
+	m_enemyRender.SetPosition(m_enemyPos);
+	m_enemyRender.Update();
+}
+
 
 bool Boss::Start() {
 	m_bossAtCollisionObject = new CollisionObject;
@@ -231,13 +312,53 @@ bool Boss::Start() {
 
 	AnimationManager();
 	SetModel(enBoss);
-	SetPhysicsGameObj(enBoss);
+	SetCharacon(enBoss);
 	SetCollisionObj(enBoss);
 	EnemyBehavior();
 	SetSphereColliderObj();
 	SetFindGOInfo();
 	return true;
 }
+
+
+void Boss::Update()
+{
+	const bool& isPause = Game::GetIsPause();
+	if (g_pad[0]->IsTrigger(enButtonSelect)) {
+		Game::SetIsPause(!isPause);
+	}
+	if (isPause) {
+		return;
+	}
+
+	/** プレイヤーへの視認チェック */
+	IsFoundPlayer();
+
+	/** 行動ステートと速度を決定 */
+	EnemyBehavior();
+
+	/** 重力と実際の移動を実行 */
+	UpdateEnemyInfo();
+
+	/** アニメーションの再生 */
+	PlayAnimation();
+
+	/** コリジョンの更新 */
+	if (m_collisionObj) {
+		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
+		m_collisionObj->SetRotation(Quaternion::Identity);
+		m_collisionObj->Update();
+	}
+
+	/** ヒットチェック */
+	EnemyHit();
+	CanHit();
+
+	/** 描画位置更新 */
+	m_enemyRender.SetPosition(m_enemyPos);
+	m_enemyRender.Update();
+}
+
 
 Enemy::~Enemy()
 {
@@ -246,38 +367,6 @@ Enemy::~Enemy()
 		delete m_collisionObj;
 		m_collisionObj = nullptr;
 	}
-}
-
-
-
-void Enemy::Update()
-{
-	/** プレイヤーへの視認チェック */
-	IsFoundPlayer();
-	
-	/** 行動ステートと速度を決定 */
-	EnemyBehavior();
-	
-	/** 重力と実際の移動を実行 */
-	UpdateEnemyInfo();
-	
-	/** アニメーションの再生 */
-	PlayAnimation();
-	
-	/** コリジョンの更新 */
-	if (m_collisionObj) {
-		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
-		m_collisionObj->SetRotation(Quaternion::Identity);
-		m_collisionObj->Update();
-	}
-	
-	/** ヒットチェック */
-	EnemyHit();
-	CanHit();
-
-	/** 描画位置更新 */
-	m_enemyRender.SetPosition(m_enemyPos);
-	m_enemyRender.Update();
 }
 
 
@@ -366,7 +455,7 @@ void Enemy::AnimationManager()
 
 
 //キャラコンの初期化関数。
-void Enemy::SetPhysicsGameObj(int enemyModels)
+void Enemy::SetCharacon(int enemyModels)
 {
 	//キャラコンの初期化(移動用)。
 	m_charaCon.Init(
@@ -391,18 +480,16 @@ void Enemy::SetModel(int enemyModel)
 //コリジョンオブジェクト初期化関数。
 void Enemy::SetCollisionObj(int enemyModel)
 {
-	Vector3 pos = m_enemyPos;
-
 	m_collisionObj = new CollisionObject;
 
 	//コリジョンオブジェクトの初期化。
 	m_collisionObj->CreateBox(
-		pos,
+		m_enemyPos,
 		Quaternion::Identity,
 		Enemys[enemyModel].collisionSc
 	);
 
-	m_collisionObj->SetPosition(pos);
+	m_collisionObj->SetPosition(m_enemyPos);
 	m_collisionObj->SetRotation(Quaternion::Identity);
 	m_collisionObj->Update();
 }
@@ -435,7 +522,6 @@ void Enemy::Tracking()
 	if (m_player == nullptr)
 	{
 		m_player = FindGO<Player>("player");
-		return;
 	}
 
 	if (m_isSearchPlayer == true)
@@ -555,10 +641,10 @@ struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
 const bool Enemy::IsFoundPlayer()
 {
 	/** TODO::修正するところ */
-	/*if (!m_player)
+	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");
-	}*/
+	}
 
 	if (m_player != nullptr)
 	{
@@ -612,14 +698,15 @@ const bool Enemy::IsFoundPlayer()
 }
 
 void Enemy::UpdateEnemyInfo() {
+	float gTime = g_gameTime->GetFrameDeltaTime();
 	if (m_charaCon.IsOnGround())
 	{
 		m_moveSpeed.y = 0.0f;
 	}
-	else {
-		m_moveSpeed.y += GRAVITY;
+	else if (m_charaCon.IsOnGround() == false) {
+		m_moveSpeed.y -= ENEMY_GRAVITY * gTime;
 	}
-	m_enemyPos = m_charaCon.Execute(m_moveSpeed, 1.0f / 60.0f);
+	m_enemyPos = m_charaCon.Execute(m_moveSpeed, gTime);
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.SetRotation(m_enemyRotation);
 	m_enemyRender.Update();
@@ -700,7 +787,13 @@ void Enemy::EnemyBehavior()
 //EnemyがPlayerに衝突したらダメージを与える処理。
 void Enemy::EnemyHit()
 {
-	if (!m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack) {
+		return;
+	}
+	if (!m_player) {
+		m_player = FindGO<Player>("player");
+	}
+	if (!m_player)
 	{
 		return;
 	}
@@ -716,12 +809,18 @@ void Enemy::EnemyHit()
 /** Enemy2がPlayerに衝突したらダメージを与える */
 void Enemy2::EnemyHit()
 {
-	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack)
 	{
 		return;
 	}
+	if (!m_player) {
+		m_player = FindGO<Player>("player");
+	}
+	if (!m_player) {
+		return;
+	}
 
-	if (m_enemy2AtCollisionObject->IsHit(m_player->GetBodyCollision() ))
+	if (m_enemy2AtCollisionObject->IsHit(m_player->GetCharacterController() ))
 	{
 		m_player->ReceiveDamage(1, m_enemyPos);
 	}
@@ -730,11 +829,18 @@ void Enemy2::EnemyHit()
 
 void Boss::EnemyHit()
 {
-	if (!m_isAttack || !m_player || !m_player->GetBodyCollision())
+	if (!m_isAttack)
 	{
 		return;
 	}
-	if (m_bossAtCollisionObject->IsHit(m_player->GetBodyCollision() ))
+	if (!m_player) {
+		m_player = FindGO<Player>("player");
+	}
+	if (!m_player) {
+		return;
+	}
+
+	if (m_bossAtCollisionObject->IsHit(m_player->GetCharacterController() ))
 	{
 		SoundManager* sound = FindGO<SoundManager>("soundManager");
 		m_e_DamageSe = sound->PlayingSound(Sound::enSound_EnemyAttackSe, false, 1.9f);
@@ -743,67 +849,60 @@ void Boss::EnemyHit()
 }
 
 
-bool Enemy::CanHit()
+void Enemy::CanHit()
 {
 	/** プレイヤーとコリジョンのnullチェック */
-	if (!m_player || !m_player->m_collisionObj)
+	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");
-		return false;
+	}
+	if (!m_player) {
+		return;
 	}
 
-	if (m_isAttack)return false;
 
-	/** 敵のコリジョンに当たったかの判定 */
-	if (m_collisionObj->IsHit(m_player->m_collisionObj))
+	float enemyHeight = m_enemyPos.y + CHARACON_HEIGHT * 2.0f;
+	if (m_player->GetPosition().y <= enemyHeight) {
+		return;
+	}
+
+	if (!m_collisionObj->IsHit(m_player->GetCollisionObj())) {
+		return;
+	}
+
+
+	SoundManager* sound = FindGO<SoundManager>("soundManager");
+	m_gekihaSe = sound->PlayingSound(Sound::enSound_GekihaSe, false, 1.8f);
+	m_player->force.y = 190.0f;
+
+	/** TODO:修正 */
+	if (m_gekihaHp < 0)
 	{
-		SoundManager* sound = FindGO<SoundManager>("soundManager");
-		m_gekihaSe = sound->PlayingSound(Sound::enSound_GekihaSe, false, 1.8f);
-		m_player->force.y = 190.0f;
-		m_hit = false;
-		/** TODO:修正 */
-		if (m_gekihaHp < 0)
-		{
-			/** 死亡処理 */
-			Death();
-			DeleteGO(m_gekihaSe);
-			return true;
-		}
-		m_gekihaHp--;
+		/** 死亡処理 */
+		Death();
+		DeleteGO(m_gekihaSe);
+		return;
 	}
-	return false;
+	m_gekihaHp--;
+	return;
 }
 
-
-bool Enemy1::CanHit()
-{
-	return Enemy::CanHit();
-}
-
-
-bool Enemy2::CanHit()
-{
-	return Enemy::CanHit();
-}
 
 /** TODO:死亡アニメーション追加 */
 void Enemy2::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	m_enemyRender.SetAnimationSpeed(0.6f);
 	m_isDead = true;
 	DeleteGO(this);
 }
 
 
-bool Boss::CanHit()
-{
-	return Enemy::CanHit();
-}
-
 /** TODO:死亡アニメーション追加 */
 void Boss::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	m_enemyRender.SetAnimationSpeed(0.6f);
 	DeleteGO(this);
 }
 
@@ -812,6 +911,7 @@ void Boss::Death()
 void Enemy::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
+	m_enemyRender.SetAnimationSpeed(0.6f);
 	DeleteGO(this);
 }
 
@@ -833,7 +933,6 @@ bool Enemy2::AttackCollision()
 	else {
 		m_enemy2AtCollisionObject->Deactivate();
 	}
-
 	return true;
 }
 
@@ -849,7 +948,7 @@ bool Boss::AttackCollision()
 	if (m_isAttack)
 	{
 		m_enemyRotation.Apply(FORWARD);
-		m_bossAtCollisionObject->SetPosition(m_enemyPos + FORWARD *50.0f);
+		m_bossAtCollisionObject->SetPosition(m_enemyPos + FORWARD * 50.0f);
 		m_bossAtCollisionObject->Activate();
 	}
 	else {

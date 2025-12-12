@@ -3,7 +3,7 @@
 #include "Title.h"
 
 namespace {
-	const char* GAME_CLEAR = "Assets/Sprite/Clear.dds";
+	const char* GAME_CLEAR = "Assets/Sprite/GameClear/Clear.dds";
 
 	const float BLINK = 0.52f;
 }

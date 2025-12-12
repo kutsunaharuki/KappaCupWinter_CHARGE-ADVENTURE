@@ -10,9 +10,9 @@ public:
 	bool Start()override;
 	void Update();
 
-	Vector3 m_toCameraPos = Vector3::Zero;
-	
-	Player* m_player = nullptr;
 	SpringCamera m_springCamera;//バネカメラ。
+	Vector3 m_toCameraPos = Vector3::Zero;
+private:
+	Player* m_player = nullptr;
 };
 

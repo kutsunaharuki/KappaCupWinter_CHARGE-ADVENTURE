@@ -13,15 +13,15 @@ public:
 
 	void SetCollisionObj();
 
-	CollisionObject* GetCollisionObj()
-	{
-		return m_warpCollisionObj;
-	}
+	//CollisionObject* GetCollisionObj()
+	//{
+	//	return m_warpCollisionObj;
+	//}
 
-	ModelRender* GetModelRender()
-	{
-		return &m_warpBoxModelRender;
-	}
+	//ModelRender* GetModelRender()
+	//{
+	//	return &m_warpBoxModelRender;
+	//}
 
 	
 public:

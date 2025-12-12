@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "GameCamera.h"
 #include "Player.h"
+#include "Game.h"
 
 GameCamera::GameCamera()
 {
@@ -32,6 +33,10 @@ bool GameCamera::Start()
 
 void GameCamera::Update()
 {
+	const bool& isPause = Game::GetIsPause();
+	if (isPause) {
+		return;
+	}
 	Vector3 target = m_player->m_position;
 	target.y += 80.0f;
 	target += g_camera3D->GetForward() * 20;

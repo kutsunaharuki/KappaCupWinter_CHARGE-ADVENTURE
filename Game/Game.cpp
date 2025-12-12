@@ -123,10 +123,11 @@ void Game::Update()
 	if (!Game::m_isPause && m_pauseScene) {
 		DeleteGO(m_pauseScene);
 		m_pauseScene = nullptr;
+	}
+	if (Game::m_isPause) {
 		return;
 	}
 
-	
 	if (m_isGoal) {
 		DeleteStage1();
 		CreateStage2();
@@ -317,7 +318,8 @@ void Game::CreateStage2()
 			return true;
 		}
 		if (objData.EqualObjectName(L"WarpBox")) {
-			//auto warpBox=NewGO<>
+			auto warpBox = NewGO<WarpBox>(0, "warpBox");
+			m_warpBoxs.push_back(warpBox);
 			return true;
 		}
 		return false;
@@ -349,6 +351,11 @@ void Game::DeleteStage2()
 	for (auto& chargeItem : m_chargeItems) {
 		DeleteGO(chargeItem);
 		chargeItem = nullptr;
+	}
+
+	for (auto& warpBox : m_warpBoxs) {
+		DeleteGO(warpBox);
+		warpBox = nullptr;
 	}
 }
 
