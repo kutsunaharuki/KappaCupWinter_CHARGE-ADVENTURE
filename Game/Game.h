@@ -4,10 +4,8 @@
 
 class Player;
 class GameCamera;
-class Warp;
 class MovingFloor;
 class MovingFloorUpDown;
-class WarpHole;
 class Enemy;
 class ObstacleBox;
 class Scaffolding;
@@ -26,12 +24,16 @@ class RouteC;
 class ChargeItem;
 class Stage;
 class Stage1;
+class WarpBox;
+class PauseScene;
 
 //ステージ遷移の場所。
 enum class GameState {
-	Normal,            //1-1のステージ。
+	Stage1,            //1-1のステージ。
+	Stage2,            //1-2のステージ。
 	StageTransition,   //遷移中(タイマー停止)。
-	BossStage          //ボスステージ。
+	BossStage,         //ボスステージ。
+	enGameState_None = -1
 };
 
 class Game : public IGameObject
@@ -45,6 +47,14 @@ public:
 	void ScoreDraw();
 	void Render(RenderContext& rc);
 
+	void CreateStage1();
+	void DeleteStage1();
+
+	void CreateStage2();
+	void DeleteStage2();
+
+	void CreateBossStage();
+	void DeleteBossStage();
 
 	/*bool IsTimeUp()
 	{
@@ -55,14 +65,46 @@ public:
 private:
 	bool m_isTimeUp = false;
 	Stage1* m_stage1 = nullptr;
+	static bool m_isGoal;
+	static bool m_isPause;
+	//static bool m_isNextGoal;
 
 
 public:
-	bool isQuick = false;
-	bool isKill = false;
-	bool isGekiha = false;
+	static const bool GetIsGoal(){
+		return m_isGoal;
+	}
 
-	GameState m_gameState = GameState::Normal;
+	static void SetIsGoal(bool isFlag) {
+		m_isGoal = isFlag;
+	}
+
+
+	/*const bool GetIsUraGoal() {
+		return m_isNextGoal;
+	}*/
+
+	///** 次のゴールのフラグ */
+	/*static void SetIsUraGoal(bool flag) {
+		m_isNextGoal = flag;
+	}*/
+
+	/** フラグを反転させる */
+	static void ChangePause() {
+		m_isPause = !m_isPause;
+	}
+
+
+	static const bool GetIsPause() {
+		return m_isPause;
+	}
+
+	static void SetIsPause(bool isStop) {
+		m_isPause = isStop;
+	}
+
+
+	GameState m_gameState = GameState::enGameState_None;
 private:
 	//アイテム。
 	void ItemDraw();
@@ -94,6 +136,7 @@ private:
 	std::vector<SecondGround*> m_secondGrounds;
 	std::vector<SinkScaffold*> m_sinkScaffolds;
 	std::vector<ChargeItem*> m_chargeItems;
+
 	/** 
 	 * std::array<T*, n>v 
 	 * ↑
@@ -104,9 +147,7 @@ private:
 private:
 	Player    * m_player       = nullptr;//プレイヤー。
 	GameCamera* m_gameCamera   = nullptr;//ゲームカメラ。
-	Warp      * m_warp         = nullptr;//ワープ。
 	MovingFloor* m_movingFloor = nullptr;//動く床。
-	WarpHole   * m_warpHole    = nullptr;//ワープボックス。
 	//Stage1     * m_stage1      = nullptr;//ステージ1。
 	Enemy      * m_enemy       = nullptr;//敵。
 	ObstacleBox* m_obstacleBox = nullptr;//障害物(ボックス)。
@@ -122,16 +163,15 @@ private:
 	BossStage* m_bossStage = nullptr;//ボスステージ。
 	HPUI* m_hpui = nullptr;//UI。
 	Score* m_score = nullptr;//スコア。
-	
+
+
+	PauseScene* m_pauseScene = nullptr;//ポーズ画面。
+
+
 	SecondGround* m_secondGround = nullptr;
 	SinkScaffold* m_sinkScaffold = nullptr;
 	RouteC* m_routeC = nullptr;
 	ChargeItem* m_chargeItem = nullptr;
-
-	/** TODO:2ステージ目の素材 */
-	//SecondGround* m_secondGround = nullptr;//2ステージ目の地面。
-	//SinkScaffold* m_sinkScaffold = nullptr;//沈む足場。
-	//RouteC      * m_routeC       = nullptr;//Cの形状の道。
 
 
 	SoundSource* m_gameOverSe      = nullptr;//ゲームオーバーの音。
