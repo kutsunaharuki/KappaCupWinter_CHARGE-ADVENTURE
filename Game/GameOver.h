@@ -32,6 +32,6 @@ private:
 	EnFade m_fadeState = enFadeIn;
 	SpriteRender m_gameOverRender;
 	FontRender m_fontRender;
-	Vector3 m_pos = { -500.0f,-500.0f,0.0f };
+	Vector3 m_pos = { -150.0f,-100.0f,0.0f };
 };
 

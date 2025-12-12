@@ -6,11 +6,11 @@
 #include "SoundManager.h"
 
 namespace {
-	const char* TITLE  = "Assets/Sprite/Title_CHARGEADVENTURE.dds";
+	const char* TITLE  = "Assets/Sprite/Title/Title_CHARGEADVENTURE.dds";
 	
 	const float W = 1920.0f;
 	const float H = 1080.0f;
-	const float FLASH_TIME = 0.14f;
+	const float FLASH_TIME = 0.5f;
 }
 
 bool Title::Start()
@@ -20,12 +20,6 @@ bool Title::Start()
 	m_fontRender.SetPosition(m_pos);
 	m_fontRender.SetColor(g_vec4Yellow);
 	m_fontRender.SetScale(2.2f);
-
-	m_gameClear = NewGO<GameClear>(0, "gameClear");
-	m_gameClear->Deactivate();
-	
-	m_gameOver = NewGO<GameOver>(0, "gameOver");
-	m_gameOver->Deactivate();
 	return true;
 }
 

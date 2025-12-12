@@ -3,9 +3,9 @@
 #include "Title.h"
 
 namespace {
-	const char* GAME_OVER = "Assets/Sprite/GameOver.dds";
+	const char* GAME_OVER = "Assets/Sprite/GameOver/GameOver.dds";
 
-	const float FLASH = 0.2f;
+	const float FLASH = 0.5f;
 }
 
 bool GameOver::Start()
