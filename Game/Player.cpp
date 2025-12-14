@@ -206,14 +206,14 @@ void Player::Move()
 	Vector3 right   = g_camera3D->GetRight();
 
 	forward.y = 0.0f;
-	forward.Normalize();
-	
 	right.y = 0.0f;
-	right.Normalize();
-
+	
 	//歩きの処理。
-	m_moveSpeed += right   * stickL.x * 240.0f;
-	m_moveSpeed += forward * stickL.z * 240.0f;
+	right *= stickL.x * 400.0f;
+	forward *= stickL.z * 400.0f;
+	m_moveSpeed += right + forward;
+	/*m_moveSpeed += right   * stickL.x * 240.0f;
+	m_moveSpeed += forward * stickL.z * 240.0f;*/
 
 	//ダッシュの制御。
 	if (g_pad[0]->IsPress(enButtonB))
@@ -222,8 +222,9 @@ void Player::Move()
 	}
 	if (isDash)
 	{
-		m_moveSpeed.x *= 2.6f;
-		m_moveSpeed.z *= 2.6f;
+		m_moveSpeed.x *= 1.8f;
+		m_moveSpeed.z *= 1.8f;
+		isDash = false;
 	}
 
 	//地面に接しているなら
