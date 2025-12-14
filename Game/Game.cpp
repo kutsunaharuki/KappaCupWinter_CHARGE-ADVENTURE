@@ -319,6 +319,9 @@ void Game::CreateStage2()
 		}
 		if (objData.EqualObjectName(L"WarpBox")) {
 			auto warpBox = NewGO<WarpBox>(0, "warpBox");
+			warpBox->m_warpBoxPos = objData.position;
+			warpBox->m_warpBoxRot = objData.rotation;
+			warpBox->m_warpBoxScale = objData.scale;
 			m_warpBoxs.push_back(warpBox);
 			return true;
 		}
