@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 //#include "physics/PhysicsGhostObject.h"
 #include "stdint.h"
 
@@ -9,6 +9,15 @@ class HPUI;
 class GameOver;
 class Poal;
 class Game;
+class ChargeItem;
+class ChargeBar;
+
+enum class ChargeAbility {
+	enNone,
+	enSpeshal_ChargeDash,
+	enSpeshal_ChargeJump
+};
+
 
 class Player:public IGameObject
 {
@@ -23,8 +32,21 @@ public:
 	void FindGameObjInfo();
 	void SetPlayerCollision();
 	void ReceiveDamage(int damage, Vector3& enemyPos);
-	//void ReStart();
+	
+public:
+	void Charge();
+	void ChargeManager();
+	void UpdateChargeUI();
+	void MoveCharge();
+	void FlashDash();//ç¬é–“åŠ é€Ÿãƒãƒ•ã€‚
+	void ChargeDash();//ãƒãƒ£ãƒ¼ã‚¸ãƒ€ãƒƒã‚·ãƒ¥ã€‚
+	void ChargeJump();//ãƒãƒ£ãƒ¼ã‚¸ã‚¸ãƒ£ãƒ³ãƒ—ã€‚
+	bool CostItem(int cost);//ã‚¢ã‚¤ãƒ†ãƒ æ¶ˆè²»ã€‚
 
+	const bool IsCharge();
+
+
+public:
 	void SetTRS(Vector3& pos, Quaternion& rot, Vector3& scl)
 	{
 		m_position = pos;
@@ -32,34 +54,16 @@ public:
 		m_scale = scl;
 	}
 
-	//void ReStartPos();
-	//void TreaderCollisionObj();
-
-	//‚±‚ê‚Íg‚í‚È‚¢B
-	//HPŒvZB•ÛB
-	//void HP(int damage)
-	//{
-	//	hp -= damage;
-	//	if (hp < 0)
-	//	{
-	//		hp = 0;
-	//	}
-	//}
-	/** ƒ`ƒF[ƒWƒWƒƒƒ“ƒvê—pƒAƒCƒeƒ€ƒJƒEƒ“ƒg */
-	int m_itemCount = 0;
-
-
-	//bool  isDead()const   { return hp < 0;  } //ƒvƒŒƒCƒ„[‚ª€–SB
-	int GetHp   ()const   { return hp;      } //ƒvƒŒƒCƒ„[‚ÌHP‚Ì•ÛB
-	int GetMaxHp()const   { return maxHp;   } //ƒvƒŒƒCƒ„[‚ÌÅ‘åHP‚Ì•ÛB
-	int hp    = 3;                            //HPB
-	int maxHp = 3;                            //Å‘åHPB
+	
+	//bool  isDead()const   { return hp < 0;  } //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ­»äº¡æ™‚ã€‚
+	int GetHp   ()const   { return hp;      } //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®HPã®ä¿æŒã€‚
+	int GetMaxHp()const   { return maxHp;   } //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æœ€å¤§HPã®ä¿æŒã€‚
+	int hp    = 3;                            //HPã€‚
+	int maxHp = 3;                            //æœ€å¤§HPã€‚
 
 	
-	Vector3 force = Vector3::Zero;//ŠO•”‚©‚ç‰Á‚¦‚é—Í(“G‚ğ“¥‚ñ‚¾‚ÉYÀ•W‚ğã‚°‚é—p)B
+	Vector3 force = Vector3::Zero;//å¤–éƒ¨ã‹ã‚‰åŠ ãˆã‚‹åŠ›(æ•µã‚’è¸ã‚“ã æ™‚ã«Yåº§æ¨™ã‚’ä¸Šã’ã‚‹ç”¨)ã€‚
 	
-	//inline CollisionObject* GetBodyCollision() { return m_bodyCollisionObj; }
-
 	void AddPosition(const Vector3& delta);
 
 	const Vector3& GetPosition() const
@@ -77,7 +81,7 @@ public:
 		return &m_modelRender;
 	}
 
-	//ƒLƒƒƒ‰ƒNƒ^[ƒRƒ“ƒgƒ[ƒ‰[‚Ìæ“¾B
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®å–å¾—ã€‚
 	CharacterController& GetCharacterController()
 	{
 		return m_charaCon;
@@ -87,7 +91,7 @@ public:
 		return m_collisionObj;
 	}
 
-	//DicrectX‚Ì’†‚É‚ ‚éenumŒ^‚Ìƒƒ‚ƒŠ‚ª•‚‚­B
+	//DicrectXã®ä¸­ã«ã‚ã‚‹enumå‹ã®ãƒ¡ãƒ¢ãƒªãŒæµ®ãã€‚
 	enum class EnAnimationClip : uint8_t {
 		enAnimationClip_Idle,
 		enAnimationClip_Jump,
@@ -98,38 +102,59 @@ public:
 
 	ModelRender m_modelRender;
 	AnimationClip animationClips[static_cast<int>(EnAnimationClip::enAnimationClip_Num)];
-	Vector3 m_position = Vector3::Zero;                 //TODO:À•WB
-	Vector3 m_moveSpeed = Vector3::Zero;                  //TODO:ˆÚ“®‘¬“xB
-	Quaternion m_rot;                                   //TODO:‰ñ“]B
+	Vector3 m_position = Vector3::Zero;                 //TODO:åº§æ¨™ã€‚
+	Vector3 m_moveSpeed = Vector3::Zero;                  //TODO:ç§»å‹•é€Ÿåº¦ã€‚
+	Quaternion m_rot;                                   //TODO:å›è»¢ã€‚
 	Vector3 m_scale;
-	Vector3 m_footCollisionPos = Vector3::Zero;         //TODO:‘«‚ÌƒRƒŠƒWƒ‡ƒ“‚ÌÀ•WB
-	Vector3 m_playerCollisionScale = Vector3(35.0f, 10.0f, 35.0f);//TODO:ƒvƒŒƒCƒ„[‚ÌƒRƒŠƒWƒ‡ƒ“‚ÌƒTƒCƒYB
-	Vector3 m_playerBodyCollisionSc = Vector3(42.0f, 140.0f, 42.0f);//ƒvƒŒƒCƒ„[‚Ìƒ{ƒfƒBƒRƒŠƒWƒ‡ƒ“‚ÌƒTƒCƒYB“G‚ÌƒRƒŠƒWƒ‡ƒ“‚É“–‚½‚Á‚½‚É•K—vB
-	Vector3 m_playerBodyCollisionPos = Vector3::Zero;
+	Vector3 m_footCollisionPos = Vector3::Zero;         //TODO:è¶³ã®ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®åº§æ¨™ã€‚
+	Vector3 m_playerCollisionScale = Vector3(35.0f, 10.0f, 35.0f);//TODO:ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®ã‚µã‚¤ã‚ºã€‚
+	
+	Vector3 m_setPos = Vector3(0.0f, 300.0f, 0.0f);     //ãƒ¯ãƒ¼ãƒ—å…ˆã€‚
 
-	Vector3 m_setPos = Vector3(0.0f, 300.0f, 0.0f);     //ƒ[ƒvæB
+	Vector3 m_fontPos = Vector3(100.0f, 300.0f, 0.0f);  //ãƒ•ã‚©ãƒ³ãƒˆã®åº§æ¨™ã€‚
 
-	Vector3 m_fontPos = Vector3(100.0f, 300.0f, 0.0f);  //ƒtƒHƒ“ƒg‚ÌÀ•WB
+	
+	Vector3 m_reStartPos = Vector3::Zero;//æˆ»ã•ã‚Œã‚‹åº§æ¨™ã€‚
 
-	//Vector3 m_resPawnPos = Vector3::Zero;               //‰Šú’l‚É–ß‚³‚ê‚é’lB
+	Vector3 m_backSpeed = Vector3::Zero;                //ãƒãƒƒã‚¯ãƒãƒƒã‚¯é€Ÿåº¦ã‚’ä¿æŒã™ã‚‹ãŸã‚ã®å¤‰æ•°ã€‚
 
-	Vector3 m_reStartPos = Vector3::Zero;//–ß‚³‚ê‚éÀ•WB
-
-	Vector3 m_backSpeed = Vector3::Zero;                //ƒmƒbƒNƒoƒbƒN‘¬“x‚ğ•Û‚·‚é‚½‚ß‚Ì•Ï”B
-
-	FontRender m_posFontRender;                         //À•W‚Ì•`‰æB
-	CharacterController m_charaCon;                     //TODO:ƒLƒƒƒ‰ƒNƒ^[ƒRƒ“ƒgƒ[ƒ‰[‚Ì“–‚½‚è”»’èB
-	CollisionObject* m_collisionObj = nullptr;                 //TODO:ƒRƒŠƒWƒ‡ƒ“ƒIƒuƒWƒFƒNƒgB
-	//CollisionObject* m_bodyCollisionObj;
-	float m_jumpTime = 0.0f;                            //ƒWƒƒƒ“ƒv‚µ‚Ä‚éŠÔB	
-	float m_invinCibilityTime = 0.0f;                   //–³“GŠÔB
-	float m_knockBackTime = 0.0f;                       //ƒvƒŒƒCƒ„[‚ğ”ò‚Î‚·ŠÔB
+	FontRender m_posFontRender;                         //åº§æ¨™ã®æç”»ã€‚
+	CharacterController m_charaCon;                     //TODO:ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®å½“ãŸã‚Šåˆ¤å®šã€‚
+	CollisionObject* m_collisionObj = nullptr;                 //TODO:ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
+	float m_jumpTime = 0.0f;                            //ã‚¸ãƒ£ãƒ³ãƒ—ã—ã¦ã‚‹æ™‚é–“ã€‚	
+	float m_invinCibilityTime = 0.0f;                   //ç„¡æ•µæ™‚é–“ã€‚
+	float m_knockBackTime = 0.0f;                       //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’é£›ã°ã™æ™‚é–“ã€‚
 	float m_deltaTime = g_gameTime->GetFrameDeltaTime();
 
-	bool isDash  = false;                            //•à‚«‚©‚ç‘–‚è‚É•Ï‚í‚éƒtƒ‰ƒOB
-	bool isHit   = false;                            //ƒS[ƒXƒgƒIƒuƒWƒFƒNƒg‚É“–‚½‚Á‚½‚ç‚Ìƒtƒ‰ƒOB
-	bool canJump = false;                            //ƒWƒƒƒ“ƒv‚µ‚Ä‚é‚©‚Ìƒtƒ‰ƒOB
 
+	bool isDash  = false;                            //æ­©ãã‹ã‚‰èµ°ã‚Šã«å¤‰ã‚ã‚‹ãƒ•ãƒ©ã‚°ã€‚
+	bool isHit   = false;                            //ã‚´ãƒ¼ã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å½“ãŸã£ãŸã‚‰ã®ãƒ•ãƒ©ã‚°ã€‚
+	bool canJump = false;                            //ã‚¸ãƒ£ãƒ³ãƒ—ã—ã¦ã‚‹ã‹ã®ãƒ•ãƒ©ã‚°ã€‚
+	
+	
+	/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¿½åŠ è¦ç´  */
+	ChargeAbility m_chargeAbilitys = ChargeAbility::enNone;
+	bool m_isChargeDash = false;                     //ãƒãƒ£ãƒ¼ã‚¸ãƒ€ãƒƒã‚·ãƒ¥ãŒå‡ºæ¥ã‚‹ã‹ã®ãƒ•ãƒ©ã‚°ã€‚
+	bool m_isChargeJump = false;                     //ãƒãƒ£ãƒ¼ã‚¸ã‚¸ãƒ£ãƒ³ãƒ—ãŒå‡ºæ¥ã‚‹ã‹ã®ãƒ•ãƒ©ã‚°ã€‚
+	bool m_isCharge = false;                         //ãƒãƒ£ãƒ¼ã‚¸ãŒã§ãã‚‹ã‹ã®ãƒ•ãƒ©ã‚°ã€‚
+
+
+	Vector3 m_baseMoveSpeed = Vector3::Zero;//åŸºæœ¬ã®é€Ÿåº¦ã€‚
+	Vector3 m_itemBonusSpeed = Vector3::Zero;//ã‚¢ã‚¤ãƒ†ãƒ ã®ç´¯ç©ãƒœãƒ¼ãƒŠã‚¹é€Ÿåº¦ã€‚
+	Vector3 m_chargeBonusSpeed = Vector3::Zero;//ãƒãƒ£ãƒ¼ã‚¸ä¸­ã®é€Ÿåº¦ã€‚
+
+	/** ç´¯ç©åŠ é€Ÿå‹ */
+	/** ãƒã‚§ãƒ¼ã‚¸ã‚¸ãƒ£ãƒ³ãƒ—å°‚ç”¨ã‚¢ã‚¤ãƒ†ãƒ ã‚«ã‚¦ãƒ³ãƒˆ */
+	int m_itemCount = 0;
+	//int m_minValue = 5;//ãƒãƒ£ãƒ¼ã‚¸ãƒ€ãƒƒã‚·ãƒ¥ç”¨ã®å¿…è¦ã‚¢ã‚¤ãƒ†ãƒ æ•°ã€‚
+	//int m_maxValue = 10;//ãƒãƒ£ãƒ¼ã‚¸ã‚¸ãƒ£ãƒ³ãƒ—ç”¨ã®å¿…è¦ã‚¢ã‚¤ãƒ†ãƒ æ•°ã€‚
+	float m_cumulative = 0.0f;//ç´¯ç©ã€‚
+	float m_chargeTimer = 0.0f;//ãƒãƒ£ãƒ¼ã‚¸æ™‚é–“ã€‚
+
+	/** ç¬é–“çš„åŠ é€Ÿå‹ */
+	float m_topSpeed = 0.0f;//åŠ é€ŸåŠ›ã€‚
+	float m_topSpeedTime = 0.0f;//åŠ é€Ÿæ™‚é–“ã€‚
+	float m_finalSpeed = 0.0f;//æœ€çµ‚çš„ãªåŠ é€Ÿé‡ã€‚
 
 private:
 	void Move();
@@ -137,11 +162,13 @@ private:
 	const bool IsMove()const;
 	const bool JumpAttack()const;
 	const bool EnemyCollisionHit()const;
-
+	
 	GameOver* m_gameOver = nullptr;
 	HPUI* m_hpui = nullptr;
 	Poal* m_poal = nullptr;
 	Enemy* m_enemy = nullptr;
+	ChargeItem* m_chargeItem = nullptr;
+	ChargeBar* m_chargeBar = nullptr;
 	int playerState    = 0;
 
 	MovingFloor* m_movingFloor = nullptr;

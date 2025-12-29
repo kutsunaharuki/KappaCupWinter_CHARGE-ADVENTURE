@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Player.h"
 #include "MovingFloor.h"
 #include "Enemy.h"
@@ -6,15 +6,20 @@
 #include "Poal.h"
 #include "Game.h"
 #include "GameOver.h"
+#include "ChargeItem.h"
+#include "ChargeBar.h"
 
 namespace
 {
-	float JUMP_FRAME_TIME          = 0.52f; //¬ƒWƒƒƒ“ƒv‚µ‚Ä‚é”»’è‚ÌŠÔB
-	const float SMAL_JUMP_POWER    = 500.0f;//¬ƒWƒƒƒ“ƒvB
-	const float BIG_JUMP_POWER     = 590.0f;//‘åƒWƒƒƒ“ƒvB
+	constexpr int COST_CHARGE_DASH = 1;
+	constexpr int COST_CHARGE_JUMP = 2;
+
+	float JUMP_FRAME_TIME          = 0.52f; //å°ã‚¸ãƒ£ãƒ³ãƒ—ã—ã¦ã‚‹åˆ¤å®šã®æ™‚é–“ã€‚
+	const float SMAL_JUMP_POWER    = 500.0f;//å°ã‚¸ãƒ£ãƒ³ãƒ—ã€‚
+	const float BIG_JUMP_POWER     = 590.0f;//å¤§ã‚¸ãƒ£ãƒ³ãƒ—ã€‚
 
 	const Vector3 COLL_POS_HEIGHT = { 0.0f,42.0f,0.0f };
-	const float GRAVITY            = -10.2f * 2.8f;//d—ÍB
+	const float GRAVITY            = -10.2f * 2.8f;//é‡åŠ›ã€‚
 
 	const char* ANIM_PATH[static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num)] = {
 		"Assets/animData/idle.tka",
@@ -30,18 +35,18 @@ namespace
 
 bool Player::Start()
 {
-	//ƒAƒjƒ[ƒVƒ‡ƒ“‚ğ“Ç‚İ‚Ş
+	//ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’èª­ã¿è¾¼ã‚€
 	for (int i = 0; i < static_cast<int>(Player::EnAnimationClip::enAnimationClip_Num); i++) {
 		animationClips[i].Load(ANIM_PATH[i]);
 		if (i != static_cast<int>(Player::EnAnimationClip::enAnimationClip_Jump)) {
 			animationClips[i].SetLoopFlag(true);
-			//continue‚ÍƒXƒLƒbƒv‚·‚é‹@”\‚ª‚ ‚éB
+			//continueã¯ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹æ©Ÿèƒ½ãŒã‚ã‚‹ã€‚
 			continue;
 		}
 		animationClips[i].SetLoopFlag(false);
 	}
 
-	//ƒ†ƒjƒeƒB‚¿‚á‚ñ‚Ì“Ç‚İ‚İB
+	//ãƒ¦ãƒ‹ãƒ†ã‚£ã¡ã‚ƒã‚“ã®èª­ã¿è¾¼ã¿ã€‚
 	m_modelRender.Init(
 		PLAYER_1,
 		animationClips,
@@ -51,6 +56,7 @@ bool Player::Start()
 
 	SetPlayerCollision();
 	m_hpui = FindGO<HPUI>("hpui");
+	m_chargeBar = FindGO<ChargeBar>("chargeBar");
 	m_position = NEAR_GOAL_POS;
 	m_modelRender.SetTRS(
 		m_position,
@@ -58,7 +64,7 @@ bool Player::Start()
 		m_scale
 	);
 	m_modelRender.Update();
-	//ƒLƒƒƒ‰ƒRƒ“‚Ì‰Šú‰»B
+	//ã‚­ãƒ£ãƒ©ã‚³ãƒ³ã®åˆæœŸåŒ–ã€‚
 	m_charaCon.Init(25.0f, 75.0f, m_position);
 	return true;
 }
@@ -87,27 +93,42 @@ void Player::Update()
 		return;
 	}
 
-	//–³“GŠÔ‚Ìˆ—B
+	//ãƒãƒ£ãƒ¼ã‚¸æ™‚é–“ã€‚
+	Charge();
+
+	//ã‚¹ãƒ†ãƒ¼ã‚¸ç®¡ç†ã€‚
+	ChargeManager();
+
+	//ãƒãƒ£ãƒ¼ã‚¸UIã«çŸ¥ã‚‰ã›ã‚‹ã€‚
+	UpdateChargeUI();
+
+	//å…¥åŠ›å‡¦ç†ã€‚
+	MoveCharge();
+
+	//ç„¡æ•µæ™‚é–“ã®å‡¦ç†ã€‚
 	if (m_invinCibilityTime > 0.0f)
 	{
 		m_invinCibilityTime -= g_gameTime->GetFrameDeltaTime();
 	}
-	//ƒmƒbƒNƒoƒbƒN‚Ìˆ—B
+	//ãƒãƒƒã‚¯ãƒãƒƒã‚¯ã®å‡¦ç†ã€‚
 	if (m_knockBackTime > 0.0f)
 	{
 		m_knockBackTime -= m_deltaTime;
 
-		//ƒmƒbƒNƒoƒbƒNˆÚ“®‚ğs‚¤B
+		//ãƒãƒƒã‚¯ãƒãƒƒã‚¯ç§»å‹•ã‚’è¡Œã†ã€‚
 		m_position = m_charaCon.Execute(m_backSpeed, m_deltaTime);
 		m_modelRender.SetPosition(m_position);
 
-		//return‚ğ•Ô‚»‚¤‚Æ‚·‚é‚ÆƒvƒŒƒCƒ„[‚ª
-		//“–‚½‚Á‚½ˆÊ’u‚©‚ç“®‚©‚¸‚ÉuŠÔˆÚ“®‚µ‚Ä‚¢‚é
-		//‚æ‚¤‚ÉŒ©‚¦‚é‚Ì‚Åreturn‚Í•Ô‚³‚È‚¢B
+		//returnã‚’è¿”ãã†ã¨ã™ã‚‹ã¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒ
+		//å½“ãŸã£ãŸä½ç½®ã‹ã‚‰å‹•ã‹ãšã«ç¬é–“ç§»å‹•ã—ã¦ã„ã‚‹
+		//ã‚ˆã†ã«è¦‹ãˆã‚‹ã®ã§returnã¯è¿”ã•ãªã„ã€‚
 
 	}
 
 	Move();
+	//æœ€çµ‚çš„ãªç§»å‹•é€Ÿåº¦ã€‚
+	//m_moveSpeed = m_baseMoveSpeed + m_chargeBonusSpeed;
+
 	Rotation();
 	ManageState();
 	m_collisionObj->SetPosition(m_position);
@@ -115,7 +136,7 @@ void Player::Update()
 
 	//m_modelRender.SetPosition(m_position);
 	//m_modelRender.SetScale()
-	//ƒvƒŒƒCƒ„[‚ÌÀ•W‚Ì•`‰æ€”õB
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åº§æ¨™ã®æç”»æº–å‚™ã€‚
 	wchar_t playerText[256];
 	Vector3 Pos = Vector3(m_position);
 	swprintf_s(playerText, 256, L"PosX=%.1f,Y=%.1f,Z=%.1f", Pos.x,Pos.y,Pos.z);
@@ -125,55 +146,160 @@ void Player::Update()
 	m_modelRender.Update();
 }
 
-//ƒ_ƒ[ƒW‚ğó‚¯‚½‚ç‚Ìˆ—B
+
+void Player::UpdateChargeUI()
+{
+	if (!m_chargeBar)return;
+
+	int currentBarIdx = static_cast<int>(m_chargeBar->GetChargeSprites());
+
+	if (currentBarIdx != m_itemCount) {
+		m_chargeBar->SetChargeAmount(m_itemCount);
+	}
+}
+
+
+void Player::Charge()
+{
+	float deltaTime = g_gameTime->GetFrameDeltaTime();
+	//ãƒãƒ£ãƒ¼ã‚¸ã—ã¦ã‚‹æ™‚ã®æ™‚é–“ã€‚
+	if (m_chargeTimer > 0.0f) {
+		m_chargeTimer -= deltaTime;
+		if (m_chargeTimer <= 0.0f) {
+			m_chargeBonusSpeed = Vector3::Zero;
+		}
+	}
+}
+
+
+void Player::ChargeManager()
+{
+	if (!m_chargeItem) {
+		m_chargeAbilitys = ChargeAbility::enNone;
+		return;
+	}
+
+	/** ã‚¢ã‚¤ãƒ†ãƒ ã®ä¸Šé™ã¯5 */
+	if (m_itemCount > 5) {
+		m_itemCount = 5;
+	}
+
+	/** 1å€‹ä»¥ä¸Š5å€‹ä»¥ä¸‹ã®æ™‚ã«ãƒãƒ£ãƒ¼ã‚¸ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒå¯èƒ½ */
+	if(m_itemCount >= 1 && m_itemCount <= 5) {
+		m_chargeAbilitys = ChargeAbility::enSpeshal_ChargeDash;
+	}
+	else {
+		m_chargeAbilitys = ChargeAbility::enNone;
+	}
+}
+
+
+void Player::MoveCharge()
+{	
+	/** Bãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚Œã¦ã„ãªã„,ã¾ãŸã¯ã‚¢ã‚¤ãƒ†ãƒ ãŒãªã„ãªã‚‰ä½•ã‚‚ã—ãªã„ */
+	if (!g_pad[0]->IsPress(enButtonB) || m_itemCount < 1) {
+		return;
+	}
+	if (m_itemCount >= 1 && m_itemCount <= 5) {
+		//ãƒãƒ£ãƒ¼ã‚¸ãƒ€ãƒƒã‚·ãƒ¥(B + RB1)ã€‚
+		if (g_pad[0]->IsTrigger(enButtonRB1)) {
+			ChargeDash();
+		}
+		//ãƒãƒ£ãƒ¼ã‚¸ã‚¸ãƒ£ãƒ³ãƒ—(B + LB1)ã€‚
+		if (g_pad[0]->IsTrigger(enButtonLB1)) {
+			ChargeJump();
+		}
+	}
+}
+
+
+bool Player::CostItem(int cost)
+{
+	if (m_itemCount < cost) {
+		return false;
+	}
+	m_itemCount--;
+	/** ãƒã‚¤ãƒŠã‚¹ã«ã™ã‚‹æ™‚ã«0ä»¥ä¸‹ã«ã—ãªã„ */
+	if (m_itemCount < 0)return false;
+	return true;
+}
+
+
+void Player::ChargeDash()
+{
+	if (!CostItem(COST_CHARGE_DASH)) {
+		return;
+	}
+
+	if (m_chargeBar) {
+		m_chargeBar->SmallDecreaseChargeAmount();
+	}
+
+	m_chargeBonusSpeed = { 300.0f,0.0f,300.0f };
+	m_chargeTimer = 0.4f;
+}
+
+
+void Player::ChargeJump()
+{
+	if (!CostItem(COST_CHARGE_JUMP)) {
+		return;
+	}
+
+	if (m_chargeBar) {
+		m_chargeBar->BigDecreaseChargeAmounrt();
+	}
+
+	if (m_charaCon.IsOnGround()) {
+		force.y = 400.0f;
+	}
+}
+
+
+void Player::FlashDash()
+{
+	if (!m_chargeItem) {
+		return;
+	}
+}
+
+
+//ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ãŸã‚‰ã®å‡¦ç†ã€‚
 void Player::ReceiveDamage(int damage, Vector3& enemyPos)
 {
-	//–³“GŠÔ’†‚Íƒ_ƒ[ƒW‚ğó‚¯‚È‚¢B
+	//ç„¡æ•µæ™‚é–“ä¸­ã¯ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ãªã„ã€‚
 	if (m_invinCibilityTime > 0.0f)return;
 
 	hp -= damage;
 	if (hp < 0)hp = 0;
-	//3.2•bŠÔ–³“GB
+	//3.2ç§’é–“ç„¡æ•µã€‚
 	m_invinCibilityTime = 3.2f;
 	
-	//Œ»İ‚ÌHP‚ğ‚Æ‚Á‚Ä‚¢‚éB
-	//Œ»İ‚ÌHP‚ÅƒXƒvƒ‰ƒCƒg‚àØ‚è‘Ö‚¦‚éB
+	//ç¾åœ¨ã®HPã‚’ã¨ã£ã¦ã„ã‚‹ã€‚
+	//ç¾åœ¨ã®HPã§ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã‚‚åˆ‡ã‚Šæ›¿ãˆã‚‹ã€‚
 	if (m_hpui)
 	{
 		m_hpui->TakeDamage(hp);
 	}
 
-	//ƒmƒbƒNƒpƒbƒNˆ—B
-	//ƒmƒbƒNƒoƒbƒN•ûŒü‚ğŒˆ‚ß‚é®B
+	//ãƒãƒƒã‚¯ãƒ‘ãƒƒã‚¯å‡¦ç†ã€‚
+	//ãƒãƒƒã‚¯ãƒãƒƒã‚¯æ–¹å‘ã‚’æ±ºã‚ã‚‹å¼ã€‚
 	Vector3 backDir = m_position - enemyPos;
-	//ƒvƒŒƒCƒ„[‚ÌƒxƒNƒgƒ‹‚ğ³‹K‰»‚·‚éB
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ­£è¦åŒ–ã™ã‚‹ã€‚
 	backDir.Normalize();
-	//ƒmƒbƒNƒoƒbƒNƒpƒ[B
+	//ãƒãƒƒã‚¯ãƒãƒƒã‚¯ãƒ‘ãƒ¯ãƒ¼ã€‚
 	float backPower = 200.0f;
 	
-	//ƒmƒbƒNƒoƒbƒN‘¬“x‚ğ‚»‚Ì‚Ü‚Ü‘¬“x‚É‚·‚éB
+	//ãƒãƒƒã‚¯ãƒãƒƒã‚¯é€Ÿåº¦ã‚’ãã®ã¾ã¾é€Ÿåº¦ã«ã™ã‚‹ã€‚
 	m_backSpeed = backDir * backPower;
 
-	//1.8•b‚¾‚¯ƒmƒbƒNƒoƒbƒN‚³‚¹‚éB
+	//1.8ç§’ã ã‘ãƒãƒƒã‚¯ãƒãƒƒã‚¯ã•ã›ã‚‹ã€‚
 	m_knockBackTime = 1.8f;
 }
 
 
-/** ƒS[ƒ‹ƒ|[ƒ‹‚É“–‚½‚Á‚½‚¾‚¯ŒÄ‚Ño‚· */
-//void Player::ReStart()
-//{
-//}
-
-
-//ƒŠƒXƒ|[ƒ“‚·‚é‚¾‚¯‚ÌŠÖ”B
-//void Player::ReStartPos()
-//{
-//	m_position = m_resPawnPos;
-//	m_charaCon.SetPosition(m_position);
-//}
-
-//Œ»İ‚ÌˆÊ’um_position‚Édelta‚ğ‰ÁZ‚µ‚ÄA
-// V‚µ‚¢ˆÊ’u‚ğŒvZ‚·‚éB
+//ç¾åœ¨ã®ä½ç½®m_positionã«deltaã‚’åŠ ç®—ã—ã¦ã€
+// æ–°ã—ã„ä½ç½®ã‚’è¨ˆç®—ã™ã‚‹ã€‚
 void Player::AddPosition(const Vector3& delta)
 {
 	m_position += delta;
@@ -182,19 +308,14 @@ void Player::AddPosition(const Vector3& delta)
 
 
 /// <summary>
-/// ˆÚ“®ˆ—B
+/// ç§»å‹•å‡¦ç†ã€‚
 /// </summary>
 void Player::Move()
 {
-	//ƒŠƒXƒ|[ƒ“ˆ—B
-	/*if (m_position.y < -200.0f)
-	{
-		m_modelRender.SetPosition(m_resPawnPos);
-	}*/
 
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 
-	//ˆÚ“®‚Ì§ŒäB
+	//ç§»å‹•ã®åˆ¶å¾¡ã€‚
 	m_moveSpeed.x = 0.0f;
 	m_moveSpeed.z = 0.0f;
 
@@ -208,14 +329,14 @@ void Player::Move()
 	forward.y = 0.0f;
 	right.y = 0.0f;
 	
-	//•à‚«‚Ìˆ—B
+	//æ­©ãã®å‡¦ç†ã€‚
 	right *= stickL.x * 400.0f;
 	forward *= stickL.z * 400.0f;
 	m_moveSpeed += right + forward;
 	/*m_moveSpeed += right   * stickL.x * 240.0f;
 	m_moveSpeed += forward * stickL.z * 240.0f;*/
 
-	//ƒ_ƒbƒVƒ…‚Ì§ŒäB
+	//ãƒ€ãƒƒã‚·ãƒ¥ã®åˆ¶å¾¡ã€‚
 	if (g_pad[0]->IsPress(enButtonB))
 	{
 		isDash = true;
@@ -227,12 +348,12 @@ void Player::Move()
 		isDash = false;
 	}
 
-	//’n–Ê‚ÉÚ‚µ‚Ä‚¢‚é‚È‚ç
+	//åœ°é¢ã«æ¥ã—ã¦ã„ã‚‹ãªã‚‰
 	if (m_charaCon.IsOnGround())
 	{
 		canJump = false;
 		m_jumpTime = 0.0f;
-		//‰Ÿ‚µ‚½uŠÔ‚É¬ƒWƒƒƒ“ƒvB
+		//æŠ¼ã—ãŸç¬é–“ã«å°ã‚¸ãƒ£ãƒ³ãƒ—ã€‚
 		if (g_pad[0]->IsTrigger(enButtonA))
 		{
 			m_moveSpeed.y = SMAL_JUMP_POWER;
@@ -255,25 +376,25 @@ void Player::Move()
 			}
 			else
 			{
-				//—£‚µ‚½‚çƒWƒƒƒ“ƒvI—¹‚·‚éB
+				//é›¢ã—ãŸã‚‰ã‚¸ãƒ£ãƒ³ãƒ—çµ‚äº†ã™ã‚‹ã€‚
 				canJump = false;
 			}
 		}
-		//“G‚ğ“¥‚ñ‚¾Œã‚ÉYÀ•W‚ª+‚É‚È‚éB
-		//ŠO•”‚©‚ç—Í‚ğ‰Á‚¦‚éB
+		//æ•µã‚’è¸ã‚“ã å¾Œã«Yåº§æ¨™ãŒ+ã«ãªã‚‹ã€‚
+		//å¤–éƒ¨ã‹ã‚‰åŠ›ã‚’åŠ ãˆã‚‹ã€‚
 		m_moveSpeed += force;
 		force *=0.7f;
-		//d—ÍB
+		//é‡åŠ›ã€‚
 		m_moveSpeed.y += GRAVITY;
 	}
 
-	//ƒLƒƒƒ‰ƒNƒ^[ƒRƒ“ƒgƒ[ƒ‰[‚ğg‚Á‚ÄÀ•W‚ğˆÚ“®‚³‚¹‚éB
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã‚’ä½¿ã£ã¦åº§æ¨™ã‚’ç§»å‹•ã•ã›ã‚‹ã€‚
 	m_position = m_charaCon.Execute(m_moveSpeed, deltaTime);
 	m_modelRender.SetPosition(m_position);
 }
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚Ì•ûŒü(‰ñ“])‚ğs‚¤B
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ–¹å‘(å›è»¢)ã‚’è¡Œã†ã€‚
 /// </summary>
 
 void Player::Rotation()
@@ -286,7 +407,7 @@ void Player::Rotation()
 }
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚ÌƒXƒe[ƒgŠÇ—B
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ãƒˆç®¡ç†ã€‚
 /// </summary>
 
 void Player::ManageState()	
@@ -304,8 +425,8 @@ void Player::ManageState()
 		playerState = 0;
 	}
 
-	//ƒLƒƒƒ‰ƒNƒ^[ƒRƒ“ƒgƒ[ƒ‰[‚ª
-	// ’n–Ê‚ÉÚ‚µ‚Ä‚¢‚È‚¯‚ê‚ÎƒXƒe[ƒg‚ğ1‚É‚·‚éB
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ãŒ
+	// åœ°é¢ã«æ¥ã—ã¦ã„ãªã‘ã‚Œã°ã‚¹ãƒ†ãƒ¼ãƒˆã‚’1ã«ã™ã‚‹ã€‚
 	if (m_charaCon.IsOnGround() == false)	{
 		playerState = 1;
 	}
@@ -317,7 +438,7 @@ void Player::TreaderCollisionObj()
 {
 	bool isJumpAttack = JumpAttack();
 	
-	//“¥‚İ”»’è—pƒRƒŠƒWƒ‡ƒ“B
+	//è¸ã¿åˆ¤å®šç”¨ã‚³ãƒªã‚¸ãƒ§ãƒ³ã€‚
 	if (m_collisionObj)
 	{
 		m_collisionObj->SetIsEnable(isJumpAttack);
@@ -331,7 +452,7 @@ void Player::TreaderCollisionObj()
 }
 
 
-//‘«Œ³‚ÉƒRƒŠƒWƒ‡ƒ“‚ª¶¬‚³‚ê‚éB
+//è¶³å…ƒã«ã‚³ãƒªã‚¸ãƒ§ãƒ³ãŒç”Ÿæˆã•ã‚Œã‚‹ã€‚
 void Player::SetPlayerCollision()
 {
 	m_collisionObj = new CollisionObject;
@@ -348,41 +469,41 @@ void Player::SetPlayerCollision()
 
 
 /// <summary>
-/// •`‰æˆ—B
+/// æç”»å‡¦ç†ã€‚
 /// </summary>
 void Player::Render(RenderContext& rc)
 {
 	bool isDrawPlayer = true;
-	//–³“GŠÔ‚ÌŠÔƒvƒŒƒCƒ„[‚ğ“_–Å‚³‚¹‚éB
+	//ç„¡æ•µæ™‚é–“ã®é–“ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’ç‚¹æ»…ã•ã›ã‚‹ã€‚
 	if (m_invinCibilityTime > 0.0f)
 	{
-		//“_–ÅƒXƒs[ƒh(10‰ñ/•b(s))B
-		//–³“GŠÔ * “_–Å‘¬“x = “_–Å‚ÌƒN[ƒ‹ƒ^ƒCƒ€B
+		//ç‚¹æ»…ã‚¹ãƒ”ãƒ¼ãƒ‰(10å›/ç§’(s))ã€‚
+		//ç„¡æ•µæ™‚é–“ * ç‚¹æ»…é€Ÿåº¦ = ç‚¹æ»…ã®ã‚¯ãƒ¼ãƒ«ã‚¿ã‚¤ãƒ ã€‚
 		const float blinkSpeed = 10.0f;
 		float flashingTime = m_invinCibilityTime * blinkSpeed;
 
-		//¬”“_(0`1)B
-		//¬”“_ˆÈ‰º‚ğØ‚èÌ‚Ä‚·‚é‚±‚Æ‚ªo—ˆ‚ÄA
-		//"®”•”•ª‚¾‚¯"‚ğæ‚èo‚·‚±‚Æ‚ªo—ˆ‚éŠÖ”B
+		//å°æ•°ç‚¹(0ï½1)ã€‚
+		//å°æ•°ç‚¹ä»¥ä¸‹ã‚’åˆ‡ã‚Šæ¨ã¦ã™ã‚‹ã“ã¨ãŒå‡ºæ¥ã¦ã€
+		//"æ•´æ•°éƒ¨åˆ†ã ã‘"ã‚’å–ã‚Šå‡ºã™ã“ã¨ãŒå‡ºæ¥ã‚‹é–¢æ•°ã€‚
 		float decimalPoint = flashingTime - floorf(flashingTime);
 
-		//flashingTime < 0.6f ->•\¦,
+		//flashingTime < 0.6f ->è¡¨ç¤º,
 		//          or
-		// flashingTime >= 0.6f ->”ñ•\¦B
+		// flashingTime >= 0.6f ->éè¡¨ç¤ºã€‚
 		isDrawPlayer = (decimalPoint < 0.6f);
 	}
 
-	//“_–Å•\¦B
-	//ƒ‚ƒfƒ‹‚Ì“_–ÅB
+	//ç‚¹æ»…è¡¨ç¤ºã€‚
+	//ãƒ¢ãƒ‡ãƒ«ã®ç‚¹æ»…ã€‚
 	if (isDrawPlayer)
 	{
 		m_modelRender.Draw(rc);
 	}
 
-	//ƒvƒŒƒCƒ„[ƒ‚ƒfƒ‹‚Ì•`‰æB
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒ¢ãƒ‡ãƒ«ã®æç”»ã€‚
 	//m_modelRender.Draw(rc);
 
-	//À•W‚Ì•`‰æB
+	//åº§æ¨™ã®æç”»ã€‚
 	//m_posFontRender.Draw(rc);
 }
 
@@ -405,8 +526,8 @@ const bool Player::IsMove()const
 	
 }
 
-//Player‚Ì‘¤–Ê‚ÌƒRƒŠƒWƒ‡ƒ“‚ªEnemy‚ÌƒRƒŠƒWƒ‡ƒ“‚É“–‚½‚Á‚½‚É
-//Player‚ª­‚µŒã‚ë‚É‰º‚ª‚é(ƒmƒbƒNƒoƒbƒN‚·‚é)B
+//Playerã®å´é¢ã®ã‚³ãƒªã‚¸ãƒ§ãƒ³ãŒEnemyã®ã‚³ãƒªã‚¸ãƒ§ãƒ³ã«å½“ãŸã£ãŸæ™‚ã«
+//PlayerãŒå°‘ã—å¾Œã‚ã«ä¸‹ãŒã‚‹(ãƒãƒƒã‚¯ãƒãƒƒã‚¯ã™ã‚‹)ã€‚
 const bool Player::EnemyCollisionHit()const
 {
 	if (!m_enemy)
@@ -416,6 +537,17 @@ const bool Player::EnemyCollisionHit()const
 	if (!m_collisionObj->IsHit(m_enemy->GetCollision()))
 	{
 		return true;
+	}
+	return false;
+}
+
+
+const bool Player::IsCharge()
+{
+	if (m_itemCount >= 1 && m_itemCount <= 5) {
+		if (g_pad[0]->IsPress(enButtonB)) {
+			return true;
+		}
 	}
 	return false;
 }

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Game.h"
 #include "Player.h"
 #include "GameCamera.h"
@@ -20,10 +20,12 @@
 #include "Stage1.h"
 #include "WarpBox.h"
 #include "PauseScene.h"
+#include "ChargeBar.h"
+#include "CrossRoad.h"
 
 /** 
- * À‘Ì
- * static->–¼‘O‹óŠÔ::•Ï”
+ * å®Ÿä½“
+ * static->åå‰ç©ºé–“::å¤‰æ•°
  */
 bool Game::m_isGoal = false;
 //bool Game::m_isNextGoal = false;
@@ -70,46 +72,49 @@ Game::~Game()
 
 void Game::InitSky()
 {
-	//Œ»İ‚Ì‹ó‚ğ”jŠü‚·‚éB
+	//ç¾åœ¨ã®ç©ºã‚’ç ´æ£„ã™ã‚‹ã€‚
 	DeleteGO(m_skyCube);
 	m_skyCube = NewGO<SkyCube>(0, "skyCube");
 
-	//ƒXƒJƒCƒLƒ…[ƒu‚Ì‘å‚«‚³‚ğ•ÏX‚·‚éB
+	//ã‚¹ã‚«ã‚¤ã‚­ãƒ¥ãƒ¼ãƒ–ã®å¤§ãã•ã‚’å¤‰æ›´ã™ã‚‹ã€‚
 	m_skyCube->SetScale(10000.0f);
-	//–¾‚é‚³‚ğİ’è‚·‚éB
+	//æ˜ã‚‹ã•ã‚’è¨­å®šã™ã‚‹ã€‚
 	m_skyCube->SetLuminance(0.6f);
-	//ƒXƒJƒCƒLƒ…[ƒu‚ğ’‹ŠÔ‚Éİ’è‚·‚éB
+	//ã‚¹ã‚«ã‚¤ã‚­ãƒ¥ãƒ¼ãƒ–ã‚’æ˜¼é–“ã«è¨­å®šã™ã‚‹ã€‚
 	m_skyCube->SetType((EnSkyCubeType)m_skyCubeType);
 
-	//ŠÂ‹«Œõ‚ÌŒvZ‚Ìˆ×‚ÌIBLƒeƒNƒXƒ`ƒƒ‚ğƒZƒbƒg‚·‚éB
+	//ç’°å¢ƒå…‰ã®è¨ˆç®—ã®ç‚ºã®IBLãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ã‚»ãƒƒãƒˆã™ã‚‹ã€‚
 	g_renderingEngine->SetAmbientByIBLTexture(m_skyCube->GetTextureFilePath(), 1.0f);
 
-	//ŠÂ‹«“úŒõ‚Ì‰e‹¿‚ª•ª‚©‚è‚â‚·‚¢‚æ‚¤‚ÉAƒfƒBƒŒƒNƒVƒ‡ƒ“ƒ‰ƒCƒg‚ÍƒIƒt‚ÉB
+	//ç’°å¢ƒæ—¥å…‰ã®å½±éŸ¿ãŒåˆ†ã‹ã‚Šã‚„ã™ã„ã‚ˆã†ã«ã€ãƒ‡ã‚£ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ãƒ©ã‚¤ãƒˆã¯ã‚ªãƒ•ã«ã€‚
 	g_renderingEngine->SetDirectionLight(0, g_vec3Zero, g_vec3Zero);
 }
 
 bool Game::Start()
 {
-	/** ƒQ[ƒ€“à‚Ì‰¹ */
+	/** ã‚²ãƒ¼ãƒ å†…ã®éŸ³ */
 	SoundManager* sound = FindGO<SoundManager>("soundManager");
 	m_gameBGM = sound->PlayingSound(Sound::enSound_GameBGM, true, 2.0f);
 	
 	InitSky();
 
-	//ƒQ[ƒ€ƒJƒƒ‰‚ÌƒIƒuƒWƒFƒNƒg‚ğì¬‚·‚éB
+	//ã‚²ãƒ¼ãƒ ã‚«ãƒ¡ãƒ©ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œæˆã™ã‚‹ã€‚
 	m_gameCamera = NewGO<GameCamera>(0, "gameCamera");
 
-	//HPUI‚ğì¬‚·‚éB
+	//HPUIã‚’ä½œæˆã™ã‚‹ã€‚
 	m_hpui = NewGO<HPUI>(0, "hpui");
+
+	//ãƒãƒ£ãƒ¼ã‚¸ãƒãƒ¼ã‚’ä½œæˆã€‚
+	m_chargeBar = NewGO<ChargeBar>(0, "chargeBar");
 
 	m_gameState = GameState::Stage1;
 	CreateStage1();
 
-	/** ƒtƒ@[ƒXƒgƒXƒe[ƒW‚ğì¬ */
+	/** ãƒ•ã‚¡ãƒ¼ã‚¹ãƒˆã‚¹ãƒ†ãƒ¼ã‚¸ã‚’ä½œæˆ */
 	//NewGO<FirstStage>(0, "firstStage");
-    /** ƒXƒRƒA‚ğì¬‚·‚é */
+    /** ã‚¹ã‚³ã‚¢ã‚’ä½œæˆã™ã‚‹ */
 	//m_score = NewGO<Score>(0, "score");
-	//ƒ^ƒCƒ€‚ğì¬‚·‚éB
+	//ã‚¿ã‚¤ãƒ ã‚’ä½œæˆã™ã‚‹ã€‚
 	//m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
 	
 	return true;
@@ -134,31 +139,34 @@ void Game::Update()
 		m_isGoal = false;
 	}
 
-	//1-1‚ÌƒXƒe[ƒW‚©ƒ{ƒXƒXƒe[ƒW‚Ìê‡ƒ^ƒCƒ}[‚ğ•`‰æ‚·‚éB
+	//1-1ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã‹ãƒœã‚¹ã‚¹ãƒ†ãƒ¼ã‚¸ã®å ´åˆã‚¿ã‚¤ãƒãƒ¼ã‚’æç”»ã™ã‚‹ã€‚
 	if (m_gameState == GameState::Stage1 || m_gameState == GameState::Stage2 || m_gameState == GameState::BossStage)
 	{
-		//ŠÔ‚Ì•`‰æB
+		//æ™‚é–“ã®æç”»ã€‚
 		TimeDraw();
-		//ƒAƒCƒeƒ€‚Ì•`‰æB
+		//ã‚¢ã‚¤ãƒ†ãƒ ã®æç”»ã€‚
 		ItemDraw();
 	}
 
 	if (m_player->m_position.y <= -200.0f) {
 		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(m_gameBGM);
 		DeleteGO(this);
 	}
 	if (m_player->hp == 0) {
 		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(m_gameBGM);
 		DeleteGO(this);
 	}
 	if (m_timer <= 0.0f) {
 		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(m_gameBGM);
 		DeleteGO(this);
 	}
 
-	//autoŒ^‚Í„˜_‚È‚Ì‚ÅA•K—v‚È‚Ì‚Í‰E•Ó’l‚ª•K—vB
+	//autoå‹ã¯æ¨è«–ãªã®ã§ã€å¿…è¦ãªã®ã¯å³è¾ºå€¤ãŒå¿…è¦ã€‚
 
-	//autoŒ^‚Ìˆ×‚É#include‚Í•K—v‚È‚¢B
+	//autoå‹ã®ç‚ºã«#includeã¯å¿…è¦ãªã„ã€‚
 	//g_renderingEngine->DisableRaytracing();
 }
 
@@ -325,6 +333,14 @@ void Game::CreateStage2()
 			m_warpBoxs.push_back(warpBox);
 			return true;
 		}
+		if (objData.EqualObjectName(L"CrossRoad")) {
+			auto crossRoad = NewGO<CrossRoad>(0, "crossRoad");
+			crossRoad->m_crossRoadPos = objData.position;
+			crossRoad->m_crossRoadScale = objData.scale;
+			crossRoad->m_crossRoadRot = objData.rotation;
+			m_crossRoads.push_back(crossRoad);
+			return true;
+		}
 		return false;
 	});
 }
@@ -332,7 +348,7 @@ void Game::CreateStage2()
 
 void Game::DeleteStage2()
 {
-	/** TODO:Œã‚ÅC³ */
+	/** TODO:å¾Œã§ä¿®æ­£ */
 	//DeleteGO(m_stage2);
 	//m_stage2 = nullptr;
 
@@ -359,6 +375,10 @@ void Game::DeleteStage2()
 	for (auto& warpBox : m_warpBoxs) {
 		DeleteGO(warpBox);
 		warpBox = nullptr;
+	}
+	for (auto& crossRoad : m_crossRoads) {
+		DeleteGO(crossRoad);
+		crossRoad = nullptr;
 	}
 }
 
@@ -438,13 +458,13 @@ void Game::ItemDraw()
 	m_itemFontRender.SetScale(1.8f);
 }
 
-/** ƒXƒRƒA‚ğ•`‰æ‚·‚é‚½‚ß‚ÌŠÖ” */
+/** ã‚¹ã‚³ã‚¢ã‚’æç”»ã™ã‚‹ãŸã‚ã®é–¢æ•° */
 void Game::ScoreDraw()
 {
 	
 }
 
-//ŠÔ§ŒÀ‚Ì•`‰æŠÖ”B
+//æ™‚é–“åˆ¶é™ã®æç”»é–¢æ•°ã€‚
 void Game::TimeDraw()
 {
 	int minutes = (int)m_timer / 60;
@@ -463,28 +483,28 @@ void Game::TimeDraw()
 	m_timerFontRender.SetPosition(m_timerFontPos);
 	m_timerFontRender.SetScale(1.8f);
 
-	//ŠÔ‚ª0‚É‚È‚Á‚½‚çI—¹B
-	//¡‚ÍÀ{‚µ‚È‚¢B
+	//æ™‚é–“ãŒ0ã«ãªã£ãŸã‚‰çµ‚äº†ã€‚
+	//ä»Šã¯å®Ÿæ–½ã—ãªã„ã€‚
 	m_timer = std::max<float>(m_timer, 0.0f);
-	//Ql‰‰Zq‚ª  ?
+	//å‚è€ƒæ¼”ç®—å­ãŒ  ?
 	m_isTimeUp = m_timer <= 0.0f ? true : false;
 }
 
 void Game::Render(RenderContext& rc)
 {
-	//ƒŒƒxƒ‹‚Ì•`‰æB
+	//ãƒ¬ãƒ™ãƒ«ã®æç”»ã€‚
 	m_levelRender.Draw(rc);
-	//2ƒXƒe[ƒW–Ú‚ÌƒŒƒxƒ‹‚Ì•`‰æB
+	//2ã‚¹ãƒ†ãƒ¼ã‚¸ç›®ã®ãƒ¬ãƒ™ãƒ«ã®æç”»ã€‚
 	if (m_isGoal) {
 		m_secondLevelRender.Draw(rc);
 	}
 
-	//ƒ{ƒXƒXƒe[ƒW‚ÌƒŒƒxƒ‹‚Ì•`‰æB
+	//ãƒœã‚¹ã‚¹ãƒ†ãƒ¼ã‚¸ã®ãƒ¬ãƒ™ãƒ«ã®æç”»ã€‚
 	if (m_isGoal) {
 		m_bossLevelRender.Draw(rc);
 	}
-	//ŠÔ§ŒÀ‚Ì•`‰æB
+	//æ™‚é–“åˆ¶é™ã®æç”»ã€‚
 	m_timerFontRender.Draw(rc);
-	//ƒAƒCƒeƒ€‚Ì•`‰æB
+	//ã‚¢ã‚¤ãƒ†ãƒ ã®æç”»ã€‚
 	m_itemFontRender.Draw(rc);
 }

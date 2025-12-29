@@ -224,7 +224,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BossStage.cpp" />
+    <ClCompile Include="ChargeBar.cpp" />
     <ClCompile Include="ChargeItem.cpp" />
+    <ClCompile Include="CrossRoad.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="FallBox.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -258,7 +260,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BossStage.h" />
+    <ClInclude Include="ChargeBar.h" />
     <ClInclude Include="ChargeItem.h" />
+    <ClInclude Include="CrossRoad.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="FallBox.h" />
     <ClInclude Include="Game.h" />

@@ -36,6 +36,8 @@
     <ClCompile Include="Scaffold.cpp" />
     <ClCompile Include="WarpBox.cpp" />
     <ClCompile Include="PauseScene.cpp" />
+    <ClCompile Include="ChargeBar.cpp" />
+    <ClCompile Include="CrossRoad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -67,6 +69,8 @@
     <ClInclude Include="Scaffold.h" />
     <ClInclude Include="WarpBox.h" />
     <ClInclude Include="PauseScene.h" />
+    <ClInclude Include="ChargeBar.h" />
+    <ClInclude Include="CrossRoad.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Users\Public\Desktop\Razer Cortex.lnk">

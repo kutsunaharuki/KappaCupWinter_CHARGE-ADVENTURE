@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Level3DRender/LevelRender.h"
 
@@ -26,13 +26,15 @@ class Stage;
 class Stage1;
 class WarpBox;
 class PauseScene;
+class ChargeBar;
+class CrossRoad;
 
-//ƒXƒe[ƒW‘JˆÚ‚ÌêŠB
+//ã‚¹ãƒ†ãƒ¼ã‚¸é·ç§»ã®å ´æ‰€ã€‚
 enum class GameState {
-	Stage1,            //1-1‚ÌƒXƒe[ƒWB
-	Stage2,            //1-2‚ÌƒXƒe[ƒWB
-	StageTransition,   //‘JˆÚ’†(ƒ^ƒCƒ}[’â~)B
-	BossStage,         //ƒ{ƒXƒXƒe[ƒWB
+	Stage1,            //1-1ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã€‚
+	Stage2,            //1-2ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã€‚
+	StageTransition,   //é·ç§»ä¸­(ã‚¿ã‚¤ãƒãƒ¼åœæ­¢)ã€‚
+	BossStage,         //ãƒœã‚¹ã‚¹ãƒ†ãƒ¼ã‚¸ã€‚
 	enGameState_None = -1
 };
 
@@ -84,12 +86,12 @@ public:
 		return m_isNextGoal;
 	}*/
 
-	///** Ÿ‚ÌƒS[ƒ‹‚Ìƒtƒ‰ƒO */
+	///** æ¬¡ã®ã‚´ãƒ¼ãƒ«ã®ãƒ•ãƒ©ã‚° */
 	/*static void SetIsUraGoal(bool flag) {
 		m_isNextGoal = flag;
 	}*/
 
-	/** ƒtƒ‰ƒO‚ğ”½“]‚³‚¹‚é */
+	/** ãƒ•ãƒ©ã‚°ã‚’åè»¢ã•ã›ã‚‹ */
 	static void ChangePause() {
 		m_isPause = !m_isPause;
 	}
@@ -106,16 +108,16 @@ public:
 
 	GameState m_gameState = GameState::enGameState_None;
 private:
-	//ƒAƒCƒeƒ€B
+	//ã‚¢ã‚¤ãƒ†ãƒ ã€‚
 	void ItemDraw();
 	Vector3 m_itemFontPos = { 400.0f,500.0f,0.0f };
 	FontRender m_itemFontRender;
 
-	//ŠÔ§ŒÀB
+	//æ™‚é–“åˆ¶é™ã€‚
 	Vector3 m_timerFontPos = { -100.0f,520.0f,0.0f };
 	float m_timer = 120.0f;
 	const float GetTimer()const { return m_timer; }
-	//ŠÔ‚ÌŠm”F—p‚Ì•b”B
+	//æ™‚é–“ã®ç¢ºèªç”¨ã®ç§’æ•°ã€‚
 	//float m_timer = 10.0f;
 	FontRender m_timerFontRender;
 	//-----------------------------------
@@ -124,7 +126,7 @@ private:
 	LevelRender m_secondLevelRender;
 	LevelRender m_bossLevelRender;
 
-	//Œã‚É”‚ªŒˆ‚Ü‚Á‚½‚Éstd::array<T, number*>~~;‚Æ‚·‚éB
+	//å¾Œã«æ•°ãŒæ±ºã¾ã£ãŸæ™‚ã«std::array<T, number*>~~;ã¨ã™ã‚‹ã€‚
 	std::vector<Enemy*> m_frogs;
 	std::vector<Enemy*> m_skeltons;
 	std::vector<MovingFloor*> m_movings;
@@ -133,6 +135,7 @@ private:
 
 
 	std::vector<RouteC*> m_routeCs;
+	std::vector<CrossRoad*> m_crossRoads;
 	std::vector<SecondGround*> m_secondGrounds;
 	std::vector<SinkScaffold*> m_sinkScaffolds;
 	std::vector<ChargeItem*> m_chargeItems;
@@ -140,34 +143,35 @@ private:
 
 	/** 
 	 * std::array<T*, n>v 
-	 * ª
-	 * ŒÅ’è’·”z—ñ[v]
+	 * â†‘
+	 * å›ºå®šé•·é…åˆ—[v]
 	 */
 	//std::array<Enemy*, 5>m_enemies;
 
 private:
-	Player    * m_player       = nullptr;//ƒvƒŒƒCƒ„[B
-	GameCamera* m_gameCamera   = nullptr;//ƒQ[ƒ€ƒJƒƒ‰B
-	MovingFloor* m_movingFloor = nullptr;//“®‚­°B
-	//Stage1     * m_stage1      = nullptr;//ƒXƒe[ƒW1B
-	Enemy      * m_enemy       = nullptr;//“GB
-	ObstacleBox* m_obstacleBox = nullptr;//áŠQ•¨(ƒ{ƒbƒNƒX)B
-	Scaffolding* m_scaffolding = nullptr;//‘«êB
-	MovingFloorUpDown* m_upDown = nullptr;//“®‚­°(Y²ƒAƒbƒv)B
-	Asiba* m_asiba              = nullptr;//‘«êB
-	SkyCube* m_skyCube = nullptr;//ƒXƒJƒCƒLƒ…[ƒuB
-	SkyGround* m_skyGround = nullptr;//d—Í‚Ì‚È‚¢‘«êB
-	StageGround* m_stageGround = nullptr;//Å‰ƒvƒŒƒCƒ„[‚ªG‚ê‚é‘«êB
-	Poal* m_poal = nullptr;//ƒS[ƒ‹ƒ|[ƒ‹B
-	GameClear* m_gameClear = nullptr;//ƒQ[ƒ€ƒNƒŠƒAB
-	GameOver* m_gameOver = nullptr;//ƒQ[ƒ€ƒI[ƒo[B
-	BossStage* m_bossStage = nullptr;//ƒ{ƒXƒXƒe[ƒWB
-	HPUI* m_hpui = nullptr;//UIB
-	Score* m_score = nullptr;//ƒXƒRƒAB
-	WarpBox* m_warpBox = nullptr;//ƒ[ƒvB
+	Player    * m_player       = nullptr;//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã€‚
+	GameCamera* m_gameCamera   = nullptr;//ã‚²ãƒ¼ãƒ ã‚«ãƒ¡ãƒ©ã€‚
+	MovingFloor* m_movingFloor = nullptr;//å‹•ãåºŠã€‚
+	//Stage1     * m_stage1      = nullptr;//ã‚¹ãƒ†ãƒ¼ã‚¸1ã€‚
+	Enemy      * m_enemy       = nullptr;//æ•µã€‚
+	ObstacleBox* m_obstacleBox = nullptr;//éšœå®³ç‰©(ãƒœãƒƒã‚¯ã‚¹)ã€‚
+	Scaffolding* m_scaffolding = nullptr;//è¶³å ´ã€‚
+	MovingFloorUpDown* m_upDown = nullptr;//å‹•ãåºŠ(Yè»¸ã‚¢ãƒƒãƒ—)ã€‚
+	Asiba* m_asiba              = nullptr;//è¶³å ´ã€‚
+	SkyCube* m_skyCube = nullptr;//ã‚¹ã‚«ã‚¤ã‚­ãƒ¥ãƒ¼ãƒ–ã€‚
+	SkyGround* m_skyGround = nullptr;//é‡åŠ›ã®ãªã„è¶³å ´ã€‚
+	StageGround* m_stageGround = nullptr;//æœ€åˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒè§¦ã‚Œã‚‹è¶³å ´ã€‚
+	Poal* m_poal = nullptr;//ã‚´ãƒ¼ãƒ«ãƒãƒ¼ãƒ«ã€‚
+	GameClear* m_gameClear = nullptr;//ã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢ã€‚
+	GameOver* m_gameOver = nullptr;//ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼ã€‚
+	BossStage* m_bossStage = nullptr;//ãƒœã‚¹ã‚¹ãƒ†ãƒ¼ã‚¸ã€‚
+	HPUI* m_hpui = nullptr;//UIã€‚
+	Score* m_score = nullptr;//ã‚¹ã‚³ã‚¢ã€‚
+	WarpBox* m_warpBox = nullptr;//ãƒ¯ãƒ¼ãƒ—ã€‚
+	CrossRoad* m_crossRoad = nullptr;//åˆ†ã‹ã‚Œé“ã€‚
 
-	PauseScene* m_pauseScene = nullptr;//ƒ|[ƒY‰æ–ÊB
-
+	PauseScene* m_pauseScene = nullptr;//ãƒãƒ¼ã‚ºç”»é¢ã€‚
+	ChargeBar* m_chargeBar = nullptr;//ãƒãƒ£ãƒ¼ã‚¸ãƒãƒ¼ã€‚
 
 	SecondGround* m_secondGround = nullptr;
 	SinkScaffold* m_sinkScaffold = nullptr;
@@ -175,18 +179,18 @@ private:
 	ChargeItem* m_chargeItem = nullptr;
 
 
-	SoundSource* m_gameOverSe      = nullptr;//ƒQ[ƒ€ƒI[ƒo[‚Ì‰¹B
-	SoundSource* m_gameClearSe     = nullptr;//ƒQ[ƒ€ƒNƒŠƒA‚Ì‰¹B
+	SoundSource* m_gameOverSe      = nullptr;//ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼ã®éŸ³ã€‚
+	SoundSource* m_gameClearSe     = nullptr;//ã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢ã®éŸ³ã€‚
 public:
 	SoundSource* m_gameBGM         = nullptr;
 
 
 private:
-	//InGameTime* m_inGameTime = nullptr;//c‚èŠÔB
+	//InGameTime* m_inGameTime = nullptr;//æ®‹ã‚Šæ™‚é–“ã€‚
 	/// <summary>
-	/// ‹ó‚ğ‰Šú‰»B
+	/// ç©ºã‚’åˆæœŸåŒ–ã€‚
 	/// </summary>
 	void InitSky();
-	int m_skyCubeType = enSkyCubeType_DayToon;//’‹ŠÔB
+	int m_skyCubeType = enSkyCubeType_DayToon;//æ˜¼é–“ã€‚
 };
 
