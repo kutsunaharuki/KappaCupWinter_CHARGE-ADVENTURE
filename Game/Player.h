@@ -130,7 +130,7 @@ public:
 	bool isDash  = false;                            //歩きから走りに変わるフラグ。
 	bool isHit   = false;                            //ゴーストオブジェクトに当たったらのフラグ。
 	bool canJump = false;                            //ジャンプしてるかのフラグ。
-	
+
 	
 	/** プレイヤー追加要素 */
 	ChargeAbility m_chargeAbilitys = ChargeAbility::enNone;

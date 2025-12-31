@@ -3,9 +3,9 @@
 #include "Title.h"
 
 namespace {
-	const char* GAME_CLEAR = "Assets/Sprite/GameClear/Clear.dds";
+	const char* GAME_CLEAR = "Assets/Sprite/GameClear/GameClear.dds";
 
-	const float BLINK = 0.52f;
+	const float BLINK = 0.3f;
 }
 
 bool GameClear::Start()

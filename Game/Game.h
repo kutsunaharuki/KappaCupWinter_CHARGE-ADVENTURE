@@ -28,6 +28,7 @@ class WarpBox;
 class PauseScene;
 class ChargeBar;
 class CrossRoad;
+class FallBox;
 
 //ステージ遷移の場所。
 enum class GameState {
@@ -69,9 +70,11 @@ private:
 	Stage1* m_stage1 = nullptr;
 	static bool m_isGoal;
 	static bool m_isPause;
-	//static bool m_isNextGoal;
+	static bool m_isNextGoal;
 
-
+	static bool m_isWarp;
+	
+	static bool m_isBossKill;
 public:
 	static const bool GetIsGoal(){
 		return m_isGoal;
@@ -81,15 +84,23 @@ public:
 		m_isGoal = isFlag;
 	}
 
+	static const bool GetIsWarp() {
+		return m_isWarp;
+	}
 
-	/*const bool GetIsUraGoal() {
+	static void SetIsWarp(bool flag) {
+		m_isWarp = flag;
+	}
+
+
+	static const bool GetIsNextGoal() {
 		return m_isNextGoal;
-	}*/
+	}
 
 	///** 次のゴールのフラグ */
-	/*static void SetIsUraGoal(bool flag) {
+	static void SetIsNextGoal(bool flag) {
 		m_isNextGoal = flag;
-	}*/
+	}
 
 	/** フラグを反転させる */
 	static void ChangePause() {
@@ -105,8 +116,17 @@ public:
 		m_isPause = isStop;
 	}
 
+	static const bool GetIsBossKill() {
+		return m_isBossKill;
+	}
 
-	GameState m_gameState = GameState::enGameState_None;
+	static void SetIsBossKill(bool killFlag) {
+		m_isBossKill = killFlag;
+	}
+
+
+	static GameState m_gameState;
+	
 private:
 	//アイテム。
 	void ItemDraw();
@@ -134,6 +154,7 @@ private:
 	std::vector<Poal*> m_poals;
 
 
+	std::vector<FallBox*> m_fallBoxs;
 	std::vector<RouteC*> m_routeCs;
 	std::vector<CrossRoad*> m_crossRoads;
 	std::vector<SecondGround*> m_secondGrounds;
@@ -177,7 +198,7 @@ private:
 	SinkScaffold* m_sinkScaffold = nullptr;
 	RouteC* m_routeC = nullptr;
 	ChargeItem* m_chargeItem = nullptr;
-
+	FallBox* m_fallBox = nullptr;
 
 	SoundSource* m_gameOverSe      = nullptr;//ゲームオーバーの音。
 	SoundSource* m_gameClearSe     = nullptr;//ゲームクリアの音。

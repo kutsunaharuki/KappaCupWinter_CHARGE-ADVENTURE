@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Poal.h"
 #include "Player.h"
 #include "Game.h"
@@ -7,9 +7,9 @@
 
 namespace {
 	const char* POAL = "Assets/modelData/Poal.tkm";
-	const float RADIUS = 90.0f;//ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_[‚Ì”¼ŒaB
-	const float HEIGHT = 500.0f;//ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_[‚Ì‚‚³B
-	const Vector3 POS_HEIGHT = { 0.0f,250.0f,0.0f };//À•W‚ðã‚Éã‚°‚éB
+	const float RADIUS = 90.0f;//ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®åŠå¾„ã€‚
+	const float HEIGHT = 500.0f;//ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®é«˜ã•ã€‚
+	const Vector3 POS_HEIGHT = { 0.0f,250.0f,0.0f };//åº§æ¨™ã‚’ä¸Šã«ä¸Šã’ã‚‹ã€‚
 }
 
 Poal::~Poal()
@@ -46,12 +46,12 @@ void Poal::SetCollisionObj()
 {
 	m_collisionObj = new CollisionObject;
 	m_collisionObj->CreateCapsule(
-		m_pos,              //À•WB
-		m_rot,              //‰ñ“]B
-		RADIUS,             //”¼ŒaB
-		HEIGHT              //‚‚³B
+		m_pos,              //åº§æ¨™ã€‚
+		m_rot,              //å›žè»¢ã€‚
+		RADIUS,             //åŠå¾„ã€‚
+		HEIGHT              //é«˜ã•ã€‚
 	);
-	//Ž©“®‚Åíœ‚µ‚È‚¢B
+	//è‡ªå‹•ã§å‰Šé™¤ã—ãªã„ã€‚
 	m_collisionObj->SetIsEnableAutoDelete(false);
 	m_collisionObj->SetPosition(m_colPos);
 	m_collisionObj->SetRotation(m_rot);
@@ -62,7 +62,19 @@ void Poal::SetCollisionObj()
 void Poal::ReachedPoal()
 {
 	if (m_collisionObj->IsHit(m_player->GetCharacterController())) {
-		Game::SetIsGoal(true);
+		if (Game::m_gameState == GameState::Stage1) {
+			Game::SetIsGoal(true);
+		}
+		else if (Game::m_gameState == GameState::Stage2) {
+			Game::SetIsNextGoal(true);
+		}
+		
+		/*if (Game::GetIsGoal){
+			Game::SetIsGoal(true);
+		}
+		else if (Game::GetIsNextGoal) {
+			Game::SetIsNextGoal(true);
+		}*/
 	}
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class Player;
 class WarpBox : public IGameObject
 {
@@ -25,16 +25,15 @@ public:
 
 	
 public:
-	/** ƒ[ƒv‚·‚é */
+	/** ãƒ¯ãƒ¼ãƒ—ã™ã‚‹ */
 	void Warp();
-	/** ƒ[ƒvæ */
-	void WarpDestination();
 
 public:
 	bool m_isWarpHit = false;
+
 	Vector3 m_warpBoxPos = Vector3::Zero;
 	Vector3 m_warpBoxScale = Vector3::One;
-	Vector3 m_DeliveryDestinationPos = { 500.0f,800.0f,300.0f };//ˆø‚«“n‚µæ‚ÌÀ•WB
+	Vector3 m_warpTargetPos = Vector3::Zero;
 	Quaternion m_warpBoxRot = Quaternion::Identity;
 
 

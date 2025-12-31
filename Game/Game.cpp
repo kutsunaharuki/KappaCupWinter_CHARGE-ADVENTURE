@@ -22,14 +22,19 @@
 #include "PauseScene.h"
 #include "ChargeBar.h"
 #include "CrossRoad.h"
+#include "FallBox.h"
 
 /** 
  * 実体
  * static->名前空間::変数
  */
 bool Game::m_isGoal = false;
-//bool Game::m_isNextGoal = false;
+bool Game::m_isNextGoal = false;
 bool Game::m_isPause = false;
+bool Game::m_isWarp = false;
+bool Game::m_isBossKill = false;
+GameState Game::m_gameState = GameState::Stage1;
+//GameState m_gameState = GameState::enGameState_None;
 
 namespace{
 	const char* FIRST_STAGE_LEVEL_FILE_PATH = "Assets/LevelRender/Stage1-1Level.tkl";
@@ -104,25 +109,14 @@ bool Game::Start()
 	//HPUIを作成する。
 	m_hpui = NewGO<HPUI>(0, "hpui");
 
-	//チャージバーを作成。
-	m_chargeBar = NewGO<ChargeBar>(0, "chargeBar");
-
 	m_gameState = GameState::Stage1;
 	CreateStage1();
-
-	/** ファーストステージを作成 */
-	//NewGO<FirstStage>(0, "firstStage");
-    /** スコアを作成する */
-	//m_score = NewGO<Score>(0, "score");
-	//タイムを作成する。
-	//m_inGameTime = NewGO<InGameTime>(0, "inGameTime");
-	
 	return true;
 }
 
 void Game::Update()
 {
-	if (Game::m_isPause && !m_pauseScene) {
+	/*if (Game::m_isPause && !m_pauseScene) {
 		m_pauseScene = NewGO<PauseScene>(0);
 	}
 	if (!Game::m_isPause && m_pauseScene) {
@@ -131,17 +125,37 @@ void Game::Update()
 	}
 	if (Game::m_isPause) {
 		return;
+	}*/
+
+	if (Game::m_isGoal) {
+		DeleteStage1();
+		Game::m_gameState = GameState::Stage2;
+		m_timer = 120.0f;
+		CreateStage2();
+		Game::m_isGoal = false;
 	}
 
-	if (m_isGoal) {
-		DeleteStage1();
-		CreateStage2();
-		m_isGoal = false;
+	if (Game::m_isNextGoal) {
+		DeleteStage2();
+		Game::m_gameState = GameState::BossStage;
+		m_timer = 120.0f;
+		CreateBossStage();
+		Game::m_isNextGoal = false;
 	}
 
 	//1-1のステージかボスステージの場合タイマーを描画する。
 	if (m_gameState == GameState::Stage1 || m_gameState == GameState::Stage2 || m_gameState == GameState::BossStage)
 	{
+		if (Game::m_isPause && !m_pauseScene) {
+			m_pauseScene = NewGO<PauseScene>(0);
+		}
+		if (!Game::m_isPause && m_pauseScene) {
+			DeleteGO(m_pauseScene);
+			m_pauseScene = nullptr;
+		}
+		if (Game::m_isPause) {
+			return;
+		}
 		//時間の描画。
 		TimeDraw();
 		//アイテムの描画。
@@ -160,6 +174,11 @@ void Game::Update()
 	}
 	if (m_timer <= 0.0f) {
 		m_gameOver = NewGO<GameOver>(0, "gameOver");
+		DeleteGO(m_gameBGM);
+		DeleteGO(this);
+	}
+	if (m_isBossKill) {
+		m_gameClear = NewGO<GameClear>(0, "gameClear");
 		DeleteGO(m_gameBGM);
 		DeleteGO(this);
 	}
@@ -274,6 +293,9 @@ void Game::DeleteStage1()
 
 void Game::CreateStage2()
 {
+	//チャージバーを作成。
+	m_chargeBar = NewGO<ChargeBar>(0, "chargeBar");
+
 	m_secondLevelRender.Init(SECOND_STAGE_LEVEL_FILE_PATH, [&](LevelObjectData& objData) {
 		if (objData.EqualObjectName(L"SinkScaffold")) {
 			auto sinkScaffold = NewGO<SinkScaffold>(0, "sinkScaffold");
@@ -284,10 +306,11 @@ void Game::CreateStage2()
 			return true;
 		}
 		if (objData.EqualObjectName(L"SecondGround")) {
-			m_secondGround = NewGO<SecondGround>(0, "secondGround");
-			m_secondGround->m_secondGroundPos = objData.position;
-			m_secondGround->m_secondGroundRot = objData.rotation;
-			m_secondGround->m_secondGroundScale = objData.scale;
+			auto secondGround = NewGO<SecondGround>(0, "secondGround");
+			secondGround->m_secondGroundPos = objData.position;
+			secondGround->m_secondGroundRot = objData.rotation;
+			secondGround->m_secondGroundScale = objData.scale;
+			m_secondGrounds.push_back(secondGround);
 			return true;
 		}
 		if (objData.EqualObjectName(L"RouteC")) {
@@ -310,6 +333,23 @@ void Game::CreateStage2()
 			if (m_gameCamera) {
 				m_gameCamera->m_springCamera.Refresh();
 			}
+			/*if (m_isWarp) {
+				m_player->SetTRS(
+					objData.position,
+					objData.rotation,
+					objData.scale
+				);
+				m_player->GetModelRender()->SetTRS(
+					objData.position,
+					objData.rotation,
+					objData.scale
+				);
+				Vector3 warpPos = { 1000.0f,1000.0f,0.0f };
+				
+				m_player->GetCharacterController().SetPosition(objData.position + warpPos);
+				m_player->GetCharacterController().Execute(objData.position, 1.0f / 60.0f);
+				m_player->GetModelRender()->Update();
+			}*/
 			m_player->SetTRS(
 				objData.position,
 				objData.rotation,
@@ -325,20 +365,50 @@ void Game::CreateStage2()
 			m_player->GetModelRender()->Update();
 			return true;
 		}
-		if (objData.EqualObjectName(L"WarpBox")) {
+		/*if (objData.EqualObjectName(L"WarpBox")) {
 			auto warpBox = NewGO<WarpBox>(0, "warpBox");
 			warpBox->m_warpBoxPos = objData.position;
 			warpBox->m_warpBoxRot = objData.rotation;
 			warpBox->m_warpBoxScale = objData.scale;
+			if (m_isWarp) {
+				warpBox->m_warpTargetPos = Vector3(1000.0f, 1000.0, 0.0f);
+				warpBox->m_warpTargetPos = objData.position + Vector3(500.0f, 1000.0f, 0.0f);
+			}
 			m_warpBoxs.push_back(warpBox);
 			return true;
-		}
+		}*/
 		if (objData.EqualObjectName(L"CrossRoad")) {
 			auto crossRoad = NewGO<CrossRoad>(0, "crossRoad");
 			crossRoad->m_crossRoadPos = objData.position;
 			crossRoad->m_crossRoadScale = objData.scale;
 			crossRoad->m_crossRoadRot = objData.rotation;
 			m_crossRoads.push_back(crossRoad);
+			return true;
+		}
+		if (objData.EqualObjectName(L"FallBox")) {
+			auto fallBox = NewGO<FallBox>(0, "fallBox");
+			fallBox->m_fallPos = objData.position;
+			fallBox->m_fallRot = objData.rotation;
+			fallBox->m_fallScale = objData.scale;
+			m_fallBoxs.push_back(fallBox);
+			return true;
+		}
+		if (objData.EqualObjectName(L"Skelton")) {
+			auto skelton = NewGO<Enemy2>(0, "Skelton");
+			skelton->SetTRS(
+				objData.position,
+				objData.scale,
+				objData.rotation
+			);
+			m_skeltons.push_back(skelton);
+			return true;
+		}
+		if (objData.EqualObjectName(L"Poal")) {
+			auto poal = NewGO<Poal>(0, "poal");
+			poal->m_pos = objData.position;
+			poal->m_rot = objData.rotation;
+			poal->m_scale = objData.scale;
+			m_poals.push_back(poal);
 			return true;
 		}
 		return false;
@@ -348,12 +418,18 @@ void Game::CreateStage2()
 
 void Game::DeleteStage2()
 {
-	/** TODO:後で修正 */
-	//DeleteGO(m_stage2);
-	//m_stage2 = nullptr;
+	DeleteGO(m_chargeBar);
+	m_chargeBar = nullptr;
 
-	DeleteGO(m_secondGround);
-	m_secondGround = nullptr;
+	for (auto& secondGround : m_secondGrounds) {
+		DeleteGO(secondGround);
+		secondGround = nullptr;
+	}
+
+	for (auto& skelton : m_skeltons) {
+		DeleteGO(skelton);
+		skelton = nullptr;
+	}
 
 	for (auto& sinkScaffold : m_sinkScaffolds)
 	{
@@ -372,13 +448,23 @@ void Game::DeleteStage2()
 		chargeItem = nullptr;
 	}
 
-	for (auto& warpBox : m_warpBoxs) {
+	/*for (auto& warpBox : m_warpBoxs) {
 		DeleteGO(warpBox);
 		warpBox = nullptr;
-	}
+	}*/
+
 	for (auto& crossRoad : m_crossRoads) {
 		DeleteGO(crossRoad);
 		crossRoad = nullptr;
+	}
+
+	for (auto& fallBox : m_fallBoxs) {
+		DeleteGO(fallBox);
+		fallBox = nullptr;
+	}
+	for (auto& poal : m_poals) {
+		DeleteGO(poal);
+		poal = nullptr;
 	}
 }
 
@@ -471,11 +557,6 @@ void Game::TimeDraw()
 	int seconds = (int)m_timer % 60;
 	float distance = g_gameTime->GetFrameDeltaTime();
 	m_timer -= distance;
-	if (m_gameState == GameState::BossStage)
-	{
-		m_timer = 120.0f;
-		m_timer-=distance;
-	}
 
 	wchar_t timer[256];
 	swprintf_s(timer, 256, L"%02d:%02d", minutes, seconds);
@@ -495,14 +576,22 @@ void Game::Render(RenderContext& rc)
 	//レベルの描画。
 	m_levelRender.Draw(rc);
 	//2ステージ目のレベルの描画。
-	if (m_isGoal) {
+	if (m_gameState == GameState::Stage2) {
 		m_secondLevelRender.Draw(rc);
 	}
 
+	/*if (Game::m_isGoal) {
+		m_secondLevelRender.Draw(rc);
+	}*/
+
 	//ボスステージのレベルの描画。
-	if (m_isGoal) {
+	if (m_gameState == GameState::BossStage) {
 		m_bossLevelRender.Draw(rc);
 	}
+
+	/*if (Game::m_isNextGoal) {
+		m_bossLevelRender.Draw(rc);
+	}*/
 	//時間制限の描画。
 	m_timerFontRender.Draw(rc);
 	//アイテムの描画。

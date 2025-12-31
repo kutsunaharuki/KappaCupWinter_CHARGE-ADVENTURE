@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Enemy.h"
 #include "Player.h"
 #include "ObstacleBox.h"
@@ -8,15 +8,15 @@
 #include <time.h>
 
 namespace {
-	//ƒtƒ@ƒCƒ‹‚ÌêŠB
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€ã€‚
 	std::string FILE_PATH = "Assets/modelData/";
-	//Šg’£qB
+	//æ‹¡å¼µå­ã€‚
 	std::string FILE_EXTENSTION = ".tkm";
 
 
 	struct EnemyInfo
 	{
-		//ƒtƒ@ƒCƒ‹–¼B
+		//ãƒ•ã‚¡ã‚¤ãƒ«åã€‚
 		std::string fileName = "fileName";
 
 		Vector3 collisionSc;
@@ -28,15 +28,15 @@ namespace {
 	};
 
 
-	//ƒtƒ@ƒCƒ‹‚ÌêŠB
+	//ãƒ•ã‚¡ã‚¤ãƒ«ã®å ´æ‰€ã€‚
 	std::string ENEMY_ANIM_PATH = "Assets/EnmyAnimData/";
-	//Šg’£qB
+	//æ‹¡å¼µå­ã€‚
 	std::string ENEMY_FILE_EXTENSTION = ".tka";
 
 
 	struct AnimInfo
 	{
-		//ƒtƒ@ƒCƒ‹–¼B
+		//ãƒ•ã‚¡ã‚¤ãƒ«åã€‚
 		std::string fileName = "fileName";
 
 		std::string GetAnimPath()
@@ -77,22 +77,22 @@ namespace {
 	};
 
 
-	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//“G‚Ì‹”F”ÍˆÍ—p‚ÌƒS[ƒXƒgƒIƒuƒWƒFƒNƒgB
+	Vector3 ENEMY_GHOSTOBJ_POS = { 100.0f,200.0f,300.0f };//æ•µã®è¦–èªç¯„å›²ç”¨ã®ã‚´ãƒ¼ã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
 
-	const float CHARACON_RADIUS = 30.0f ;//ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_[‚Ì”¼ŒaB
-	const float CHARACON_HEIGHT = 25.0f;//ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_[‚Ì‚‚³B
+	const float CHARACON_RADIUS = 30.0f ;//ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®åŠå¾„ã€‚
+	const float CHARACON_HEIGHT = 25.0f;//ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®é«˜ã•ã€‚
 
-	const float ENEMY_ATTACK_RANGE = 140.0f;//Enemy‚ÌUŒ‚”»’è‚Ì”ÍˆÍB
-	const float ENEMY_RANGE      = 120.0f;//Enemy‚Ì’Ç]”»’è‚Ì”ÍˆÍB
-	const float ENEMY_MOVESPEED  = 120.0f;//Eenemy‚ÌˆÚ“®‘¬“xB
+	const float ENEMY_ATTACK_RANGE = 140.0f;//Enemyã®æ”»æ’ƒåˆ¤å®šã®ç¯„å›²ã€‚
+	const float ENEMY_RANGE      = 120.0f;//Enemyã®è¿½å¾“åˆ¤å®šã®ç¯„å›²ã€‚
+	const float ENEMY_MOVESPEED  = 120.0f;//Eenemyã®ç§»å‹•é€Ÿåº¦ã€‚
 	
-	const Vector3 COLL_PLASS_POS = { 0.0f,70.0f,0.0f };//ƒLƒƒƒ‰ƒRƒ“‚Ì’²®—pnamespaceB
+	const Vector3 COLL_PLASS_POS = { 0.0f,70.0f,0.0f };//ã‚­ãƒ£ãƒ©ã‚³ãƒ³ã®èª¿æ•´ç”¨namespaceã€‚
 
 	const float DISTANCE = 200.0f;
 	Vector3 ENEMY_LIMIT = { 400.0f,0.0f,400.0f };
-	const float ENEMY_GRAVITY = 8.0f * 1.4;   //d—ÍB
-	const float ENEMY_MOVE_LIMIT = 150.0f;//Enemy‚Ìs“®‹——£B
-	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemy‚Ìd—ÍB
+	const float ENEMY_GRAVITY = 8.0f * 1.4;   //é‡åŠ›ã€‚
+	const float ENEMY_MOVE_LIMIT = 150.0f;//Enemyã®è¡Œå‹•è·é›¢ã€‚
+	//const float ENEMY_GRAVITY = -1.2f * 0.2;//Enemyã®é‡åŠ›ã€‚
 
 	Vector3 FORWARD = Vector3::AxisZ;
 }
@@ -140,30 +140,30 @@ void Enemy1::Update()
 		return;
 	}
 
-	/** ƒvƒŒƒCƒ„[‚Ö‚Ì‹”Fƒ`ƒFƒbƒN */
+	/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¸ã®è¦–èªãƒã‚§ãƒƒã‚¯ */
 	IsFoundPlayer();
 
-	/** s“®ƒXƒe[ƒg‚Æ‘¬“x‚ğŒˆ’è */
+	/** è¡Œå‹•ã‚¹ãƒ†ãƒ¼ãƒˆã¨é€Ÿåº¦ã‚’æ±ºå®š */
 	EnemyBehavior();
 
-	/** d—Í‚ÆÀÛ‚ÌˆÚ“®‚ğÀs */
+	/** é‡åŠ›ã¨å®Ÿéš›ã®ç§»å‹•ã‚’å®Ÿè¡Œ */
 	UpdateEnemyInfo();
 
-	/** ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌÄ¶ */
+	/** ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®å†ç”Ÿ */
 	PlayAnimation();
 
-	/** ƒRƒŠƒWƒ‡ƒ“‚ÌXV */
+	/** ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®æ›´æ–° */
 	if (m_collisionObj) {
 		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
 		m_collisionObj->SetRotation(Quaternion::Identity);
 		m_collisionObj->Update();
 	}
 
-	/** ƒqƒbƒgƒ`ƒFƒbƒN */
+	/** ãƒ’ãƒƒãƒˆãƒã‚§ãƒƒã‚¯ */
 	EnemyHit();
 	CanHit();
 
-	/** •`‰æˆÊ’uXV */
+	/** æç”»ä½ç½®æ›´æ–° */
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.Update();
 }
@@ -236,30 +236,30 @@ void Enemy2::Update()
 		return;
 	}
 
-	/** ƒvƒŒƒCƒ„[‚Ö‚Ì‹”Fƒ`ƒFƒbƒN */
+	/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¸ã®è¦–èªãƒã‚§ãƒƒã‚¯ */
 	IsFoundPlayer();
 
-	/** s“®ƒXƒe[ƒg‚Æ‘¬“x‚ğŒˆ’è */
+	/** è¡Œå‹•ã‚¹ãƒ†ãƒ¼ãƒˆã¨é€Ÿåº¦ã‚’æ±ºå®š */
 	EnemyBehavior();
 
-	/** d—Í‚ÆÀÛ‚ÌˆÚ“®‚ğÀs */
+	/** é‡åŠ›ã¨å®Ÿéš›ã®ç§»å‹•ã‚’å®Ÿè¡Œ */
 	UpdateEnemyInfo();
 
-	/** ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌÄ¶ */
+	/** ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®å†ç”Ÿ */
 	PlayAnimation();
 
-	/** ƒRƒŠƒWƒ‡ƒ“‚ÌXV */
+	/** ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®æ›´æ–° */
 	if (m_collisionObj) {
 		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
 		m_collisionObj->SetRotation(Quaternion::Identity);
 		m_collisionObj->Update();
 	}
 
-	/** ƒqƒbƒgƒ`ƒFƒbƒN */
+	/** ãƒ’ãƒƒãƒˆãƒã‚§ãƒƒã‚¯ */
 	EnemyHit();
 	CanHit();
 
-	/** •`‰æˆÊ’uXV */
+	/** æç”»ä½ç½®æ›´æ–° */
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.Update();
 }
@@ -331,30 +331,30 @@ void Boss::Update()
 		return;
 	}
 
-	/** ƒvƒŒƒCƒ„[‚Ö‚Ì‹”Fƒ`ƒFƒbƒN */
+	/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¸ã®è¦–èªãƒã‚§ãƒƒã‚¯ */
 	IsFoundPlayer();
 
-	/** s“®ƒXƒe[ƒg‚Æ‘¬“x‚ğŒˆ’è */
+	/** è¡Œå‹•ã‚¹ãƒ†ãƒ¼ãƒˆã¨é€Ÿåº¦ã‚’æ±ºå®š */
 	EnemyBehavior();
 
-	/** d—Í‚ÆÀÛ‚ÌˆÚ“®‚ğÀs */
+	/** é‡åŠ›ã¨å®Ÿéš›ã®ç§»å‹•ã‚’å®Ÿè¡Œ */
 	UpdateEnemyInfo();
 
-	/** ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌÄ¶ */
+	/** ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®å†ç”Ÿ */
 	PlayAnimation();
 
-	/** ƒRƒŠƒWƒ‡ƒ“‚ÌXV */
+	/** ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®æ›´æ–° */
 	if (m_collisionObj) {
 		m_collisionObj->SetPosition(m_enemyPos + COLL_PLASS_POS);
 		m_collisionObj->SetRotation(Quaternion::Identity);
 		m_collisionObj->Update();
 	}
 
-	/** ƒqƒbƒgƒ`ƒFƒbƒN */
+	/** ãƒ’ãƒƒãƒˆãƒã‚§ãƒƒã‚¯ */
 	EnemyHit();
 	CanHit();
 
-	/** •`‰æˆÊ’uXV */
+	/** æç”»ä½ç½®æ›´æ–° */
 	m_enemyRender.SetPosition(m_enemyPos);
 	m_enemyRender.Update();
 }
@@ -372,12 +372,12 @@ Enemy::~Enemy()
 
 void Enemy1::PlayAnimation()
 {
-	/** Jumping.tka‚ğÄ¶ */
+	/** Jumping.tkaã‚’å†ç”Ÿ */
 	m_enemyRender.PlayAnimation(0);
 }
 
 
-/** Enemy2‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ŠÇ— */
+/** Enemy2ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç®¡ç† */
 void Enemy2::PlayAnimation()
 {
 	switch (m_enemyActionState)
@@ -406,7 +406,7 @@ void Enemy2::PlayAnimation()
 
 
 
-/** ƒ{ƒX‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ŠÇ— */
+/** ãƒœã‚¹ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ç®¡ç† */
 void Boss::PlayAnimation()
 {
 	switch (m_enemyActionState)
@@ -435,15 +435,15 @@ void Boss::PlayAnimation()
 }
 
 
-/** Enemy1,Enemy2,Boss‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ƒXƒe[ƒg */
+/** Enemy1,Enemy2,Bossã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¹ãƒ†ãƒ¼ãƒˆ */
 void Enemy::AnimationManager()
 {
-	/** ‘Ò‹@ƒAƒjƒ[ƒVƒ‡ƒ“ */
+	/** å¾…æ©Ÿã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ */
 	if (m_charaCon.IsOnGround())
 	{
 		m_enemyActionState = enEnemyActionState_Idle;
 	}
-	/** ’ÇÕ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ */
+	/** è¿½è·¡ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ */
 	if (!IsFoundPlayer())
 	{
 		m_enemyActionState = enEnemyActionState_Chase;
@@ -454,10 +454,10 @@ void Enemy::AnimationManager()
 }
 
 
-//ƒLƒƒƒ‰ƒRƒ“‚Ì‰Šú‰»ŠÖ”B
+//ã‚­ãƒ£ãƒ©ã‚³ãƒ³ã®åˆæœŸåŒ–é–¢æ•°ã€‚
 void Enemy::SetCharacon(int enemyModels)
 {
-	//ƒLƒƒƒ‰ƒRƒ“‚Ì‰Šú‰»(ˆÚ“®—p)B
+	//ã‚­ãƒ£ãƒ©ã‚³ãƒ³ã®åˆæœŸåŒ–(ç§»å‹•ç”¨)ã€‚
 	m_charaCon.Init(
 		CHARACON_RADIUS,
 		CHARACON_HEIGHT,
@@ -471,18 +471,18 @@ void Enemy::SetModel(int enemyModel)
 	m_collisionObjStartPos = m_enemyPos;
 
 	//std::string file = Enemys[enemyModel].GetFullPath();
-	//“G‚Ì“Ç‚İ‚İB
+	//æ•µã®èª­ã¿è¾¼ã¿ã€‚
 	//m_enemyRender.Init(file.c_str(),);
 	m_enemyRender.SetTRS(m_enemyPos, Quaternion::Identity, m_enemyScale);
 	m_enemyRender.Update();
 }
 
-//ƒRƒŠƒWƒ‡ƒ“ƒIƒuƒWƒFƒNƒg‰Šú‰»ŠÖ”B
+//ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆåˆæœŸåŒ–é–¢æ•°ã€‚
 void Enemy::SetCollisionObj(int enemyModel)
 {
 	m_collisionObj = new CollisionObject;
 
-	//ƒRƒŠƒWƒ‡ƒ“ƒIƒuƒWƒFƒNƒg‚Ì‰Šú‰»B
+	//ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åˆæœŸåŒ–ã€‚
 	m_collisionObj->CreateBox(
 		m_enemyPos,
 		Quaternion::Identity,
@@ -494,14 +494,14 @@ void Enemy::SetCollisionObj(int enemyModel)
 	m_collisionObj->Update();
 }
 
-//ƒXƒtƒBƒAƒRƒ‰ƒCƒ_[‚Ì”¼Œa‚Ìİ’èŠÖ”B
+//ã‚¹ãƒ•ã‚£ã‚¢ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®åŠå¾„ã®è¨­å®šé–¢æ•°ã€‚
 void Enemy::SetSphereColliderObj()
 {
 	const float radius = 2.0f;
 	m_sphereCollider.Create(radius);
 }
 
-//FindGOŒn‚ÍSetPlayerInfo‚É“ü‚ê‚éB
+//FindGOç³»ã¯SetPlayerInfoã«å…¥ã‚Œã‚‹ã€‚
 void Enemy::SetFindGOInfo() {
 	m_player = FindGO<Player>("player");
 }
@@ -515,10 +515,10 @@ void Enemy::Move() {
 	}*/
 }
 
-//’ÇÕ‚ÌŠÖ”B
+//è¿½è·¡ã®é–¢æ•°ã€‚
 void Enemy::Tracking()
 {
-	//nullƒ`ƒFƒbƒNB
+	//nullãƒã‚§ãƒƒã‚¯ã€‚
 	if (m_player == nullptr)
 	{
 		m_player = FindGO<Player>("player");
@@ -526,39 +526,39 @@ void Enemy::Tracking()
 
 	if (m_isSearchPlayer == true)
 	{
-		//ƒvƒŒƒCƒ„[‚ÌÀ•W‚ğ‹ó‚Ìƒ[ƒJƒ‹•Ï”‚É“n‚·B
+		//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åº§æ¨™ã‚’ç©ºã®ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã«æ¸¡ã™ã€‚
 		Vector3 playerPos = m_player->m_position;
 
-		//ƒvƒŒƒCƒ„[‚ÌÀ•W‚©‚çƒGƒlƒ~[‚ÌÀ•W‚ğˆø‚­B
+		//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åº§æ¨™ã‹ã‚‰ã‚¨ãƒãƒŸãƒ¼ã®åº§æ¨™ã‚’å¼•ãã€‚
 		Vector3 diff = playerPos - m_enemyPos;
 
-		//‚±‚ê‚ª‚È‚¢‚ÆƒvƒŒƒCƒ„[‚ªã‚É‚¢‚Ä‚à’Ç‚¢‚©‚¯‚Ä‚­‚éB
+		//ã“ã‚ŒãŒãªã„ã¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒä¸Šã«ã„ã¦ã‚‚è¿½ã„ã‹ã‘ã¦ãã‚‹ã€‚
 		diff.y = 0.0f;
 
-		//ƒxƒNƒgƒ‹‚Ì‹——£ŒvZB
+		//ãƒ™ã‚¯ãƒˆãƒ«ã®è·é›¢è¨ˆç®—ã€‚
 		float distance = diff.Length();
 
-		//ƒxƒNƒgƒ‹‚ğ³‹K‰»B
+		//ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ­£è¦åŒ–ã€‚
 		diff.Normalize();
 
-		//’ÇÕŒvZ‚ğs‚¤B
+		//è¿½è·¡è¨ˆç®—ã‚’è¡Œã†ã€‚
 		float targetSpeed = 200.0f;
 
-		//m_moveSpeed‚É‚Ç‚Ì•ûŒü‚Å‚Ç‚ñ‚È‘¬‚³‚Åi‚Ş‚©‚ğ‘ã“ü‚³‚¹‚éB
-		//uis•ûŒü@~@‘¬“xv@ÀÛ‚ÌˆÚ“®ƒxƒNƒgƒ‹B
+		//m_moveSpeedã«ã©ã®æ–¹å‘ã§ã©ã‚“ãªé€Ÿã•ã§é€²ã‚€ã‹ã‚’ä»£å…¥ã•ã›ã‚‹ã€‚
+		//ã€Œé€²è¡Œæ–¹å‘ã€€Ã—ã€€é€Ÿåº¦ã€ï¼ã€€å®Ÿéš›ã®ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã€‚
 		m_moveSpeed = diff * targetSpeed;
 
 		UpdateEnemyInfo();
 	}
 }
 
-/** Enemy‚ªƒ‰ƒ“ƒ_ƒ€‚É“®‚­ */
+/** EnemyãŒãƒ©ãƒ³ãƒ€ãƒ ã«å‹•ã */
 void Enemy::RandomWalk()
 {
 	float deltaTime = g_gameTime->GetFrameDeltaTime();
 	
 	EnWalkVector vector;
-	//enum‚ÌEnWalkVectorŒ^‚ğintŒ^‚Ìrand‚ğŒ^•ÏŠ·‚µ‚Ä
+	//enumã®EnWalkVectorå‹ã‚’intå‹ã®randã‚’å‹å¤‰æ›ã—ã¦
 	vector = static_cast<EnWalkVector>(rand() % enWalkVector_Num);
 	Vector3 early = Vector3::Zero;
 	const float speed = ENEMY_MOVESPEED;
@@ -566,16 +566,16 @@ void Enemy::RandomWalk()
 	Vector3 moveVecCalc = m_enemyPos - m_enemyStartPos;
 	float moveLength    = moveVecCalc.Length();
 
-	//Œ»İ’n‚ªs“®”ÍˆÍ‚ÌƒŠƒ~ƒbƒg‚æ‚è‚à‘å‚«‚©‚Á‚½‚ç
+	//ç¾åœ¨åœ°ãŒè¡Œå‹•ç¯„å›²ã®ãƒªãƒŸãƒƒãƒˆã‚ˆã‚Šã‚‚å¤§ãã‹ã£ãŸã‚‰
 	if (moveLength >= ENEMY_MOVE_LIMIT)
 	{
-		//ƒXƒe[ƒg‚ğ“–‚Ä‚Í‚ß‚éB
+		//ã‚¹ãƒ†ãƒ¼ãƒˆã‚’å½“ã¦ã¯ã‚ã‚‹ã€‚
 		m_enemyMoveState = vector;
-		//ƒXƒ^[ƒg’n“_‚ğXVB
+		//ã‚¹ã‚¿ãƒ¼ãƒˆåœ°ç‚¹ã‚’æ›´æ–°ã€‚
 		m_enemyStartPos  = m_enemyPos;
 	}
 
-	/** todo::’Ç‰Á */
+	/** todo::è¿½åŠ  */
 	if (!m_isSearchPlayer) {
 		switch (m_enemyMoveState) {
 		case enWalkVector_Front:
@@ -624,23 +624,23 @@ struct SweepResultWall : public btCollisionWorld::ConvexResultCallback
 
 	virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace)
 	{
-		//ƒ{ƒbƒNƒX‚Æ‚Ô‚Â‚©‚Á‚½‚ç
+		//ãƒœãƒƒã‚¯ã‚¹ã¨ã¶ã¤ã‹ã£ãŸã‚‰
 		if (convexResult.m_hitCollisionObject->getUserIndex() != enCollisionAttr_Box)
 		{
 			return 0.0f;
 		}
 
-		//ƒ{ƒbƒNƒX‚Æ‚Ô‚Â‚©‚Á‚½‚çB
-		//ƒtƒ‰ƒO‚ğtrue‚ÉB
+		//ãƒœãƒƒã‚¯ã‚¹ã¨ã¶ã¤ã‹ã£ãŸã‚‰ã€‚
+		//ãƒ•ãƒ©ã‚°ã‚’trueã«ã€‚
 		isHit = true;
 		return 0.0f;
 	}
 };
 
-//ƒvƒŒƒCƒ„[‚ğŒ©‚Â‚¯‚é‚©‚Ç‚¤‚©‚ÌŠÖ”B
+//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’è¦‹ã¤ã‘ã‚‹ã‹ã©ã†ã‹ã®é–¢æ•°ã€‚
 const bool Enemy::IsFoundPlayer()
 {
-	/** TODO::C³‚·‚é‚Æ‚±‚ë */
+	/** TODO::ä¿®æ­£ã™ã‚‹ã¨ã“ã‚ */
 	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");
@@ -661,12 +661,12 @@ const bool Enemy::IsFoundPlayer()
 	Vector3 playerPos = m_player->GetPosition();
 	Vector3 diff = playerPos - m_enemyPos;
 
-	//ƒxƒNƒgƒ‹‚ğ³‹K‰»‚·‚éB
+	//ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ­£è¦åŒ–ã™ã‚‹ã€‚
 	diff.Normalize();
-	//ƒxƒNƒgƒ‹‚Ì“àÏ‚ÌŒvZB
+	//ãƒ™ã‚¯ãƒˆãƒ«ã®å†…ç©ã®è¨ˆç®—ã€‚
 	float angle = acosf(diff.Dot(FORWARD));
 
-	/** todo::ƒvƒŒƒCƒ„[‚ª‹ŠEˆÈŠO‚É‚¢‚é‚È‚çfalse */
+	/** todo::ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒè¦–ç•Œä»¥å¤–ã«ã„ã‚‹ãªã‚‰false */
 	if (fabsf(angle) > Math::PI * 0.35f)
 	{
 		m_isSearchPlayer = false;
@@ -676,18 +676,18 @@ const bool Enemy::IsFoundPlayer()
 	btTransform start, end;
 	start.setIdentity();
 	end.setIdentity();
-	//n“_‚ÍƒGƒlƒ~[‚ÌÀ•WB
-	//ƒGƒlƒ~[‚ÌYÀ•W‚ğã‚°‚é‚Ì‚ÍƒvƒŒƒCƒ„[‚Ì‘«Œ³‚ğŒ©‚È‚¢‚½‚ßB
+	//å§‹ç‚¹ã¯ã‚¨ãƒãƒŸãƒ¼ã®åº§æ¨™ã€‚
+	//ã‚¨ãƒãƒŸãƒ¼ã®Yåº§æ¨™ã‚’ä¸Šã’ã‚‹ã®ã¯ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¶³å…ƒã‚’è¦‹ãªã„ãŸã‚ã€‚
 	start.setOrigin(btVector3(m_enemyPos.x, m_enemyPos.y + 70.0f, m_enemyPos.z));
-	//I“_‚ÍƒvƒŒƒCƒ„[‚ÌÀ•WB
+	//çµ‚ç‚¹ã¯ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åº§æ¨™ã€‚
 	end.setOrigin(btVector3(playerPos.x, playerPos.y + 70.0f, playerPos.z));
 
-	//TODO:‚±‚ê‚æ‚è‰º‚ÌEnemy‚Ì‹–ìŠpYÀ•W‚¾‚¯‚ğã‚°‚éˆ—‚Í•Ê‚ÌboolŒ^‚ÌŠÖ”‚ÉˆÚ“®B
+	//TODO:ã“ã‚Œã‚ˆã‚Šä¸‹ã®Enemyã®è¦–é‡è§’Yåº§æ¨™ã ã‘ã‚’ä¸Šã’ã‚‹å‡¦ç†ã¯åˆ¥ã®boolå‹ã®é–¢æ•°ã«ç§»å‹•ã€‚
 	SweepResultWall callBack;
-	//ƒRƒ‰ƒCƒ_[‚ªn“_‚©‚çI“_‚Ü‚Å“®‚©‚µ‚Ä
-	//Õ“Ë‚·‚é‚©‚Ç‚¤‚©‚ğ’²‚×‚éB
+	//ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ãŒå§‹ç‚¹ã‹ã‚‰çµ‚ç‚¹ã¾ã§å‹•ã‹ã—ã¦
+	//è¡çªã™ã‚‹ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹ã€‚
 	PhysicsWorld::GetInstance()->ConvexSweepTest((const btConvexShape*)m_sphereCollider.GetBody(), start, end, callBack);
-	//•Ç‚ÆÕ“Ë‚µ‚Ä‚È‚¢B
+	//å£ã¨è¡çªã—ã¦ãªã„ã€‚
 	if (callBack.isHit == true)
 	{
 		m_isSearchPlayer = false;
@@ -712,32 +712,32 @@ void Enemy::UpdateEnemyInfo() {
 	m_enemyRender.Update();
 }
 
-//s“®‚ÌŠÖ”B
+//è¡Œå‹•ã®é–¢æ•°ã€‚
 void Enemy::EnemyBehavior()
 {
 	m_player = FindGO<Player>("player");
-	/** nullƒ`ƒFƒbƒN */
+	/** nullãƒã‚§ãƒƒã‚¯ */
 	if (!m_player)
 	{
 		return;
 	}
 	
-	//ƒvƒŒƒCƒ„[‚Æ‚Ì‹——£‚ğ‘ª‚éB
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã®è·é›¢ã‚’æ¸¬ã‚‹ã€‚
 	Vector3 diff = m_player->GetPosition() - m_enemyPos;
 	float distance = diff.Length();
 
 
 	/**
-	 * UŒ‚ˆ— 
+	 * æ”»æ’ƒå‡¦ç† 
 	 */
 	if (distance <= ENEMY_ATTACK_RANGE)
 	{
-		/** UŒ‚ƒXƒe[ƒg */
+		/** æ”»æ’ƒã‚¹ãƒ†ãƒ¼ãƒˆ */
 		m_enemyActionState = enEnemyActionState_Attack;
-		/** UŒ‚’†‚ÍˆÚ“®‚ğ’â~ */
+		/** æ”»æ’ƒä¸­ã¯ç§»å‹•ã‚’åœæ­¢ */
 		m_moveSpeed = Vector3::Zero;
 
-		/** “G‚ÌŒü‚«‚ğƒvƒŒƒCƒ„[•ûŒü‚ÉŒü‚¯‚é */
+		/** æ•µã®å‘ãã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ–¹å‘ã«å‘ã‘ã‚‹ */
 		Vector3 direction = diff;
 		direction.y = 0.0f;
 		m_enemyRotation.SetRotationYFromDirectionXZ(direction);
@@ -745,37 +745,37 @@ void Enemy::EnemyBehavior()
 
 
 	/**
-	 * ’ÇÕˆ— 
+	 * è¿½è·¡å‡¦ç† 
 	 */
-	//ˆê’è‹——£“à‚É“ü‚é‚Æ’ÇÕƒ‚[ƒh‚ÉØ‚è‘Ö‚í‚éB
+	//ä¸€å®šè·é›¢å†…ã«å…¥ã‚‹ã¨è¿½è·¡ãƒ¢ãƒ¼ãƒ‰ã«åˆ‡ã‚Šæ›¿ã‚ã‚‹ã€‚
 	else if (distance <= ENEMY_RANGE || m_isSearchPlayer)
 	{
 		m_enemyActionState = enEnemyActionState_Chase;
 		if (m_isSearchPlayer)
 		{
-			/** TODO::C³ */
-			/** ƒvƒŒƒCƒ„[‚ÌÀ•W‚ğƒ[ƒJƒ‹•Ï”‚É“n‚· */
+			/** TODO::ä¿®æ­£ */
+			/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åº§æ¨™ã‚’ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°ã«æ¸¡ã™ */
 			Vector3 playerPos = m_player->GetPosition();
-			/** ƒvƒŒƒCƒ„[‚©‚çƒGƒlƒ~[‚Ö‚ÌƒxƒNƒgƒ‹‚ğ‘ª‚é */
+			/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰ã‚¨ãƒãƒŸãƒ¼ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ¸¬ã‚‹ */
 			Vector3 diff_to_player = playerPos - m_enemyPos;
-			/** ƒGƒlƒ~[‚ÌYÀ•W‚Í0‚É‡‚í‚¹‚é */
+			/** ã‚¨ãƒãƒŸãƒ¼ã®Yåº§æ¨™ã¯0ã«åˆã‚ã›ã‚‹ */
 			diff_to_player.y = 0.0f;
 			diff_to_player.Normalize();
 
-			/** ’ÇÕ‚µ‚½‚Ì‘¬“x */
+			/** è¿½è·¡ã—ãŸæ™‚ã®é€Ÿåº¦ */
 			float targetSpeed = 200.0f;
-			/** ’ÇÕ‘¬“x‚Ìİ’è */
+			/** è¿½è·¡é€Ÿåº¦ã®è¨­å®š */
 			m_moveSpeed = diff_to_player * targetSpeed;
 
-			/** ƒGƒlƒ~[‚Ì‰ñ“]‚ğİ’è */
+			/** ã‚¨ãƒãƒŸãƒ¼ã®å›è»¢ã‚’è¨­å®š */
 			m_enemyRotation.SetRotationYFromDirectionXZ(m_moveSpeed);
 		}
 		else {
-			/** Œ©¸‚Á‚½ê‡‚Í’â~(‘¬“x‚ğ0) */
+			/** è¦‹å¤±ã£ãŸå ´åˆã¯åœæ­¢(é€Ÿåº¦ã‚’0) */
 			m_moveSpeed = Vector3::Zero;
 		}
 	}
-	//ˆê’è‹——£ŠO‚È‚çœpœjƒ‚[ƒh‚ÉØ‚è‘Ö‚í‚éB
+	//ä¸€å®šè·é›¢å¤–ãªã‚‰å¾˜å¾Šãƒ¢ãƒ¼ãƒ‰ã«åˆ‡ã‚Šæ›¿ã‚ã‚‹ã€‚
 	else {
 		m_enemyActionState = enEnemyActionState_Wandering;
 		RandomWalk();
@@ -784,7 +784,7 @@ void Enemy::EnemyBehavior()
 	
 }
 
-//Enemy‚ªPlayer‚ÉÕ“Ë‚µ‚½‚çƒ_ƒ[ƒW‚ğ—^‚¦‚éˆ—B
+//EnemyãŒPlayerã«è¡çªã—ãŸã‚‰ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹å‡¦ç†ã€‚
 void Enemy::EnemyHit()
 {
 	if (!m_isAttack) {
@@ -798,7 +798,7 @@ void Enemy::EnemyHit()
 		return;
 	}
 
-	//ƒvƒŒƒCƒ„[‚Ì‘Ì‚É‚Â‚¢‚Ä‚éƒRƒŠƒWƒ‡ƒ“‚É“–‚½‚Á‚½‚ç
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½“ã«ã¤ã„ã¦ã‚‹ã‚³ãƒªã‚¸ãƒ§ãƒ³ã«å½“ãŸã£ãŸã‚‰
 	if (m_collisionObj->IsHit(m_player->GetCharacterController() ))
 	{
 		m_player->ReceiveDamage(1,m_enemyPos);
@@ -806,7 +806,7 @@ void Enemy::EnemyHit()
 }
 
 
-/** Enemy2‚ªPlayer‚ÉÕ“Ë‚µ‚½‚çƒ_ƒ[ƒW‚ğ—^‚¦‚é */
+/** Enemy2ãŒPlayerã«è¡çªã—ãŸã‚‰ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹ */
 void Enemy2::EnemyHit()
 {
 	if (!m_isAttack)
@@ -843,7 +843,7 @@ void Boss::EnemyHit()
 	if (m_bossAtCollisionObject->IsHit(m_player->GetCharacterController() ))
 	{
 		SoundManager* sound = FindGO<SoundManager>("soundManager");
-		m_e_DamageSe = sound->PlayingSound(Sound::enSound_EnemyAttackSe, false, 1.9f);
+		m_e_DamageSe = sound->PlayingSound(Sound::enSound_EnemyAttackSe, false, 2.0f);
 		m_player->ReceiveDamage(1, m_enemyPos);
 	}
 }
@@ -851,7 +851,7 @@ void Boss::EnemyHit()
 
 void Enemy::CanHit()
 {
-	/** ƒvƒŒƒCƒ„[‚ÆƒRƒŠƒWƒ‡ƒ“‚Ìnullƒ`ƒFƒbƒN */
+	/** ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚³ãƒªã‚¸ãƒ§ãƒ³ã®nullãƒã‚§ãƒƒã‚¯ */
 	if (!m_player)
 	{
 		m_player = FindGO<Player>("player");
@@ -875,10 +875,10 @@ void Enemy::CanHit()
 	m_gekihaSe = sound->PlayingSound(Sound::enSound_GekihaSe, false, 1.8f);
 	m_player->force.y = 190.0f;
 
-	/** TODO:C³ */
+	/** TODO:ä¿®æ­£ */
 	if (m_gekihaHp < 0)
 	{
-		/** €–Sˆ— */
+		/** æ­»äº¡å‡¦ç† */
 		Death();
 		DeleteGO(m_gekihaSe);
 		return;
@@ -888,7 +888,7 @@ void Enemy::CanHit()
 }
 
 
-/** TODO:€–SƒAƒjƒ[ƒVƒ‡ƒ“’Ç‰Á */
+/** TODO:æ­»äº¡ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³è¿½åŠ  */
 void Enemy2::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
@@ -898,16 +898,19 @@ void Enemy2::Death()
 }
 
 
-/** TODO:€–SƒAƒjƒ[ƒVƒ‡ƒ“’Ç‰Á */
+/** TODO:æ­»äº¡ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³è¿½åŠ  */
 void Boss::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
 	m_enemyRender.SetAnimationSpeed(0.6f);
+	if (Game::GetIsBossKill) {
+		Game::SetIsBossKill(true);
+	}
 	DeleteGO(this);
 }
 
 
-/** €–Sˆ— */
+/** æ­»äº¡å‡¦ç† */
 void Enemy::Death()
 {
 	m_enemyRender.PlayAnimation(enEnemyActionState_Deth);
@@ -916,7 +919,7 @@ void Enemy::Death()
 }
 
 
-/** Enemy2‚ÌUŒ‚‚Ì‚¾‚¯ƒRƒŠƒWƒ‡ƒ“‚ğo‚· */
+/** Enemy2ã®æ”»æ’ƒã®æ™‚ã ã‘ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚’å‡ºã™ */
 bool Enemy2::AttackCollision()
 {
 	if (!m_enemy2AtCollisionObject)
@@ -937,7 +940,7 @@ bool Enemy2::AttackCollision()
 }
 
 
-/** ƒ{ƒX‚ÌUŒ‚‚·‚é‚¾‚¯ƒRƒŠƒWƒ‡ƒ“‚ğo‚· */
+/** ãƒœã‚¹ã®æ”»æ’ƒã™ã‚‹æ™‚ã ã‘ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚’å‡ºã™ */
 bool Boss::AttackCollision()
 {
 	if (!m_bossAtCollisionObject)
@@ -965,6 +968,6 @@ void Enemy::Attack()
 
 void Enemy::Render(RenderContext& rc)
 {
-	//“G‚Ì•`‰æB
+	//æ•µã®æç”»ã€‚
 	m_enemyRender.Draw(rc);
 }

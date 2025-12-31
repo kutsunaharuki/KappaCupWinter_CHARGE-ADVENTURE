@@ -1,16 +1,16 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "WarpBox.h"
 #include "Player.h"
 #include "Game.h"
 
 namespace {
 	const char* WARP_BOX_MODEL_FILE_PATH = "Assets/modelData/WarpBox.tkm";
-	const Vector3 COLLISION_SIZE = Vector3::One * 10.0f;
+	const Vector3 COLLISION_SIZE = Vector3::One * 100.0f;
 }
 
 WarpBox::~WarpBox()
 {
-	if (!m_warpCollisionObj) {
+	if (m_warpCollisionObj) {
 		delete m_warpCollisionObj;
 		m_warpCollisionObj = nullptr;
 	}
@@ -23,7 +23,10 @@ bool WarpBox::Start()
 	m_warpBoxModelRender.SetRotation(m_warpBoxRot);
 	m_warpBoxModelRender.SetScale(m_warpBoxScale);
 	m_warpBoxModelRender.Update();
+	
 	SetCollisionObj();
+	
+	m_player = FindGO<Player>("player");
 	return true;
 }
 
@@ -34,11 +37,15 @@ void WarpBox::Update()
 		return;
 	}
 
+
+	/** ワープ */
+	Warp();
+
 	if (m_warpCollisionObj) {
 		m_warpCollisionObj->SetPosition(m_warpBoxPos);
-		m_warpCollisionObj->SetRotation(m_warpBoxRot);
 		m_warpCollisionObj->Update();
 	}
+	
 	m_warpBoxModelRender.Update();
 }
 
@@ -53,23 +60,15 @@ void WarpBox::SetCollisionObj()
 	);
 	m_warpCollisionObj->SetPosition(m_warpBoxPos);
 	m_warpCollisionObj->SetRotation(m_warpBoxRot);
+	m_warpCollisionObj->Update();
 }
 
 
 void WarpBox::Warp()
 {
-	if (!m_player) {
-		return;
-	}
 	if (m_warpCollisionObj->IsHit(m_player->GetCharacterController())) {
-		
+		Game::SetIsWarp(true);
 	}
-}
-
-
-void WarpBox::WarpDestination()
-{
-
 }
 
 

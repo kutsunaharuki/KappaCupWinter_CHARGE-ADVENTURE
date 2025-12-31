@@ -1,7 +1,9 @@
-#pragma once
+ï»¿#pragma once
 class Player;
 class BossStage;
 class Enemy;
+class Game;
+
 class Poal : public IGameObject
 {
 public:
@@ -13,7 +15,7 @@ public:
 
 	//void SpawnPoal();
 
-	/** “’B‚µ‚½‚ç‚ÌŠÖ” */
+	/** åˆ°é”ã—ãŸã‚‰ã®é–¢æ•° */
 	void ReachedPoal();
 
 	CollisionObject* GetCollision() {
@@ -22,14 +24,14 @@ public:
 
 	//const bool SetLevelModel();
 	void Render(RenderContext& rc);
-	ModelRender m_poalRender;//ƒ‚ƒfƒ‹B
+	ModelRender m_poalRender;//ãƒ¢ãƒ‡ãƒ«ã€‚
 	PhysicsStaticObject m_physicsObj;
-	CollisionObject* m_collisionObj = nullptr;//ƒRƒŠƒWƒ‡ƒ“B
-	Quaternion m_rot = Quaternion::Identity;//‰ñ“]B
-	Vector3 m_pos = Vector3::Zero;//À•WB
-	Vector3 m_scale = { 1.5f,3.0f,1.5f };//ƒXƒP[ƒ‹B
+	CollisionObject* m_collisionObj = nullptr;//ã‚³ãƒªã‚¸ãƒ§ãƒ³ã€‚
+	Quaternion m_rot = Quaternion::Identity;//å›è»¢ã€‚
+	Vector3 m_pos = Vector3::Zero;//åº§æ¨™ã€‚
+	Vector3 m_scale = { 1.5f,3.0f,1.5f };//ã‚¹ã‚±ãƒ¼ãƒ«ã€‚
 	Vector3 m_colPos = { 0.0f,100.0f,0.0f };
-	//bool isHit = false;//ƒS[ƒ‹ƒ|[ƒ‹‚É“–‚½‚Á‚½‚ç‚Ìƒtƒ‰ƒOB
+	//bool isHit = false;//ã‚´ãƒ¼ãƒ«ãƒãƒ¼ãƒ«ã«å½“ãŸã£ãŸã‚‰ã®ãƒ•ãƒ©ã‚°ã€‚
 	//LevelRender m_bossLevelRender;
 	//bool isFlag = false;
 	//std::vector<Enemy*> m_enemys;
